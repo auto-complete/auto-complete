@@ -1,0 +1,37 @@
+What is this?
+=============
+
+Auto-Complete provides a way to complete any strings you expected by a graphical popup menu.
+
+It looks like a function that is provided in Visual Studio as IntelliSense, Eclipse as CodeAssist, etc.
+
+You may realize how cool this is by looking the following screenshot!
+
+Features
+========
+
+* Graphical completion user interface
+* Easy to use
+* Easy to extend
+* Lightweight
+
+TODO
+====
+
+* Support for indivisual programming languages (e.g. member completion)
+
+Sub projects
+============
+
+rsense
+------
+Ruby code completion project by type-inference (CPA).
+
+http://code.google.com/p/rsense/
+
+Related projects
+----------------
+
+Emacs Native Profiler
+---------------------
+http://code.google.com/p/emacs-native-profiler/
