@@ -1047,10 +1047,10 @@ use SOURCES as `ac-sources'.")
                    (setq ac-word-index (ac-candidate-words-in-buffer t)))))))))
     (candidates
      . (lambda ()
-         (loop with candidates = (ac-candidate-words-in-buffer t)
-               for buffer in (buffer-list)
+         (loop for buffer in (buffer-list)
                while (< (length candidates) ac-limit)
                append (all-completions ac-prefix (buffer-local-value 'ac-word-index buffer)) into candidates
+               with candidates = (ac-candidate-words-in-buffer t)
                finally return (delete-dups candidates)))))
   "Source for completing words in all buffer.")
 
