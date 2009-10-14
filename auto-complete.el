@@ -935,7 +935,7 @@ use SOURCES as `ac-sources'.")
   (setq ac-sources-omni-completion nil))
 
 (defun ac-sources-prefix ()
-  "Implemention for `ac-prefix-function' by sources."
+  "Implementation for `ac-prefix-function' by sources."
   (let (point)
     (dolist (pair ac-omni-completion-sources)
       (when (looking-back (car pair) nil t)
@@ -996,33 +996,32 @@ use SOURCES as `ac-sources'.")
 ;;;; Standard sources
 
 (defun ac-candidate-words-in-buffer (&optional limit)
-  "Default implemention for `ac-candidate-function'."
+  "Default implementation for `ac-candidate-function'."
   (or limit (setq limit ac-limit))
-  (if (> (length ac-prefix) 0)
-      (let ((i 0)
-            candidate
-            candidates
-            (regexp (concat "\\b" (regexp-quote ac-prefix) "\\(\\s_\\|\\sw\\)*\\b")))
-        (save-excursion
-          ;; Search backward
-          (goto-char ac-point)
-          (while (and (or (eq limit t)
-                          (< i limit))
-                      (re-search-backward regexp nil t))
-            (setq candidate (match-string-no-properties 0))
-            (unless (member candidate candidates)
-              (push candidate candidates)
-              (setq i (1+ i))))
-          ;; Search backward
-          (goto-char (+ ac-point (length ac-prefix)))
-          (while (and (or (eq limit t)
-                          (< i limit))
-                      (re-search-forward regexp nil t))
-            (setq candidate (match-string-no-properties 0))
-            (unless (member candidate candidates)
-              (push candidate candidates)
-              (setq i (1+ i))))
-          (nreverse candidates)))))
+  (let ((i 0)
+        candidate
+        candidates
+        (regexp (concat "\\_<" (regexp-quote ac-prefix) "\\([^ \t\r\n]+\\)\\_>")))
+    (save-excursion
+      ;; Search backward
+      (goto-char ac-point)
+      (while (and (or (eq limit t)
+                      (< i limit))
+                  (re-search-backward regexp nil t))
+        (setq candidate (match-string-no-properties 0))
+        (unless (member candidate candidates)
+          (push candidate candidates)
+          (incf i)))
+      ;; Search backward
+      (goto-char (+ ac-point (length ac-prefix)))
+      (while (and (or (eq limit t)
+                      (< i limit))
+                  (re-search-forward regexp nil t))
+        (setq candidate (match-string-no-properties 0))
+        (unless (member candidate candidates)
+          (push candidate candidates)
+          (incf i)))
+      (nreverse candidates))))
 
 (defvar ac-source-words-in-buffer
   '((candidates . ac-candidate-words-in-buffer))
@@ -1037,29 +1036,22 @@ use SOURCES as `ac-sources'.")
   '((init
      . (lambda ()
          (dolist (buffer (buffer-list))
-           (with-current-buffer buffer
-             (if (not (local-variable-p 'ac-word-index))
+           (unless (eq buffer ac-buffer)
+             (with-current-buffer buffer
+               (unless (local-variable-p 'ac-word-index)
                  (make-local-variable 'ac-word-index))
-             (if (eq buffer ac-buffer)
-                 (setq ac-word-index (ac-candidate-words-in-buffer t))
-               (if (and (null ac-word-index)
-                        (< (buffer-size) 102400))
-                   (save-excursion
-                     (goto-char (point-min))
-                     (while (re-search-forward "\\b\\(\\s_\\|\\sw\\)+\\b" nil t)
-                       (let ((candidate (match-string-no-properties 0)))
-                         (if (not (member candidate ac-word-index))
-                             (push candidate ac-word-index))))
-                     (setq ac-word-index (nreverse ac-word-index)))))))))
+               (when (and (null ac-word-index)
+                          (< (buffer-size) 102400))
+                 (let ((ac-prefix "")
+                       (ac-point (point-min)))
+                   (setq ac-word-index (ac-candidate-words-in-buffer t)))))))))
     (candidates
      . (lambda ()
-         (let ((candidates)
-               (buffers (buffer-list)))
-           (while (and (< (length candidates) ac-limit)
-                       buffers)
-             (setq candidates (append candidates (all-completions ac-prefix (buffer-local-value 'ac-word-index (car buffers)))))
-             (setq buffers (cdr buffers)))
-           candidates))))
+         (loop with candidates = (ac-candidate-words-in-buffer t)
+               for buffer in (buffer-list)
+               while (< (length candidates) ac-limit)
+               append (all-completions ac-prefix (buffer-local-value 'ac-word-index buffer)) into candidates
+               finally return (delete-dups candidates)))))
   "Source for completing words in all buffer.")
 
 (defvar ac-source-symbols
