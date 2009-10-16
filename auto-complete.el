@@ -1001,7 +1001,7 @@ use SOURCES as `ac-sources'.")
   (let ((i 0)
         candidate
         candidates
-        (regexp (concat "\\_<" (regexp-quote ac-prefix) "\\([^ \t\r\n]+\\)\\_>")))
+        (regexp (concat "\\_<" (regexp-quote ac-prefix) "\\(\\sw\\|\\s_\\)+\\_>")))
     (save-excursion
       ;; Search backward
       (goto-char ac-point)
