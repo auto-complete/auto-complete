@@ -295,7 +295,8 @@
   :group 'auto-complete)
 
 (defcustom ac-trigger-commands
-  '(self-insert-command)
+  '(self-insert-command
+    c-electric-slash)
   "Trigger commands that specify whether `auto-complete' should start or not."
   :type '(list symbol)
   :group 'auto-complete)
@@ -627,9 +628,9 @@ that have been made before in this function."
   (let* ((candidate (ac-get-selected-candidate))
          (action (ac-get-candidate-action candidate)))
     (ac-expand-string candidate)
+    (ac-abort)
     (if action
-        (funcall action))
-    (ac-abort)))
+        (funcall action))))
 
 (defun ac-abort ()
   "Abort completion."
@@ -1077,17 +1078,20 @@ use SOURCES as `ac-sources'.")
   "Source for listing files in current directory.")
 
 (defun ac-filename-candidate ()
-  (let ((dir (file-name-directory ac-prefix)))
-    (ignore-errors
-      (delq nil
-            (mapcar (lambda (file)
-                      (if (not (member file '("./" "../")))
-                          (concat dir file)))
-                    (file-name-all-completions
-                     (file-name-nondirectory ac-prefix) dir))))))
+  (let ((prefix (format "%s" (or (symbol-at-point)
+                                 (thing-at-point 'filename)))))
+    (let ((dir (file-name-directory prefix)))
+      (ignore-errors
+        (delq nil
+              (mapcar (lambda (file)
+                        (if (not (member file '("./" "../")))
+                            file))
+                      (file-name-all-completions
+                       (file-name-nondirectory prefix) dir)))))))
 
 (defvar ac-source-filename
-  '((candidates . ac-filename-candidate))
+  '((candidates . ac-filename-candidate)
+    (action . ac-start))
   "Source for completing file name.")
 
 (defvar ac-imenu-index nil
