@@ -1,8 +1,8 @@
 ;;; expander.el --- Text expander interface
 
-;; Copyright (C) 2009  MATSUYAMA Tomohiro
+;; Copyright (C) 2009  Tomohiro Matsuyama
 
-;; Author: MATSUYAMA Tomohiro <matsuyama@ariel-networks.com>
+;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: lisp
 
 ;; This program is free software; you can redistribute it and/or modify

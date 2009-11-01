@@ -1,0 +1,22 @@
+* auto-complete
+- complete ignore list
+- etags, ctags
+- emacswiki
+- test facility
+- support composed chars
+- fuzzy match
+- minibuffer completion (50%)
+- dictionary
+- documentation
+- performance issue (cache issue)
+- scroll bar (visual)
+- show description
+- semantic
+- use cl
+- icon
+- refactoring (especially menu)
+- linum.el bug (reported by Andy Stewart)
+- flymake bug (reported by TiagoCamargo)
+- asynchronous processing
+- sub pattern match
+- kanji henkan support
