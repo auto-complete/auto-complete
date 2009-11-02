@@ -579,7 +579,6 @@ that have been made before in this function."
             ac-completing t)
       (when (or init (null ac-menu))
         (ac-init))
-      (message "prefix %s" ac-prefix)
       (setq ac-candidates (all-completions ac-prefix (ac-candidates)))
       (unless nomessage (message "Completion started"))
       (let ((preferred-width (pulldown-preferred-width ac-candidates)))
