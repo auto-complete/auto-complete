@@ -249,7 +249,8 @@ If you specify `nil', never be started automatically."
 (defvaralias 'ac-complete-mode-map 'ac-completing-map)
 
 (defvar ac-prefix-definitions
-  '((symbol . ac-prefix-symbol))
+  '((symbol . ac-prefix-symbol)
+    (file . ac-prefix-file))
   "Prefix definitions for common use.")
 
 (defvar ac-sources '(ac-source-words-in-buffer)
@@ -302,6 +303,12 @@ requires REQUIRES-NUM
   "Default prefix definition function."
   (require 'thingatpt)
   (car-safe (bounds-of-thing-at-point 'symbol)))
+
+(defun ac-prefix-file ()
+  "File prefix."
+  ;; TODO performance
+  (let ((point (re-search-backward "[\"' \t\r\n]" nil t)))
+    (if point (1+ point))))
 
 (defun ac-define-prefix (name prefix)
   "Define new prefix definition.
@@ -421,12 +428,13 @@ You can not use it in source definition like (prefix . `NAME')."
                                             'action (assoc-default 'action source)
                                             'face (or (assoc-default 'face source) (assoc-default 'candidate-face source))
                                             'selection-face (assoc-default 'selection-face source)))
-                (let ((candidates (save-excursion
-                                    (cond
-                                     ((functionp function)
-                                      (funcall function))
-                                     (t
-                                      (eval function))))))
+                (let ((candidates (all-completions ac-prefix
+                                                   (save-excursion
+                                                     (cond
+                                                      ((functionp function)
+                                                       (funcall function))
+                                                      (t
+                                                       (eval function)))))))
                   ;; Remove extra items
                   (when (and (> ac-limit 1) (> (length candidates) ac-limit))
                     (setq candidates (copy-sequence candidates))
@@ -580,7 +588,7 @@ that have been made before in this function."
             ac-completing t)
       (when (or init (null ac-menu))
         (ac-init))
-      (setq ac-candidates (all-completions ac-prefix (ac-candidates)))
+      (setq ac-candidates (ac-candidates))
       (unless nomessage (message "Completion started"))
       (let ((preferred-width (pulldown-preferred-width ac-candidates)))
         (when (or init
@@ -750,19 +758,17 @@ that have been made before in this function."
   "Source for listing files in current directory.")
 
 (defun ac-filename-candidate ()
-  (let ((prefix (format "%s" (or (symbol-at-point)
-                                 (thing-at-point 'filename)))))
-    (let ((dir (file-name-directory prefix)))
-      (ignore-errors
-        (delq nil
-              (mapcar (lambda (file)
-                        (if (not (member file '("./" "../")))
-                            file))
-                      (file-name-all-completions
-                       (file-name-nondirectory prefix) dir)))))))
+  (ignore-errors
+    (loop with dir = (file-name-directory ac-prefix)
+          for file in (directory-files dir nil "^[^.]")
+          for path = (concat dir file)
+          collect (if (file-directory-p path)
+                      (concat path "/")
+                    path))))
 
 (defvar ac-source-filename
   '((candidates . ac-filename-candidate)
+    (prefix . file)
     (action . ac-start))
   "Source for completing file name.")
 
