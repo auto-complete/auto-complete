@@ -71,6 +71,12 @@
   "Return non-nil if at last line of buffer."
   (save-excursion (/= (forward-line) 0)))
 
+(defun pulldown-item-propertize (item &rest properties)
+  (apply 'propertize item properties))
+
+(defun pulldown-item-property (item property)
+  (get-text-property 0 property item))
+
 (defun pulldown-set-list (menu list)
   "Set menu list."
   (setf (pulldown-list menu) list
@@ -140,8 +146,11 @@
         ;; Show line and set item to the line
         (pulldown-show-line menu o)
         (pulldown-set-line-item
-         menu o item (if (= i cursor) (pulldown-selection-face menu) (pulldown-face menu)))
-
+         menu o item
+         (if (= i cursor)
+             (or (pulldown-item-property item 'selection-face) (pulldown-selection-face menu))
+           (or (pulldown-item-property item 'face) (pulldown-face menu))))
+        
         finally
         ;; Hide remaining lines
         (if (> (pulldown-direction menu) 0)
@@ -230,10 +239,10 @@
             (backward-char)
             (setq current-column (pulldown-current-physical-column))
             (if (< current-column column)
-                (setq prefix (make-string (- column current-column) ? ))))
+                (setq prefix (make-string (+ window-hscroll (- column current-column) ? )))))
 	   ;; Extend short buffer lines by menu prefix (line of spaces)
            ((< current-column column)
-            (setq prefix (make-string (- column current-column) ? ))))
+            (setq prefix (make-string (+ window-hscroll (- column current-column)) ? ))))
 
           (setq begin (point))
           (setq w (+ width (length prefix)))
@@ -280,13 +289,21 @@
             (delete-char -1)))))
 
 (defun pulldown-live-p (menu)
-  (and (pulldown-overlays menu) t))
+  (and menu (pulldown-overlays menu) t))
 
 (defun pulldown-preferred-width (list)
   "Return preferred width of pulldown menu to show `LIST' beautifully."
   (loop for item in list
         maximize (string-width (pulldown-x-to-string item)) into width
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
+
+(defun pulldown-lookup-key-by-event (function event)
+  (or (funcall function (vector event))
+      (if (symbolp event)
+          (let ((mask (get event 'event-symbol-element-mask)))
+            (if mask
+                (funcall function (vector (logior (or (get (car mask) 'ascii-character) 0)
+                                                  (cadr mask)))))))))
 
 (defun* pulldown-event-loop (menu keymap fallback &optional message &aux event binding)
   (unwind-protect
@@ -295,13 +312,7 @@
                     (setq event (progn (clear-this-command-keys) (read-event message))))
           (if (eq event 'Quit)
               (return nil))
-          (setq binding
-                (or (lookup-key keymap (vector event))
-                    (if (symbolp event)
-                        (let ((mask (get event 'event-symbol-element-mask)))
-                          (if mask
-                              (lookup-key keymap (vector (logior (or (get (car mask) 'ascii-character) 0)
-                                                                 (cadr mask)))))))))
+          (setq binding (pulldown-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
           (cond
            ((eq binding 'pulldown-select)
             (return (nth (pulldown-cursor menu) (pulldown-list menu))))
@@ -312,15 +323,17 @@
            (binding
             (call-interactively binding))
            (t
-            (funcall fallback event)))))
+            (funcall fallback event (pulldown-lookup-key-by-event (lambda (key) (key-binding key))))))))
     (pulldown-delete menu)))
 
+(defun pulldown-default-fallback (event default))
+  
 (defun* pulldown-menu (list
                        &key
                        (width (pulldown-preferred-width list))
                        (height 10)
                        (keymap pulldown-keymap)
-                       (fallback 'identity)
+                       (fallback 'pulldown-default-fallback)
                        message
                        &aux menu event)
   (setq menu (pulldown-create (point) width height))

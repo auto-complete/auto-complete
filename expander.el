@@ -45,7 +45,7 @@
     (setf (expander-overlay expander))))
 
 (defun expander-live-p (expander)
-  (and (expander-overlay expander) t))
+  (and expander (expander-overlay expander) t))
 
 (defun expander-show (expander point string)
   (save-excursion
@@ -101,6 +101,9 @@
       (overlay-put overlay 'invisible t)
       (overlay-put overlay 'display nil)
       (overlay-put overlay 'after-string nil))))
+
+(defun expander-string (expander)
+  (overlay-get (expander-overlay expander) 'string))
       
 (provide 'expander)
 ;;; expander.el ends here
