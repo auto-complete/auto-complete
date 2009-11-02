@@ -611,6 +611,8 @@ that have been made before in this function."
 (defun ac-trigger-command-p (command)
   "Return non-nil if `COMMAND' is a trigger command."
   (or (memq command ac-trigger-commands)
+      (string-match "self-insert-command" (symbol-name command))
+      (string-match "electric" (symbol-name command))
       (and ac-completing
            (memq command
                  '(delete-backward-char
