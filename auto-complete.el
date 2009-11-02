@@ -386,7 +386,8 @@ You can not use it in source definition like (prefix . `NAME')."
                        ((symbolp prefix)
                         (funcall prefix))
                        ((stringp prefix)
-                        (re-search-backward prefix nil t))
+                        (when (re-search-backward prefix nil t)
+                          (or (match-beginning 1) (match-beginning 0))))
                        (t
                         (eval prefix))))
           (if point
