@@ -251,6 +251,7 @@ If you specify `nil', never be started automatically."
 (defvar ac-prefix-definitions
   '((symbol . ac-prefix-symbol)
     (file . ac-prefix-file)
+    (valid-file . ac-prefix-valid-file)
     (c-dot . ac-prefix-c-dot))
   "Prefix definitions for common use.")
 
@@ -309,6 +310,16 @@ requires REQUIRES-NUM
   "File prefix."
   (let ((point (re-search-backward "[\"<>' \t\r\n]" nil t)))
     (if point (1+ point))))
+
+(defun ac-prefix-valid-file ()
+  "Existed (or to be existed) file prefix."
+  (let* ((end (point))
+         (start (re-search-backward "[\"<>' \t\r\n]" nil t))
+         (file (if start (buffer-substring (1+ start) end))))
+    (setq file (and (string-match "^[^/]+" file)
+                    (match-string 0 file)))
+    (if (and file (file-exists-p file))
+        (1+ start))))
 
 (defun ac-prefix-c-dot ()
   "C-like languages dot(.) prefix."
@@ -769,17 +780,18 @@ that have been made before in this function."
   "Source for listing files in current directory.")
 
 (defun ac-filename-candidate ()
-  (ignore-errors
-    (loop with dir = (file-name-directory ac-prefix)
-          for file in (directory-files dir nil "^[^.]")
-          for path = (concat dir file)
-          collect (if (file-directory-p path)
-                      (concat path "/")
-                    path))))
+  (unless (file-regular-p ac-prefix)
+    (ignore-errors
+      (loop with dir = (file-name-directory ac-prefix)
+            for file in (directory-files dir nil "^[^.]")
+            for path = (concat dir file)
+            collect (if (file-directory-p path)
+                        (concat path "/")
+                      path)))))
 
 (defvar ac-source-filename
   '((candidates . ac-filename-candidate)
-    (prefix . file)
+    (prefix . valid-file)
     (action . ac-start))
   "Source for completing file name.")
 
