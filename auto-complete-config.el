@@ -1,3 +1,31 @@
+;;; auto-complete-config.el --- auto-complete additional configuations
+
+;; Copyright (C) 2009  Tomohiro Matsuyama
+
+;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
+;; Keywords: convenience
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; 
+
+;;; Code:
+
+
+
 (eval-when-compile
   (require 'cl))
 
@@ -5,7 +33,7 @@
 
 
 
-;;;; Emacs Lisp sources
+;; Emacs Lisp sources
 
 (defvar ac-emacs-lisp-features nil)
 (defvar ac-source-emacs-lisp-features
@@ -37,7 +65,7 @@
 
 
 
-;;;; C++ sources
+;; C++ sources
 
 (ac-define-dictionary-source
  ac-source-c++-keywords
@@ -59,140 +87,9 @@
   (add-hook 'c++-mode-hook 'ac-c++-keywords-setup)
   t)
 
-;;;; CSS sources
+
 
-;; http://www.w3.org/TR/CSS2/css2.txt
-
-(defvar ac-css-property-table
-  '(("margin-top"             "<margin-width>" "inherit")
-    ("margin-bottom"          "<margin-width>" "inherit")
-    ("margin-left"            "<margin-width>" "inherit")
-    ("margin-right"           "<margin-width>" "inherit")
-    ("margin"                 "<margin-width>" "inherit")
-    ("padding-top"            "<padding-width>" "inherit")
-    ("padding-right"          "<padding-width>" "inherit")
-    ("padding-bottom"         "<padding-width>" "inherit")
-    ("padding-left"           "<padding-width>" "inherit")
-    ("padding"                "<padding-width>" "inherit")
-    ("border-top-width"       "<border-width>" "inherit")
-    ("border-right-width"     "<border-width>" "inherit")
-    ("border-bottom-width"    "<border-width>" "inherit")
-    ("border-left-width"      "<border-width>" "inherit")
-    ("border-width"           "<border-width>" "inherit")
-    ("border-top-color"       "<color>" "transparent" "inherit")
-    ("border-right-color"     "<color>" "transparent" "inherit")
-    ("border-bottom-color"    "<color>" "transparent" "inherit")
-    ("border-left-color"      "<color>" "transparent" "inherit")
-    ("border-color"           "<color>" "transparent" "inherit")
-    ("border-top-style"       "<border-style>" "inherit")
-    ("border-right-style"     "<border-style>" "inherit")
-    ("border-bottom-style"    "<border-style>" "inherit")
-    ("border-left-style"      "<border-style>" "inherit")
-    ("border-style"           "<border-style>" "inherit")
-    ("display"                "inline" "block" "list-item" "run-in" "inline-block" "table")
-    ("position"               "static" "relative" "absolute" "fixed" "inherit")
-    ("top"                    "<length>" "<percentage>" "auto" "inherit")
-    ("right"                  "<length>" "<percentage>" "auto" "inherit")
-    ("bottom"                 "<length>" "<percentage>" "auto" "inherit")
-    ("left"                   "<length>" "<percentage>" "auto" "inherit")
-    ("float"                  "left" "right" "none" "inherit")
-    ("clear"                  "none" "left" "right" "both" "inherit")
-    ("z-index"                "auto" "<integer>" "inherit")
-    ("direction"              "ltr" "rtl" "inherit")
-    ("unicode-bidi"           "normal" "embed" "bidi-override" "inherit")
-    ("width"                  "<length>" "<percentage>" "auto" "inherit")
-    ("max-width"              "<length>" "<percentage>" "inherit")
-    ("min-width"              "<length>" "<percentage>" "inherit")
-    ("max-width"              "<length>" "<percentage>" "none" "inherit")
-    ("height"                 "<length>" "<percentage>" "auto" "inherit")
-    ("min-height"             "<length>" "<percentage>" "inherit")
-    ("max-height"             "<length>" "<percentage>" "none" "inherit")
-    ("line-height"            "normal" "<number>" "<length>" "<percentage>" "inherit")
-    ("vertical-align"         "baseline" "sub" "super" "top" "text-top" "middle" "bottom")
-    ("overflow"               "visible" "hidden" "scroll" "auto" "inherit")
-    ("clip"                   "<shape>" "auto" "inherit")
-    ("visibility"             "visible" "hidden" "collapse" "inherit")
-    ("content"                "normal" "none" "<string>" "<uri>" "<counter>")
-    ("quotes"                 "<string>" "none" "inherit")
-    ("counter-reset"          "<identifier>" "<integer>" "none" "inherit")
-    ("counter-increment"      "<identifier>" "<integer>" "none" "inherit")
-    ("list-style-type"        "disc" "circle" "square" "decimal" "decimal-leading-zero")
-    ("list-style-image"       "<uri>" "none" "inherit")
-    ("list-style-position"    "inside" "outside" "inherit")
-    ("list-style"             "<list-style-type>" "<list-style-position>")
-    ("page-break-before"      "auto" "always" "avoid" "left" "right" "inherit")
-    ("page-break-after"       "auto" "always" "avoid" "left" "right" "inherit")
-    ("page-break-inside"      "auto" "always" "avoid" "left" "right" "inherit")
-    ("page-break-before"      "auto" "always" "avoid" "left" "right" "inherit")
-    ("page-break-after"       "auto" "always" "avoid" "left" "right" "inherit")
-    ("page-break-inside"      "avoid" "auto" "inherit")
-    ("orphans"                "<integer>" "inherit")
-    ("widows"                 "<integer>" "inherit")
-    ("color"                  "<color>" "inherit")
-    ("background-color"       "<color>" "transparent" "inherit")
-    ("background-image"       "<uri>" "none" "inherit")
-    ("background-repeat"      "repeat" "repeat-x" "repeat-y" "no-repeat" "inherit")
-    ("background-attachment"  "scroll" "fixed" "inherit")
-    ("background-position"    "<percentage>" "<length>" "left" "center" "right")
-    ("background"             "<background-color>" "<background-image>")
-    ("font-family"            "<family-name>" "<generic-family>")
-    ("font-style"             "normal" "italic" "oblique" "inherit")
-    ("font-variant"           "normal" "small-caps" "inherit")
-    ("font-size"              "<absolute-size>" "<relative-size>" "<length>" "<percentage>")
-    ("font"                   "<font-style>" "<font-variant>" "<font-weight>")
-    ("text-indent"            "<length>" "<percentage>" "inherit")
-    ("text-align"             "left" "right" "center" "justify" "inherit")
-    ("text-decoration"        "none" "underline" "overline" "line-through" "blink")
-    ("letter-spacing"         "normal" "<length>" "inherit")
-    ("word-spacing"           "normal" "<length>" "inherit")
-    ("text-transform"         "capitalize" "uppercase" "lowercase" "none" "inherit")
-    ("white-space"            "normal" "pre" "nowrap" "pre-wrap" "pre-line" "inherit")
-    ("caption-side"           "top" "bottom" "inherit")
-    ("table-layout"           "auto" "fixed" "inherit")
-    ("border-collapse"        "collapse" "separate" "inherit")
-    ("border-spacing"         "<length>" "inherit")
-    ("empty-cells"            "show" "hide" "inherit")
-    ("cursor"                 "<uri>" "auto" "crosshair" "default" "pointer" "move")
-    ("outline"                "<outline-color>" "<outline-style>"  "<outline-width>")
-    ("outline-width"          "<border-width>" "inherit")
-    ("outline-style"          "<border-style>" "inherit")
-    ("outline-color"          "<color>" "invert" "inherit")
-    ("volume"                 "<number>" "<percentage>" "silent" "x-soft" "soft" "medium" )
-    ("speak"                  "normal" "none" "spell-out" "inherit")
-    ("pause-before"           "<time>" "<percentage>" "inherit")
-    ("pause-after"            "<time>" "<percentage>" "inherit")
-    ("pause"                   "<time>" "<percentage>"  "inherit")
-    ("cue-before"             "<uri>" "none" "inherit")
-    ("cue-after"              "<uri>" "none" "inherit")
-    ("cue"                    "<cue-before>"  "<cue-after>"  "inherit")
-    ("play-during"            "<uri>"  "mix"  "repeat"  "auto" "none" "inherit")
-    ("azimuth"                "<angle>"  "left-side" "far-left" "left" "center-left" )
-    ("elevation"              "<angle>" "below" "level" "above" "higher" "lower" "inherit")
-    ("speech-rate"            "<number>" "x-slow" "slow" "medium" "fast" "x-fast" "faster" )
-    ("voice-family"           "<specific-voice>" "<generic-voice>" "<specific-voice>" )
-    ("pitch"                  "<frequency>" "x-low" "low" "medium" "high" "x-high" "inherit")
-    ("pitch-range"            "<number>" "inherit")
-    ("stress"                 "<number>" "inherit")
-    ("richness"               "<number>" "inherit")
-    ("speak-punctuation"      "code" "none" "inherit")
-    ("speak-numeral"          "digits" "continuous" "inherit")
-    ("speak-header"           "once" "always" "inherit")))
-
-(defun ac-css-properties-setup ()
-  (push 'ac-source-css-properties ac-sources)
-  (push '("\\([a-zA-Z0-9-_]+\\): *" ac-source-css-properties) ac-omni-completion-sources))
-
-(defun ac-css-properties-initialize ()
-  (add-hook 'css-mode-hook 'ac-css-properties-setup)
-  t)
-
-(defvar ac-source-css-properties
-  '((candidates
-     . (lambda ()
-         (when (looking-back "\\([a-zA-Z0-9-_]+\\):.*?" nil t)
-           (all-completions ac-prefix (assoc-default (match-string 1) ac-css-property-table)))))))
-
-;; ac-sources-css-keywords are based on CSS keywords from <http://kaede.blog.abk.nu/sakura-css>.
+;; CSS sources
 
 (defun ac-css-keywords-setup ()
   (push 'ac-source-css-keywords ac-sources))
@@ -340,7 +237,7 @@
 
 
 
-;;;; Gtags sources
+;; Gtags sources
 
 (defvar ac-gtags-modes
   '(c-mode cc-mode c++-mode java-mode))
@@ -377,7 +274,7 @@
 
 
 
-;;;; Python sources
+;; Python sources
 
 (defvar ac-ropemacs-loaded nil)
 (defun ac-ropemacs-require ()
@@ -418,7 +315,7 @@
 
 
 
-;;;; Ruby sources
+;; Ruby sources
 
 (defvar ac-source-rcodetools
   '((init . (lambda ()
@@ -444,7 +341,7 @@
 
 
 
-;;;; Semantic sources
+;; Semantic sources
 
 (defvar ac-semantic-modes '(c-mode c++-mode jde-mode java-mode))
 
@@ -465,7 +362,7 @@
 
 
 
-;;;; Yasnippet sources
+;; Yasnippet sources
 
 (defun ac-yasnippet-candidate-1 (table)
   (let ((hashtab (yas/snippet-table-hash table))
@@ -513,4 +410,17 @@
     (selection-face . ac-yasnippet-selection-face))
   "Source for Yasnippet.")
 
+
+
+;; Eclim sources
+
+(defun ac-eclim-candidates ()
+  (loop for c in (eclim/java-complete)
+        collect (nth 1 c)))
+
+(defvar ac-source-eclim
+  '((candidates . ac-eclim-candidates)
+    (prefix . c-dot)))
+
 (provide 'auto-complete-config)
+;;; auto-complete-config.el ends here

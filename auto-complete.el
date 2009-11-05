@@ -250,7 +250,8 @@ If you specify `nil', never be started automatically."
 
 (defvar ac-prefix-definitions
   '((symbol . ac-prefix-symbol)
-    (file . ac-prefix-file))
+    (file . ac-prefix-file)
+    (c-dot . ac-prefix-c-dot))
   "Prefix definitions for common use.")
 
 (defvar ac-sources '(ac-source-words-in-buffer)
@@ -306,8 +307,12 @@ requires REQUIRES-NUM
 
 (defun ac-prefix-file ()
   "File prefix."
-  ;; TODO performance
-  (let ((point (re-search-backward "[\"' \t\r\n]" nil t)))
+  (let ((point (re-search-backward "[\"<>' \t\r\n]" nil t)))
+    (if point (1+ point))))
+
+(defun ac-prefix-c-dot ()
+  "C-like languages dot(.) prefix."
+  (let ((point (re-search-backward "\\.\\([a-zA-Z0-9][_a-zA-Z0-9]*\\)?\\=" nil t)))
     (if point (1+ point))))
 
 (defun ac-define-prefix (name prefix)
@@ -320,10 +325,16 @@ You can not use it in source definition like (prefix . `NAME')."
   (loop for source in sources
         if (symbolp source) do (setq source (symbol-value source))
         do
-        (let* ((prefix (assoc 'prefix source))
-               (real (assoc-default (cdr prefix) ac-prefix-definitions)))
-          (if (and prefix real)
-              (setq source (append `((prefix . ,real)) source))))
+        (flet ((add-attribute (name value) (setq source (append `((,name . ,value)) source))))
+          ;; prefix
+          (let* ((prefix (assoc 'prefix source))
+                 (real (assoc-default (cdr prefix) ac-prefix-definitions)))
+            (cond
+             (real
+              (add-attribute 'prefix real))
+             ((null prefix)
+              (add-attribute 'prefix 'ac-prefix-symbol)
+              (add-attribute 'requires 1)))))
         collect source))
 
 (defun ac-menu-live-p ()
@@ -385,7 +396,7 @@ You can not use it in source definition like (prefix . `NAME')."
         with determined-prefix
         with sources
         for source in (ac-compile-sources ac-sources)
-        for prefix = (or (assoc-default 'prefix source) 'ac-prefix-symbol)
+        for prefix = (assoc-default 'prefix source)
 
         if (null determined-prefix) do
         (save-excursion
@@ -418,10 +429,12 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-candidates ()
   "Produce candidates for current sources."
-  (loop for source in ac-current-sources
+  (loop with prefix-len = (length ac-prefix)
+        for source in ac-current-sources
         for function = (assoc-default 'candidates source)
+        for requires = (or (assoc-default 'requires source) 0)
 
-        if function
+        if (and function (>= prefix-len requires))
         append
         (mapcar (lambda (candidate)
                   (pulldown-item-propertize candidate
@@ -435,10 +448,6 @@ You can not use it in source definition like (prefix . `NAME')."
                                                        (funcall function))
                                                       (t
                                                        (eval function)))))))
-                  ;; Remove extra items
-                  (when (and (> ac-limit 1) (> (length candidates) ac-limit))
-                    (setq candidates (copy-sequence candidates))
-                    (setcdr (nthcdr (1- ac-limit) candidates) nil))
                   candidates))
         into candidates
         finally return (delete-dups candidates)))
