@@ -242,7 +242,7 @@
             (backward-char)
             (setq current-column (pulldown-current-physical-column))
             (if (< current-column column)
-                (setq prefix (make-string (+ window-hscroll (- column current-column) ? )))))
+                (setq prefix (make-string (+ window-hscroll (- column current-column)) ? ))))
 	   ;; Extend short buffer lines by menu prefix (line of spaces)
            ((< current-column column)
             (setq prefix (make-string (+ window-hscroll (- column current-column)) ? ))))
