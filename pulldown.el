@@ -72,10 +72,13 @@
   (save-excursion (/= (forward-line) 0)))
 
 (defun pulldown-item-propertize (item &rest properties)
-  (apply 'propertize item properties))
+  (if (stringp item)
+      (apply 'propertize item properties)
+    item))
 
 (defun pulldown-item-property (item property)
-  (get-text-property 0 property item))
+  (if (stringp item)
+      (get-text-property 0 property item)))
 
 (defun pulldown-set-list (menu list)
   "Set menu list."
@@ -323,7 +326,7 @@
            (binding
             (call-interactively binding))
            (t
-            (funcall fallback event (pulldown-lookup-key-by-event (lambda (key) (key-binding key))))))))
+            (funcall fallback event (pulldown-lookup-key-by-event (lambda (key) (key-binding key)) event))))))
     (pulldown-delete menu)))
 
 (defun pulldown-default-fallback (event default))
@@ -345,6 +348,8 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'pulldown-select)
 
+    (define-key map "\C-n" 'pulldown-next)
+    (define-key map "\C-p" 'pulldown-previous)
     (define-key map [down] 'pulldown-next)
     (define-key map [up] 'pulldown-previous)
     map))
