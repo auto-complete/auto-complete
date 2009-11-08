@@ -51,7 +51,8 @@
   (save-excursion
     (let ((overlay (expander-overlay expander))
           (width 0)
-          (string-width (string-width string)))
+          (string-width (string-width string))
+          (original-string string))
       ;; Calculate string space to show completion
       (goto-char point)
       (while (and (not (eolp))
@@ -85,7 +86,7 @@
       (overlay-put overlay 'display (substring string 0 1))
       ;; TODO no width but char
       (overlay-put overlay 'after-string (substring string 1))
-      (overlay-put overlay 'string string))))
+      (overlay-put overlay 'string original-string))))
 
 (defun expander-hide (expander)
   (let ((overlay (expander-overlay expander))
@@ -104,6 +105,6 @@
 
 (defun expander-string (expander)
   (overlay-get (expander-overlay expander) 'string))
-      
+
 (provide 'expander)
 ;;; expander.el ends here
