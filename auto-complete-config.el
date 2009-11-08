@@ -36,27 +36,21 @@
 ;; Emacs Lisp sources
 
 (defvar ac-emacs-lisp-features nil)
+
 (defvar ac-source-emacs-lisp-features
-  '((init
-     . (lambda ()
-         (unless ac-emacs-lisp-features
-           (let ((suffix (concat (regexp-opt (find-library-suffixes) t) "\\'")))
-             (setq
-              ac-emacs-lisp-features
-              (delq nil
-                    (apply 'append
-                           (mapcar (lambda (dir)
-                                     (if (file-directory-p dir)
-                                         (mapcar (lambda (file)
-                                                   (if (string-match suffix file)
-                                                       (substring file 0 (match-beginning 0))))
-                                                 (directory-files dir))))
-                                   load-path))))))))
-    (candidates . (lambda () (all-completions ac-prefix ac-emacs-lisp-features)))))
+  '((init . (unless ac-emacs-lisp-features
+              (let ((suffix (concat (regexp-opt (find-library-suffixes) t) "\\'")))
+                (setq ac-emacs-lisp-features
+                      (loop for dir in load-path
+                            if (file-directory-p dir)
+                            append (loop for file in (directory-files dir)
+                                         if (string-match suffix file)
+                                         collect (substring file 0 (match-beginning 0))))))))
+    (candidates . ac-emacs-lisp-features)
+    (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")))
 
 (defun ac-emacs-lisp-features-setup ()
-  (push 'ac-source-emacs-lisp-features ac-sources)
-  (push '("require\s+'" ac-source-emacs-lisp-features) ac-omni-completion-sources))
+  (push 'ac-source-emacs-lisp-features ac-sources))
 
 (defun ac-emacs-lisp-features-initialize ()
   (require 'find-func)
@@ -266,7 +260,8 @@
   '((candidates . ac-gtags-candidate)
     (candidate-face . ac-gtags-candidate-face)
     (selection-face . ac-gtags-selection-face)
-    (requires . 3))
+    (requires . 3)
+    (volatile))
   "Source for gtags.")
 
 (defun ac-gtags-initialize ()
@@ -310,8 +305,7 @@
                   (concat ac-prefix completion))
                 (ignore-errors
                   (rope-completions))))))
-    (candidates . (lambda ()
-                    (all-completions ac-prefix ac-ropemacs-completions-cache)))))
+    (candidates . ac-ropemacs-completions-cache)))
 
 
 
@@ -354,7 +348,8 @@
                     (senator-find-tag-for-completion (regexp-quote prefix)))))))
 
 (defvar ac-source-semantic
-  '((candidates . (lambda () (all-completions ac-prefix (ac-semantic-candidate ac-prefix)))))
+  '((candidates . (lambda () (all-completions ac-prefix (ac-semantic-candidate ac-prefix))))
+    (volatile))
   "Source for semantic.")
 
 (defun ac-semantic-initialize ()
@@ -407,7 +402,8 @@
   '((candidates . ac-yasnippet-candidate)
     (action . yas/expand)
     (candidate-face . ac-yasnippet-candidate-face)
-    (selection-face . ac-yasnippet-selection-face))
+    (selection-face . ac-yasnippet-selection-face)
+    (volatile))
   "Source for Yasnippet.")
 
 
@@ -420,7 +416,8 @@
 
 (defvar ac-source-eclim
   '((candidates . ac-eclim-candidates)
-    (prefix . c-dot)))
+    (prefix . c-dot)
+    (volatile)))
 
 (provide 'auto-complete-config)
 ;;; auto-complete-config.el ends here

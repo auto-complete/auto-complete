@@ -233,6 +233,9 @@ If you specify `nil', never be started automatically."
 (defvar ac-candidates nil
   "Current candidates.")
 
+(defvar ac-candidates-cache nil
+  "Candidates cache for individual sources.")
+
 (defvar ac-dwim-enable nil
   "Non-nil means DWIM completion will be allowed.")
 
@@ -277,8 +280,11 @@ requires REQUIRES-NUM
   This source will be included when `ac-prefix' length is larger than REQUIRES-NUM.")
 (make-variable-buffer-local 'ac-sources)
 
+(defvar ac-compiled-sources nil
+  "Compiled source of `ac-sources'.")
+
 (defvar ac-current-sources nil
-  "Current working sources.")
+  "Current working sources. This is sublist of `ac-compiled-sources'.")
 
 (defvar ac-omni-completion-sources nil
   "Do not use this anymore.")
@@ -291,7 +297,8 @@ requires REQUIRES-NUM
   "Report an error and disable `auto-complete-mode'."
   (ignore-errors
     (message "auto-complete error: %s" var)
-    (auto-complete-mode nil)))
+    (auto-complete-mode -1)
+    var))
 
 (defun ac-menu-at-wrapper-line-p ()
   "Return non-nil if current line is long and wrapped to next visual line."
@@ -348,6 +355,11 @@ You can not use it in source definition like (prefix . `NAME')."
               (add-attribute 'requires 1)))))
         collect source))
 
+(defun ac-compiled-sources ()
+  (or ac-compiled-sources
+      (setq ac-compiled-sources
+            (ac-compile-sources ac-sources))))
+
 (defun ac-menu-live-p ()
   (pulldown-live-p ac-menu))
 
@@ -387,7 +399,8 @@ You can not use it in source definition like (prefix . `NAME')."
   (push (cons 'ac-completing ac-completing-map) minor-mode-map-alist))
 
 (defun ac-deactivate-mode-map ()
-  "Deactivate `ac-completing-map'.")
+  "Deactivate `ac-completing-map'."
+  (assq-delete-all 'ac-completing minor-mode-map-alist))
 
 (defun ac-get-selected-candidate ()
   (nth (pulldown-cursor ac-menu) ac-candidates))
@@ -406,7 +419,7 @@ You can not use it in source definition like (prefix . `NAME')."
   (loop with point
         with determined-prefix
         with sources
-        for source in (ac-compile-sources ac-sources)
+        for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
 
         if (null determined-prefix) do
@@ -428,6 +441,7 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-init ()
   "Initialize current sources to start completion."
+  (setq ac-candidates-cache nil)
   (loop for source in ac-current-sources
         for function = (assoc-default 'init source)
         if function do
@@ -438,6 +452,35 @@ You can not use it in source definition like (prefix . `NAME')."
            (t
             (eval function))))))
 
+(defun ac-candidates-1 (source)
+  (let* ((volatile (assq 'volatile source))
+         (function (assoc-default 'candidates source))
+         (action (assoc-default 'action source))
+         (face (or (assoc-default 'face source) (assoc-default 'candidate-face source)))
+         (selection-face (assoc-default 'selection-face source))
+         (cache (and (not volatile) (assq source ac-candidates-cache)))
+         (candidates (cdr cache)))
+    (unless cache
+      (setq candidates
+            (mapcar (lambda (candidate)
+                      (pulldown-item-propertize (pulldown-x-to-string candidate)
+                                                'action action
+                                                'face face
+                                                'selection-face selection-face))
+                    (save-excursion
+                      (cond
+                       ((functionp function)
+                        (funcall function))
+                       (t
+                        (eval function))))))
+      (unless volatile
+        (push (cons source candidates) ac-candidates-cache)))
+    (setq candidates (all-completions ac-prefix candidates))
+    ;; Remove extra items regarding to ac-limit
+    (if (and (> ac-limit 1) (> (length candidates) ac-limit))
+        (setcdr (nthcdr (1- ac-limit) candidates) nil))
+    candidates))
+
 (defun ac-candidates ()
   "Produce candidates for current sources."
   (loop with prefix-len = (length ac-prefix)
@@ -446,21 +489,7 @@ You can not use it in source definition like (prefix . `NAME')."
         for requires = (or (assoc-default 'requires source) 0)
 
         if (and function (>= prefix-len requires))
-        append
-        (mapcar (lambda (candidate)
-                  (pulldown-item-propertize candidate
-                                            'action (assoc-default 'action source)
-                                            'face (or (assoc-default 'face source) (assoc-default 'candidate-face source))
-                                            'selection-face (assoc-default 'selection-face source)))
-                (let ((candidates (all-completions ac-prefix
-                                                   (save-excursion
-                                                     (cond
-                                                      ((functionp function)
-                                                       (funcall function))
-                                                      (t
-                                                       (eval function)))))))
-                  candidates))
-        into candidates
+        append (ac-candidates-1 source) into candidates
         finally return (delete-dups candidates)))
 
 (defun ac-update-candidates (cursor scroll-top)
@@ -497,6 +526,8 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-point nil
         ac-prefix nil
         ac-candidates nil
+        ac-candidates-cache nil
+        ac-compiled-sources nil
         ac-current-sources nil))
 
 (defun ac-abort ()
@@ -588,14 +619,7 @@ that have been made before in this function."
   (let* ((info (ac-prefix))
          (point (car info))
          (sources (cdr info))
-         (init (or (not (eq ac-point point))
-                   ;; If menu direction is positive and next visual line belongs
-                   ;; to same buffer line, then need reposition
-                   ;; It is because of the insertion at current line
-                   ;; will effect on next line
-                   (and ac-menu
-                        (> (pulldown-direction ac-menu) 0)
-                        (ac-menu-at-wrapper-line-p)))))
+         (init (not (eq ac-point point))))
     (if (null point)
         (progn
           (ac-abort)
@@ -611,10 +635,12 @@ that have been made before in this function."
       (setq ac-candidates (ac-candidates))
       (unless nomessage (message "Completion started"))
       (let ((preferred-width (pulldown-preferred-width ac-candidates)))
-        (when (or init
-                  (null ac-menu)
+        ;; Reposition if needed
+        (when (or (null ac-menu)
                   (>= (pulldown-width ac-menu) preferred-width)
-                  (<= (pulldown-width ac-menu) (- preferred-width 10)))
+                  (<= (pulldown-width ac-menu) (- preferred-width 10))
+                  (and (> (pulldown-direction ac-menu) 0)
+                       (ac-menu-at-wrapper-line-p)))
           (ac-menu-delete)
           (setq ac-menu (pulldown-create ac-point preferred-width ac-menu-height))))
       (ac-update-candidates 0 0))))
@@ -734,7 +760,8 @@ that have been made before in this function."
       (nreverse candidates))))
 
 (defvar ac-source-words-in-buffer
-  '((candidates . ac-candidate-words-in-buffer))
+  '((candidates . ac-candidate-words-in-buffer)
+    (volatile))
   "Source for completing words in current buffer.")
 
 (defvar ac-word-index nil
@@ -760,39 +787,46 @@ that have been made before in this function."
              while (< (length candidates) ac-limit)
              if (not (eq buffer ac-buffer))
              append (all-completions ac-prefix (buffer-local-value 'ac-word-index buffer)) into candidates
-             finally return (delete-dups candidates))))
+             finally return (delete-dups candidates)))
+    (volatile))
   "Source for completing words in all buffer.")
 
 (defvar ac-source-symbols
-  '((candidates . (all-completions ac-prefix obarray)))
+  '((candidates . (all-completions ac-prefix obarray))
+    (volatile))
   "Source for Emacs lisp symbols.")
 
 (defvar ac-source-abbrev
-  `((candidates
-     . (append (all-completions ac-prefix global-abbrev-table)
-               (all-completions ac-prefix local-abbrev-table)))
-    (action
-     . expand-abbrev))
+  '((candidates . (append (vconcat [""] local-abbrev-table global-abbrev-table) nil))
+    (action . expand-abbrev))
   "Source for abbrev.")
 
 (defvar ac-source-files-in-current-dir
-  '((candidates . (all-completions ac-prefix (directory-files default-directory))))
+  '((candidates . (directory-files default-directory)))
   "Source for listing files in current directory.")
+
+(defvar ac-filename-cache nil)
 
 (defun ac-filename-candidate ()
   (unless (file-regular-p ac-prefix)
     (ignore-errors
       (loop with dir = (file-name-directory ac-prefix)
-            for file in (directory-files dir nil "^[^.]")
+            with files = (or (assoc-default dir ac-filename-cache)
+                             (let ((files (directory-files dir nil "^[^.]")))
+                               (push (cons dir files) ac-filename-cache)
+                               files))
+            for file in files
             for path = (concat dir file)
             collect (if (file-directory-p path)
                         (concat path "/")
                       path)))))
 
 (defvar ac-source-filename
-  '((candidates . ac-filename-candidate)
+  '((init . (setq ac-filename-cache))
+    (candidates . ac-filename-candidate)
     (prefix . valid-file)
-    (action . ac-start))
+    (action . ac-start)
+    (volatile))
   "Source for completing file name.")
 
 (defvar ac-imenu-index nil
@@ -826,7 +860,8 @@ that have been made before in this function."
          (require 'imenu)
          (setq ac-imenu-index
                (ignore-errors (imenu--make-index-alist)))))
-    (candidates . ac-imenu-candidate))
+    (candidates . ac-imenu-candidate)
+    (volatile))
   "Source for imenu.")
 
 (defmacro ac-define-dictionary-source (name list)
