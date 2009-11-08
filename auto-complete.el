@@ -570,6 +570,11 @@ that have been made before in this function."
 
 ;; Auto completion commands
 
+(defun auto-complete ()
+  "Start auto-completion at current point."
+  (interactive)
+  (ac-start))
+
 (defun ac-next ()
   "Select next candidate."
   (interactive)
