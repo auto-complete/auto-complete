@@ -321,12 +321,14 @@ requires REQUIRES-NUM
 (defun ac-prefix-valid-file ()
   "Existed (or to be existed) file prefix."
   (let* ((end (point))
-         (start (re-search-backward "[\"<>' \t\r\n]" nil t))
-         (file (if start (buffer-substring (1+ start) end))))
-    (setq file (and (string-match "^[^/]+" file)
+         (start (or (let ((point (re-search-backward "[\"<>' \t\r\n]" nil t)))
+                      (if point (1+ point)))
+                    (line-beginning-position)))
+         (file (buffer-substring start end)))
+    (setq file (and (string-match "^/?[^/]*" file)
                     (match-string 0 file)))
     (if (and file (file-exists-p file))
-        (1+ start))))
+        start)))
 
 (defun ac-prefix-c-dot ()
   "C-like languages dot(.) prefix."
@@ -456,6 +458,7 @@ You can not use it in source definition like (prefix . `NAME')."
   (let* ((volatile (assq 'volatile source))
          (function (assoc-default 'candidates source))
          (action (assoc-default 'action source))
+         (ac-limit (or (assoc-default 'limit source) ac-limit))
          (face (or (assoc-default 'face source) (assoc-default 'candidate-face source)))
          (selection-face (assoc-default 'selection-face source))
          (cache (and (not volatile) (assq source ac-candidates-cache)))
@@ -826,6 +829,7 @@ that have been made before in this function."
     (candidates . ac-filename-candidate)
     (prefix . valid-file)
     (action . ac-start)
+    (limit . 0)
     (volatile))
   "Source for completing file name.")
 
