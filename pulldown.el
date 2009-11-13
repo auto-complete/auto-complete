@@ -152,7 +152,7 @@
          menu o item
          (if (= i cursor)
              (or (pulldown-item-property item 'selection-face) (pulldown-selection-face menu))
-           (or (pulldown-item-property item 'face) (pulldown-face menu))))
+           (or (pulldown-item-property item 'menu-face) (pulldown-face menu))))
         
         finally
         ;; Hide remaining lines

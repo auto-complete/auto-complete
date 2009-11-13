@@ -260,8 +260,7 @@
   '((candidates . ac-gtags-candidate)
     (candidate-face . ac-gtags-candidate-face)
     (selection-face . ac-gtags-selection-face)
-    (requires . 3)
-    (volatile))
+    (requires . 3))
   "Source for gtags.")
 
 (defun ac-gtags-initialize ()
@@ -326,8 +325,7 @@
                       rct-method-completion-table))))))
 
 (defun ac-rcodetools-setup ()
-  (push (cons "\\." '(ac-source-rcodetools)) ac-omni-completion-sources)
-  (push (cons "::" '(ac-source-rcodetools)) ac-omni-completion-sources))
+  )
 
 (defun ac-rcodetools-initialize ()
   (and (require 'rcodetools nil t)
@@ -348,8 +346,7 @@
                     (senator-find-tag-for-completion (regexp-quote prefix)))))))
 
 (defvar ac-source-semantic
-  '((candidates . (lambda () (all-completions ac-prefix (ac-semantic-candidate ac-prefix))))
-    (volatile))
+  '((candidates . (lambda () (all-completions ac-prefix (ac-semantic-candidate ac-prefix)))))
   "Source for semantic.")
 
 (defun ac-semantic-initialize ()
@@ -402,8 +399,7 @@
   '((candidates . ac-yasnippet-candidate)
     (action . yas/expand)
     (candidate-face . ac-yasnippet-candidate-face)
-    (selection-face . ac-yasnippet-selection-face)
-    (volatile))
+    (selection-face . ac-yasnippet-selection-face))
   "Source for Yasnippet.")
 
 
@@ -416,8 +412,7 @@
 
 (defvar ac-source-eclim
   '((candidates . ac-eclim-candidates)
-    (prefix . c-dot)
-    (volatile)))
+    (prefix . c-dot)))
 
 (provide 'auto-complete-config)
 ;;; auto-complete-config.el ends here

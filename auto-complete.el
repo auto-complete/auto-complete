@@ -320,10 +320,11 @@ requires REQUIRES-NUM
 
 (defun ac-prefix-valid-file ()
   "Existed (or to be existed) file prefix."
-  (let* ((end (point))
-         (start (or (let ((point (re-search-backward "[\"<>' \t\r\n]" nil t)))
+  (let* ((line-beg (line-beginning-position))
+         (end (point))
+         (start (or (let ((point (re-search-backward "[\"<>' \t\r\n]" line-beg t)))
                       (if point (1+ point)))
-                    (line-beginning-position)))
+                    line-beg))
          (file (buffer-substring start end)))
     (setq file (and (string-match "^/?[^/]*" file)
                     (match-string 0 file)))
@@ -455,20 +456,20 @@ You can not use it in source definition like (prefix . `NAME')."
             (eval function))))))
 
 (defun ac-candidates-1 (source)
-  (let* ((volatile (assq 'volatile source))
+  (let* ((do-cache (assq 'cache source))
          (function (assoc-default 'candidates source))
          (action (assoc-default 'action source))
          (ac-limit (or (assoc-default 'limit source) ac-limit))
          (face (or (assoc-default 'face source) (assoc-default 'candidate-face source)))
          (selection-face (assoc-default 'selection-face source))
-         (cache (and (not volatile) (assq source ac-candidates-cache)))
+         (cache (and do-cache (assq source ac-candidates-cache)))
          (candidates (cdr cache)))
     (unless cache
       (setq candidates
             (mapcar (lambda (candidate)
                       (pulldown-item-propertize (pulldown-x-to-string candidate)
                                                 'action action
-                                                'face face
+                                                'menu-face face
                                                 'selection-face selection-face))
                     (save-excursion
                       (cond
@@ -476,7 +477,7 @@ You can not use it in source definition like (prefix . `NAME')."
                         (funcall function))
                        (t
                         (eval function))))))
-      (unless volatile
+      (when do-cache
         (push (cons source candidates) ac-candidates-cache)))
     (setq candidates (all-completions ac-prefix candidates))
     ;; Remove extra items regarding to ac-limit
@@ -769,8 +770,7 @@ that have been made before in this function."
       (nreverse candidates))))
 
 (defvar ac-source-words-in-buffer
-  '((candidates . ac-candidate-words-in-buffer)
-    (volatile))
+  '((candidates . ac-candidate-words-in-buffer))
   "Source for completing words in current buffer.")
 
 (defvar ac-word-index nil
@@ -801,30 +801,30 @@ that have been made before in this function."
 
 (defvar ac-source-words-in-all-buffer
   '((init . ac-build-word-index)
-    (candidates . ac-word-candidates)
-    (volatile))
+    (candidates . ac-word-candidates))
   "Source for completing words in all buffer.")
 
 (defvar ac-source-words-in-same-mode-buffers
   '((init . ac-build-word-index)
     (candidates . (ac-word-candidates
                    (lambda (buffer)
-                     (derived-mode-p (buffer-local-value 'major-mode buffer)))))
-    (volatile))
+                     (derived-mode-p (buffer-local-value 'major-mode buffer))))))
   "Source for completing words in all of same mode buffers.")
 
 (defvar ac-source-symbols
-  '((candidates . (all-completions ac-prefix obarray))
-    (volatile))
+  '((candidates . (append obarray nil))
+    (cache))
   "Source for Emacs lisp symbols.")
 
 (defvar ac-source-abbrev
   '((candidates . (append (vconcat [""] local-abbrev-table global-abbrev-table) nil))
-    (action . expand-abbrev))
+    (action . expand-abbrev)
+    (cache))
   "Source for abbrev.")
 
 (defvar ac-source-files-in-current-dir
-  '((candidates . (directory-files default-directory)))
+  '((candidates . (directory-files default-directory))
+    (cache))
   "Source for listing files in current directory.")
 
 (defvar ac-filename-cache nil)
@@ -848,8 +848,7 @@ that have been made before in this function."
     (candidates . ac-filename-candidate)
     (prefix . valid-file)
     (action . ac-start)
-    (limit . 0)
-    (volatile))
+    (limit . 0))
   "Source for completing file name.")
 
 (defvar ac-imenu-index nil
@@ -883,8 +882,7 @@ that have been made before in this function."
          (require 'imenu)
          (setq ac-imenu-index
                (ignore-errors (imenu--make-index-alist)))))
-    (candidates . ac-imenu-candidate)
-    (volatile))
+    (candidates . ac-imenu-candidate))
   "Source for imenu.")
 
 (defmacro ac-define-dictionary-source (name list)
@@ -892,7 +890,8 @@ that have been made before in this function."
 `LIST' is a list of string.
 This is useful if you just want to define a dictionary/keywords source."
   `(defvar ,name
-     '((candidates . (list ,list)))))
+     '((candidates . (list ,list))
+       (cache))))
 
 (provide 'auto-complete)
 ;;; auto-complete.el ends here
