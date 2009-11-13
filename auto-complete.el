@@ -573,6 +573,7 @@ that have been made before in this function."
 (defun auto-complete ()
   "Start auto-completion at current point."
   (interactive)
+  (ac-abort)
   (ac-start))
 
 (defun ac-next ()
@@ -777,27 +778,40 @@ that have been made before in this function."
 
 (ac-clear-variable-after-save 'ac-word-index)
 
+(defun ac-build-word-index ()
+  (dolist (buffer (buffer-list))
+    (unless (eq buffer ac-buffer)
+      (with-current-buffer buffer
+        (unless (local-variable-p 'ac-word-index)
+          (make-local-variable 'ac-word-index))
+        (when (and (null ac-word-index)
+                   (< (buffer-size) 102400))
+          (let ((ac-prefix "")
+                (ac-point (point-min)))
+            (setq ac-word-index (ac-candidate-words-in-buffer t))))))))
+
+(defun ac-word-candidates (&optional buffer-pred)
+  (loop initially (setq candidates (ac-candidate-words-in-buffer t))
+        for buffer in (buffer-list)
+        while (< (length candidates) ac-limit)
+        if (and (not (eq buffer ac-buffer))
+                (if buffer-pred (funcall buffer-pred buffer) t))
+        append (all-completions ac-prefix (buffer-local-value 'ac-word-index buffer)) into candidates
+        finally return (delete-dups candidates)))
+
 (defvar ac-source-words-in-all-buffer
-  '((init
-     . (dolist (buffer (buffer-list))
-         (unless (eq buffer ac-buffer)
-           (with-current-buffer buffer
-             (unless (local-variable-p 'ac-word-index)
-               (make-local-variable 'ac-word-index))
-             (when (and (null ac-word-index)
-                        (< (buffer-size) 102400))
-               (let ((ac-prefix "")
-                     (ac-point (point-min)))
-                 (setq ac-word-index (ac-candidate-words-in-buffer t))))))))
-    (candidates
-     . (loop initially (setq candidates (ac-candidate-words-in-buffer t))
-             for buffer in (buffer-list)
-             while (< (length candidates) ac-limit)
-             if (not (eq buffer ac-buffer))
-             append (all-completions ac-prefix (buffer-local-value 'ac-word-index buffer)) into candidates
-             finally return (delete-dups candidates)))
+  '((init . ac-build-word-index)
+    (candidates . ac-word-candidates)
     (volatile))
   "Source for completing words in all buffer.")
+
+(defvar ac-source-words-in-same-mode-buffers
+  '((init . ac-build-word-index)
+    (candidates . (ac-word-candidates
+                   (lambda (buffer)
+                     (derived-mode-p (buffer-local-value 'major-mode buffer)))))
+    (volatile))
+  "Source for completing words in all of same mode buffers.")
 
 (defvar ac-source-symbols
   '((candidates . (all-completions ac-prefix obarray))
