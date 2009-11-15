@@ -595,14 +595,16 @@ that have been made before in this function."
 (defun ac-next ()
   "Select next candidate."
   (interactive)
-  (if (ac-menu-live-p)
-      (pulldown-next ac-menu)))
+  (when (ac-menu-live-p)
+    (pulldown-next ac-menu)
+    (setq ac-dwim-enable t)))
 
 (defun ac-previous ()
   "Select previous candidate."
   (interactive)
-  (if (ac-menu-live-p)
-      (pulldown-previous ac-menu)))
+  (when (ac-menu-live-p)
+    (pulldown-previous ac-menu)
+    (setq ac-dwim-enable t)))
 
 (defun ac-expand ()
   "Try expand, and if expanded twice, select next candidate."
@@ -644,38 +646,40 @@ that have been made before in this function."
 (defun ac-start (&optional nomessage)
   "Start completion."
   (interactive)
-  (let* ((info (ac-prefix))
-         (point (car info))
-         (sources (cdr info))
-         (init (not (eq ac-point point))))
-    (if (or (null point)
-            (and (integerp ac-auto-start)
-                 (< (- (point) point)
-                    ac-auto-start)))
-        (prog1 nil
-          (ac-abort)
-          (unless nomessage (message "Nothing to complete")))
-      (setq ac-current-sources sources
-            ac-buffer (current-buffer)
-            ac-point point
-            ac-prefix (buffer-substring-no-properties point (point))
-            ac-limit ac-candidate-limit
-            ac-completing t)
-      (when (or init (null ac-menu))
-        (ac-init))
-      (setq ac-candidates (ac-candidates))
-      (unless nomessage (message "Completion started"))
-      (let ((preferred-width (pulldown-preferred-width ac-candidates)))
-        ;; Reposition if needed
-        (when (or (null ac-menu)
-                  (>= (pulldown-width ac-menu) preferred-width)
-                  (<= (pulldown-width ac-menu) (- preferred-width 10))
-                  (and (> (pulldown-direction ac-menu) 0)
-                       (ac-menu-at-wrapper-line-p)))
-          (ac-menu-delete)
-          (setq ac-menu (pulldown-create ac-point preferred-width ac-menu-height))))
-      (ac-update-candidates 0 0)
-      (not (null ac-candidates)))))
+  (if (not auto-complete-mode)
+    (message "auto-complete-mode is not enabled")
+    (let* ((info (ac-prefix))
+           (point (car info))
+           (sources (cdr info))
+           (init (not (eq ac-point point))))
+      (if (or (null point)
+              (and (integerp ac-auto-start)
+                   (< (- (point) point)
+                      ac-auto-start)))
+          (prog1 nil
+            (ac-abort)
+            (unless nomessage (message "Nothing to complete")))
+        (setq ac-current-sources sources
+              ac-buffer (current-buffer)
+              ac-point point
+              ac-prefix (buffer-substring-no-properties point (point))
+              ac-limit ac-candidate-limit
+              ac-completing t)
+        (when (or init (null ac-menu))
+          (ac-init))
+        (setq ac-candidates (ac-candidates))
+        (unless nomessage (message "Completion started"))
+        (let ((preferred-width (pulldown-preferred-width ac-candidates)))
+          ;; Reposition if needed
+          (when (or (null ac-menu)
+                    (>= (pulldown-width ac-menu) preferred-width)
+                    (<= (pulldown-width ac-menu) (- preferred-width 10))
+                    (and (> (pulldown-direction ac-menu) 0)
+                         (ac-menu-at-wrapper-line-p)))
+            (ac-menu-delete)
+            (setq ac-menu (pulldown-create ac-point preferred-width ac-menu-height))))
+        (ac-update-candidates 0 0)
+        (not (null ac-candidates))))))
 
 (defun ac-stop ()
   "Stop completiong."
