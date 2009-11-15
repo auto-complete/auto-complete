@@ -597,14 +597,16 @@ that have been made before in this function."
   (interactive)
   (when (ac-menu-live-p)
     (pulldown-next ac-menu)
-    (setq ac-dwim-enable t)))
+    (if (eq this-command 'ac-next)
+        (setq ac-dwim-enable t))))
 
 (defun ac-previous ()
   "Select previous candidate."
   (interactive)
   (when (ac-menu-live-p)
     (pulldown-previous ac-menu)
-    (setq ac-dwim-enable t)))
+    (if (eq this-command 'ac-previous)
+        (setq ac-dwim-enable t))))
 
 (defun ac-expand ()
   "Try expand, and if expanded twice, select next candidate."
