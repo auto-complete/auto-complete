@@ -47,7 +47,8 @@
                                          if (string-match suffix file)
                                          collect (substring file 0 (match-beginning 0))))))))
     (candidates . ac-emacs-lisp-features)
-    (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")))
+    (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")
+    (limit . 0)))
 
 (defun ac-emacs-lisp-features-setup ()
   (push 'ac-source-emacs-lisp-features ac-sources))

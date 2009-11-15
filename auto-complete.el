@@ -171,6 +171,18 @@
   :type '(repeat symbol)
   :group 'auto-complete)
 
+(defcustom ac-trigger-key nil
+  "Non-nil means `auto-complete' will start by typing this key.
+If you specify this TAB, for example, `auto-complete' will start by typing TAB,
+and if there is no completions, an original command will be fallbacked."
+  :type 'string
+  :group 'auto-complete
+  :set (lambda (symbol value)
+         (set-default symbol value)
+         (when (and value
+                    (fboundp 'ac-set-trigger-key))
+             (ac-set-trigger-key value))))
+
 (defcustom ac-auto-start t
   "Non-nil means completion will be started automatically.
 Positive integer means if a length of a word you entered is larger than the value,
@@ -238,6 +250,9 @@ If you specify `nil', never be started automatically."
 
 (defvar ac-dwim-enable nil
   "Non-nil means DWIM completion will be allowed.")
+
+(defvar ac-mode-map (make-sparse-keymap)
+  "Auto-complete mode map. It is also used for trigger key command. See also `ac-trigger-key'.")
 
 (defvar ac-completing-map
   (let ((map (make-sparse-keymap)))
@@ -326,9 +341,10 @@ requires REQUIRES-NUM
                       (if point (1+ point)))
                     line-beg))
          (file (buffer-substring start end)))
-    (setq file (and (string-match "^/?[^/]*" file)
-                    (match-string 0 file)))
-    (if (and file (file-exists-p file))
+    (if (and file (or (string-match "^/" file)
+                      (and (setq file (and (string-match "^[^/]*/" file)
+                                           (match-string 0 file)))
+                           (file-directory-p file))))
         start)))
 
 (defun ac-prefix-c-dot ()
@@ -397,7 +413,6 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-activate-mode-map ()
   "Activate `ac-completing-map'. This cause `ac-completing' to be used temporaly."
-  ;; Rearrange ac-mode-map pair first
   (assq-delete-all 'ac-completing minor-mode-map-alist)
   (push (cons 'ac-completing ac-completing-map) minor-mode-map-alist))
 
@@ -431,7 +446,7 @@ You can not use it in source definition like (prefix . `NAME')."
                        ((symbolp prefix)
                         (funcall prefix))
                        ((stringp prefix)
-                        (when (re-search-backward prefix nil t)
+                        (when (re-search-backward (concat prefix "\\=") nil t)
                           (or (match-beginning 1) (match-beginning 0))))
                        (t
                         (eval prefix))))
@@ -592,26 +607,28 @@ that have been made before in this function."
 (defun ac-expand ()
   "Try expand, and if expanded twice, select next candidate."
   (interactive)
-  (if (and ac-dwim ac-dwim-enable)
-      (ac-complete)
-    (let ((repeated (eq last-command this-command))
-          (string (or (and ac-expander
-                           (prog1 (concat ac-prefix (expander-string ac-expander))
-                             (ac-expander-delete)))
-                      (ac-get-selected-candidate))))
+  (unless (ac-expand-common)
+    (let ((string (ac-get-selected-candidate)))
       (when (equal ac-prefix string)
         (ac-next)
         (setq string (ac-get-selected-candidate)))
-      (ac-expand-string string repeated))
-    ;; Do reposition if menu at long line
-    (if (and (> (pulldown-direction ac-menu) 0)
-             (ac-menu-at-wrapper-line-p))
-        (ac-reposition))))
+      (ac-expand-string string (eq last-command this-command))
+      ;; Do reposition if menu at long line
+      (if (and (> (pulldown-direction ac-menu) 0)
+               (ac-menu-at-wrapper-line-p))
+          (ac-reposition))
+      string)))
 
 (defun ac-expand-common ()
   "Try expand common part."
   (interactive)
-  (message "This is obsolete command. Please report me if you need this command."))
+  (if (and ac-dwim ac-dwim-enable)
+      (ac-complete)
+    (when (ac-expander-live-p)
+      (let ((string (concat ac-prefix (expander-string ac-expander))))
+        (ac-expander-delete)
+        (ac-expand-string string (eq last-command this-command))
+        string))))
 
 (defun ac-complete ()
   "Try complete."
@@ -621,7 +638,8 @@ that have been made before in this function."
     (ac-expand-string candidate)
     (ac-abort)
     (if action
-        (funcall action))))
+        (funcall action))
+    candidate))
 
 (defun ac-start (&optional nomessage)
   "Start completion."
@@ -630,8 +648,11 @@ that have been made before in this function."
          (point (car info))
          (sources (cdr info))
          (init (not (eq ac-point point))))
-    (if (null point)
-        (progn
+    (if (or (null point)
+            (and (integerp ac-auto-start)
+                 (< (- (point) point)
+                    ac-auto-start)))
+        (prog1 nil
           (ac-abort)
           (unless nomessage (message "Nothing to complete")))
       (setq ac-current-sources sources
@@ -653,7 +674,8 @@ that have been made before in this function."
                        (ac-menu-at-wrapper-line-p)))
           (ac-menu-delete)
           (setq ac-menu (pulldown-create ac-point preferred-width ac-menu-height))))
-      (ac-update-candidates 0 0))))
+      (ac-update-candidates 0 0)
+      (not (null ac-candidates)))))
 
 (defun ac-stop ()
   "Stop completiong."
@@ -669,7 +691,7 @@ that have been made before in this function."
   (or (memq command ac-trigger-commands)
       (string-match "self-insert-command" (symbol-name command))
       (string-match "electric" (symbol-name command))
-      (and ac-completing
+      (and ;ac-completing
            (memq command
                  '(delete-backward-char
                    backward-delete-char
@@ -695,6 +717,41 @@ that have been made before in this function."
           (ac-start t))
     (error (ac-error var))))
 
+(defun ac-trigger-key-command (&optional force)
+  (interactive "P")
+  (or (and (or force
+               (ac-trigger-command-p last-command))
+           (ac-start t)
+           (prog1 t
+             ;; TODO Not to cause inline completion to be disrupted.
+             (if (ac-expander-live-p)
+                 (expander-hide ac-expander))
+             (ac-expand-common)))
+      ;; borrowed from yasnippet.el
+      (let* ((auto-complete-mode nil)
+             (keys-1 (this-command-keys-vector))
+             (keys-2 (read-kbd-macro ac-trigger-key))
+             (command-1 (if keys-1 (key-binding keys-1)))
+             (command-2 (if keys-2 (key-binding keys-2)))
+             (command (or (if (not (eq command-1 'ac-trigger-key-command))
+                              command-1)
+                          command-2)))
+        (when (and (commandp command)
+                   (not (eq command 'ac-trigger-key-command)))
+          (setq this-command command)
+          (call-interactively command)))))
+
+(defun ac-set-trigger-key (key)
+  "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
+  ;; Remove old mapping
+  (when ac-trigger-key
+    (define-key ac-mode-map (read-kbd-macro ac-trigger-key) nil))
+
+  ;; Make new mapping
+  (setq ac-trigger-key key)
+  (when key
+    (define-key ac-mode-map (read-kbd-macro key) 'ac-trigger-key-command)))
+
 (defun auto-complete-mode-maybe ()
   "What buffer `auto-complete-mode' prefers."
   (if (and (not (minibufferp (current-buffer)))
@@ -705,7 +762,11 @@ that have been made before in this function."
 
 (defun ac-setup ()
   (make-local-variable 'ac-clear-variables-after-save)
-  (add-hook 'after-save-hook 'ac-clear-variables-after-save nil t))
+  (add-hook 'after-save-hook 'ac-clear-variables-after-save nil t)
+  (if ac-trigger-key
+      (ac-set-trigger-key ac-trigger-key))
+  (assq-delete-all 'auto-complete-mode minor-mode-map-alist)
+  (push (cons 'auto-complete-mode ac-mode-map) minor-mode-map-alist))
 
 (define-minor-mode auto-complete-mode
   "AutoComplete mode"
@@ -719,7 +780,8 @@ that have been made before in this function."
         (run-hooks 'auto-complete-mode-hook))
     (remove-hook 'post-command-hook 'ac-handle-post-command t)
     (remove-hook 'pre-command-hook 'ac-handle-pre-command t)
-    (ac-abort)))
+    (ac-abort)
+    (assq-delete-all 'auto-complete-mode minor-mode-map-alist)))
 
 (define-global-minor-mode global-auto-complete-mode
   auto-complete-mode auto-complete-mode-maybe
