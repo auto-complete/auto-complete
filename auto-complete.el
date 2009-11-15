@@ -873,8 +873,12 @@ that have been made before in this function."
                      (derived-mode-p (buffer-local-value 'major-mode buffer))))))
   "Source for completing words in all of same mode buffers.")
 
+(defvar ac-symbols-cache nil)
+
 (defvar ac-source-symbols
-  '((candidates . (append obarray nil))
+  '((init . (unless ac-symbols-cache
+              (setq ac-symbols-cache (loop for x being the symbols collect x))))
+    (candidates . ac-symbols-cache)
     (cache))
   "Source for Emacs lisp symbols.")
 
