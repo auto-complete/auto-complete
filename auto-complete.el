@@ -358,6 +358,12 @@ requires REQUIRES-NUM
 You can not use it in source definition like (prefix . `NAME')."
   (push (cons name prefix) ac-prefix-definitions))
 
+(defun ac-match-substring (prefix candidates)
+  (loop with regexp = (regexp-quote prefix)
+        for candidate in candidates
+        if (string-match regexp candidate)
+        collect candidate))
+
 (defun ac-compile-sources (sources)
   "Compiled `SOURCES' into expanded sources style."
   (loop for source in sources
@@ -372,7 +378,14 @@ You can not use it in source definition like (prefix . `NAME')."
               (add-attribute 'prefix real))
              ((null prefix)
               (add-attribute 'prefix 'ac-prefix-default)
-              (add-attribute 'requires 1)))))
+              (add-attribute 'requires 1))))
+          ;; match
+          (let ((match (assq 'match source)))
+            (cond
+             ((eq (cdr match) 'substring)
+              (setcdr match 'ac-match-substring))
+             ((null match)
+              (add-attribute 'match 'all-completions)))))
         collect source))
 
 (defun ac-compiled-sources ()
@@ -494,7 +507,7 @@ You can not use it in source definition like (prefix . `NAME')."
                                                          'action action
                                                          'menu-face face
                                                          'selection-face selection-face))
-                             (all-completions ac-prefix (cons "" candidates))))
+                             (funcall (assoc-default 'match source) ac-prefix (cons "" candidates))))
     ;; Remove extra items regarding to ac-limit
     (if (and (> ac-limit 1) (> (length candidates) ac-limit))
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
