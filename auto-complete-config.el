@@ -46,7 +46,7 @@
                             append (loop for file in (directory-files dir)
                                          if (string-match suffix file)
                                          collect (substring file 0 (match-beginning 0))))))))
-    (candidates . ac-emacs-lisp-features)
+    (candidates . (append features ac-emacs-lisp-features))
     (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")
     (limit . 0)))
 
