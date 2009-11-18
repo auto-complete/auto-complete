@@ -480,21 +480,20 @@ You can not use it in source definition like (prefix . `NAME')."
          (cache (and do-cache (assq source ac-candidates-cache)))
          (candidates (cdr cache)))
     (unless cache
-      (setq candidates
-            (mapcar (lambda (candidate)
-                      (pulldown-item-propertize (pulldown-x-to-string candidate)
-                                                'action action
-                                                'menu-face face
-                                                'selection-face selection-face))
-                    (save-excursion
-                      (cond
-                       ((functionp function)
-                        (funcall function))
-                       (t
-                        (eval function))))))
+      (setq candidates (save-excursion
+                         (cond
+                          ((functionp function)
+                           (funcall function))
+                          (t
+                           (eval function)))))
       (when do-cache
         (push (cons source candidates) ac-candidates-cache)))
-    (setq candidates (all-completions ac-prefix candidates))
+    (setq candidates (mapcar (lambda (candidate)
+                               (pulldown-item-propertize (pulldown-x-to-string candidate)
+                                                         'action action
+                                                         'menu-face face
+                                                         'selection-face selection-face))
+                             (all-completions ac-prefix (cons "" candidates))))
     ;; Remove extra items regarding to ac-limit
     (if (and (> ac-limit 1) (> (length candidates) ac-limit))
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
