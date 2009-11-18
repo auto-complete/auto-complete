@@ -327,6 +327,7 @@ requires REQUIRES-NUM
   "Default prefix definition function."
   (require 'thingatpt)
   (car-safe (bounds-of-thing-at-point 'symbol)))
+(defalias 'ac-prefix-default 'ac-prefix-symbol)
 
 (defun ac-prefix-file ()
   "File prefix."
@@ -370,7 +371,7 @@ You can not use it in source definition like (prefix . `NAME')."
              (real
               (add-attribute 'prefix real))
              ((null prefix)
-              (add-attribute 'prefix 'ac-prefix-symbol)
+              (add-attribute 'prefix 'ac-prefix-default)
               (add-attribute 'requires 1)))))
         collect source))
 
@@ -455,7 +456,7 @@ You can not use it in source definition like (prefix . `NAME')."
 
         if (equal prefix determined-prefix) do (push source sources)
 
-        finally return (and point (cons point (nreverse sources)))))
+        finally return (and point (list determined-prefix point (nreverse sources)))))
 
 (defun ac-init ()
   "Initialize current sources to start completion."
@@ -655,11 +656,13 @@ that have been made before in this function."
   (if (not auto-complete-mode)
     (message "auto-complete-mode is not enabled")
     (let* ((info (ac-prefix))
-           (point (car info))
-           (sources (cdr info))
+           (prefix (nth 0 info))
+           (point (nth 1 info))
+           (sources (nth 2 info))
            (init (not (eq ac-point point))))
       (if (or (null point)
-              (and (integerp ac-auto-start)
+              (and (eq prefix 'ac-prefix-default) ; if not omni-completion
+                   (integerp ac-auto-start)
                    (< (- (point) point)
                       ac-auto-start)))
           (prog1 nil
