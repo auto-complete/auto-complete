@@ -507,7 +507,7 @@ You can not use it in source definition like (prefix . `NAME')."
                                                          'action action
                                                          'menu-face face
                                                          'selection-face selection-face))
-                             (funcall (assoc-default 'match source) ac-prefix (cons "" candidates))))
+                             (funcall (assoc-default 'match source) ac-prefix candidates)))
     ;; Remove extra items regarding to ac-limit
     (if (and (> ac-limit 1) (> (length candidates) ac-limit))
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
@@ -903,13 +903,13 @@ that have been made before in this function."
 
 (defvar ac-source-symbols
   '((init . (unless ac-symbols-cache
-              (setq ac-symbols-cache (loop for x being the symbols collect x))))
+              (setq ac-symbols-cache (loop for x being the symbols collect (symbol-name x)))))
     (candidates . ac-symbols-cache)
     (cache))
   "Source for Emacs lisp symbols.")
 
 (defvar ac-source-abbrev
-  '((candidates . (append (vconcat [""] local-abbrev-table global-abbrev-table) nil))
+  '((candidates . (mapcar 'prin1-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
     (action . expand-abbrev)
     (cache))
   "Source for abbrev.")
