@@ -589,7 +589,12 @@ that have been made before in this function."
   "Start auto-completion at current point."
   (interactive)
   (ac-abort)
-  (ac-start))
+  (ac-start)
+  ;; TODO Not to cause inline completion to be disrupted.
+  (if (ac-expander-live-p)
+      (expander-hide ac-expander))
+  (ac-expand-common)
+  t)
 
 (defun ac-next ()
   "Select next candidate."
@@ -731,12 +736,7 @@ that have been made before in this function."
   (interactive "P")
   (or (and (or force
                (ac-trigger-command-p last-command))
-           (ac-start t)
-           (prog1 t
-             ;; TODO Not to cause inline completion to be disrupted.
-             (if (ac-expander-live-p)
-                 (expander-hide ac-expander))
-             (ac-expand-common)))
+           (auto-complete))
       ;; borrowed from yasnippet.el
       (let* ((auto-complete-mode nil)
              (keys-1 (this-command-keys-vector))
