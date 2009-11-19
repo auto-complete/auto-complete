@@ -423,14 +423,11 @@ You can not use it in source definition like (prefix . `NAME')."
       (expander-hide ac-expander)))
 
 (defun ac-expander-update ()
-  (let ((common-part (try-completion ac-prefix ac-candidates)))
-    (if (and (stringp common-part)
-             (> (length common-part) (length ac-prefix)))
-        (progn
-          (setq ac-common-part common-part)
-          (ac-expander-show (point) (substring common-part (length ac-prefix))))
-      (setq ac-common-part nil)
-      (ac-expander-delete))))
+  (setq ac-common-part (try-completion ac-prefix ac-candidates))
+  (if (and (stringp ac-common-part)
+           (> (length ac-common-part) (length ac-prefix)))
+      (ac-expander-show (point) (substring ac-common-part (length ac-prefix)))
+    (ac-expander-delete)))
 
 (defun ac-activate-mode-map ()
   "Activate `ac-completing-map'. This cause `ac-completing' to be used temporaly."
@@ -659,7 +656,8 @@ that have been made before in this function."
   (interactive)
   (if (and ac-dwim ac-dwim-enable)
       (ac-complete)
-    (when ac-common-part
+    (when (and (ac-expander-live-p)
+               ac-common-part)
       (ac-expand-string ac-common-part (eq last-command this-command))
       (setq ac-common-part nil)
       t)))
