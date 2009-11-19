@@ -239,6 +239,10 @@ If you specify `nil', never be started automatically."
   "Prefix string.")
 (defvaralias 'ac-target 'ac-prefix)
 
+(defvar ac-common-part nil
+  "Common part string of candidates.
+If there is no common part, this will be nil.")
+  
 (defvar ac-limit 0
   "Limit number of candidates for each sources.")
 
@@ -419,10 +423,13 @@ You can not use it in source definition like (prefix . `NAME')."
       (expander-hide ac-expander)))
 
 (defun ac-expander-update ()
-  (let ((string (try-completion ac-prefix ac-candidates)))
-    (if (and (stringp string)
-             (> (length string) (length ac-prefix)))
-        (ac-expander-show (point) (substring string (length ac-prefix)))
+  (let ((common-part (try-completion ac-prefix ac-candidates)))
+    (if (and (stringp common-part)
+             (> (length common-part) (length ac-prefix)))
+        (progn
+          (setq ac-common-part common-part)
+          (ac-expander-show (point) (substring common-part (length ac-prefix))))
+      (setq ac-common-part nil)
       (ac-expander-delete))))
 
 (defun ac-activate-mode-map ()
@@ -536,6 +543,12 @@ You can not use it in source definition like (prefix . `NAME')."
     (setq ac-completing nil)
     (ac-deactivate-mode-map))
   (ac-expander-update)
+  (when (and ac-common-part
+             (member ac-common-part ac-candidates))
+    ;; TODO general implementation
+    ;; Move common-part candidate to the first.
+    (setq ac-candidates (cons ac-common-part
+                              (delete ac-common-part ac-candidates))))
   (pulldown-set-list ac-menu ac-candidates)
   (pulldown-draw ac-menu))
 
@@ -646,11 +659,10 @@ that have been made before in this function."
   (interactive)
   (if (and ac-dwim ac-dwim-enable)
       (ac-complete)
-    (when (ac-expander-live-p)
-      (let ((string (concat ac-prefix (expander-string ac-expander))))
-        (ac-expander-delete)
-        (ac-expand-string string (eq last-command this-command))
-        string))))
+    (when ac-common-part
+      (ac-expand-string ac-common-part (eq last-command this-command))
+      (setq ac-common-part nil)
+      t)))
 
 (defun ac-complete ()
   "Try complete."
@@ -783,8 +795,6 @@ that have been made before in this function."
   (if (and (not (minibufferp (current-buffer)))
            (memq major-mode ac-modes))
       (auto-complete-mode 1)))
-
-(require 'easy-mmode)
 
 (defun ac-setup ()
   (make-local-variable 'ac-clear-variables-after-save)
@@ -982,7 +992,7 @@ that have been made before in this function."
 `LIST' is a list of string.
 This is useful if you just want to define a dictionary/keywords source."
   `(defvar ,name
-     '((candidates . (list ,list))
+     '((candidates . (list ,@list))
        (cache))))
 
 (provide 'auto-complete)
