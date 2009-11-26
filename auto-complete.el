@@ -373,7 +373,7 @@ You can not use it in source definition like (prefix . `NAME')."
   (loop for source in sources
         if (symbolp source) do (setq source (symbol-value source))
         do
-        (flet ((add-attribute (name value) (setq source (append `((,name . ,value)) source))))
+        (flet ((add-attribute (name value &optional append) (add-to-list 'source (cons name value) append)))
           ;; prefix
           (let* ((prefix (assoc 'prefix source))
                  (real (assoc-default (cdr prefix) ac-prefix-definitions)))
@@ -382,7 +382,7 @@ You can not use it in source definition like (prefix . `NAME')."
               (add-attribute 'prefix real))
              ((null prefix)
               (add-attribute 'prefix 'ac-prefix-default)
-              (add-attribute 'requires 1))))
+              (add-attribute 'requires 1 t))))
           ;; match
           (let ((match (assq 'match source)))
             (cond
