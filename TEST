@@ -1,0 +1,203 @@
+-*- org -*-
+
+* How to test
+You can read this testcase document by following some rules.
+
+- (Code) is a code you should evaluate for testing the fixture.
+- (Expect) is a expected result of your test.
+  If no (Expect) is given, it means Emacs doesn't display any errors.
+- (Assume) is a code you should evaluate before test.
+
+If no sources you should use are not given in each fixture, we assumes that
+you use following sources.
+
+Code:
+    (defvar ac-source-test
+      '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
+    (defvar ac-source-action-test
+      '((candidates list "Action1" "Action2")
+        (action . (lambda () (message "Done!")))))
+    (setq ac-sources '(ac-source-test ac-source-action-test))
+
+* Setup
+
+** Load auto-complete
+Code:
+    (require 'auto-complete)
+    (require 'auto-complete-config)
+
+** Enable/disable auto-complete by M-x auto-complete-mode
+
+** Use global-auto-complete-mode
+Code:
+    (global-auto-complete-mode t)
+
+Expect:
+    No errors. auto-complete-mode will be enabled automatically.
+
+* Auto-completion
+
+** Type some string at *scratch* buffer
+Expect:
+    Menu contains words in the current buffer.
+
+** Type some string at right of the window
+Expect:
+    Menu will be shown in right-to-left direction without any window scrolling.
+
+** Continue to type some string above case
+Expect:
+    Menu will never be disrupted.
+
+** Type some string at the right of window with truncate-lines enabled
+Assume:
+    (setq truncate-lines t)
+
+** Type some string at the bottom of window
+Expect:
+    Menu will be shown in bottom-to-top direction without any window scrolling.
+
+** Delete a character at the word
+Expect:
+    Completion will be started.
+
+** Type some string so that a menu overlaps the end of buffer that doesn't have newline at the end
+Expect:
+    Menu will be shown correctly.
+    Newline at the end is not seen.
+
+** Type some string with ac-auto-start nil
+Assume:
+    (setq ac-auto-start nil)
+
+Expect:
+    Completion will never be started automatically.
+
+** Type some string with ac-auto-start t
+Assume:
+    (setq ac-auto-start t)
+
+Expect:
+    Completion will be started automatically if possible.
+
+** Type 1 character with ac-auto-start 2
+Assume:
+    (setq ac-auto-start 2)
+
+Expect:
+    Completion will never be started automatically.
+
+** Type 2 characters with ac-auto-start 2
+Assume:
+    (setq ac-auto-start 2)
+
+Expect:
+    Completion will be started automatically if possible.
+
+** Type F
+Expect:
+    Menu contains "Foo" and "FooBar" as candidates.
+    Inline completion appears and it contains "oo" as common-part.
+
+** Type TAB while completion with ac-dwim disabled
+Assume:
+    (setq ac-dwim nil)
+
+Expect:
+    (a) If there is common-part of candidates, auto-complete expands it.
+    (b) If the prefix equals to the first of candidates, auto-complete selects next candidate.
+    (c) Othewise, auto-complete expands selected candidate.
+
+** Type TAB while completion with ac-dwim enabled
+Assume:
+    (setq ac-dwim t)
+    (setq ac-sources
+
+Expect:
+    (a) If there is common-part of candidates, auto-complete expands it.
+    (b) If only one candidate remains, or if it is done after selecting be ac-previous/ac-next,
+        auto-complete simulates ac-complete.
+        - If its candidate has an action, the action will be invoked. ("Action1" and "Action2" have an action)
+        - Expand its candidate.
+    (c) If the prefix equals to the first of candidates, auto-complete selects next candidate.
+    (d) Othewise, auto-complete expands selected candidate.
+
+** Type RET while completion
+Expect:
+    Completion will be done for selected candidate.
+    If its candidate has an action, the action will be invoked.
+    Use "Action" for the prefix for test.
+
+* Configuration
+
+** Change menu height
+Code:
+    (setq ac-menu-height 20)
+
+Expect:
+    Up to 20 candidates will be shown in a menu.
+
+** Use trigger key facility
+Code:
+    (ac-set-trigger-key "TAB")
+
+Expect:
+    Now you can use TAB for auto-completion.
+    It is enabled only when
+    (a) After insertion/deletion command
+    (b) With prefix (C-u TAB)
+    Otherwise, it behaves as default.
+    Generally, it is used with ac-auto-start disabled.
+
+** Use ac-mode-map
+Code:
+    (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+
+Expect:
+    Now you can start auto-complete with typing M-TAB anywhere.
+
+** Change default ac-sources
+Code:
+    (setq-default ac-sources '(ac-source-words-in-all-buffer))
+
+Expect:
+    Now default ac-sources has been changed for newly opened buffers.
+
+* Builtin sources
+
+** ac-source-words-in-buffer
+Expect:
+    Candidates will be words in the current buffer.
+
+** ac-source-words-in-all-buffer
+Expect:
+    Candidates will be words in all buffer.
+
+** ac-source-words-in-same-mode-buffers
+Expect:
+    Candidates will be words for buffers which major-mode same to
+    the current buffer's one.
+
+** ac-source-symbols
+Expect:
+    Candidates will be all Emacs Lisp symbols.
+
+** ac-source-abbrev
+Expect:
+    Candidates will be abbreviations of local-abbrev-table and global-abbrev-table.
+
+** ac-source-files-in-current-dir
+Expect:
+    Candidates will be files contained by the current directory (default-directory).
+
+** ac-source-filename
+Expect:
+    Candidates will be absolute/relative file name.
+    This source will be executed when the prefix seems to be file name.
+    That is, the prefix contains slash (/) and a string between first to
+    last flash is a valid directory.
+    When ac-complete, this continues to complete if the prefix is a valid directory.
+
+** ac-source-imenu
+Expect:
+    Candidates will be a node of imenu tree.
