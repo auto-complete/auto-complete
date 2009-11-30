@@ -111,7 +111,6 @@ Expect:
 ** Type TAB while completion with ac-dwim enabled
 Assume:
     (setq ac-dwim t)
-    (setq ac-sources
 
 Expect:
     (a) If there is common-part of candidates, auto-complete expands it.
