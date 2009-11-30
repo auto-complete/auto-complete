@@ -41,12 +41,13 @@
   '((init . (unless ac-emacs-lisp-features
               (let ((suffix (concat (regexp-opt (find-library-suffixes) t) "\\'")))
                 (setq ac-emacs-lisp-features
-                      (loop for dir in load-path
-                            if (file-directory-p dir)
-                            append (loop for file in (directory-files dir)
-                                         if (string-match suffix file)
-                                         collect (substring file 0 (match-beginning 0))))))))
-    (candidates . (append features ac-emacs-lisp-features))
+                      (append (mapcar 'prin1-to-string features)
+                              (loop for dir in load-path
+                                    if (file-directory-p dir)
+                                    append (loop for file in (directory-files dir)
+                                                 if (string-match suffix file)
+                                                 collect (substring file 0 (match-beginning 0)))))))))
+    (candidates . ac-emacs-lisp-features)
     (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")
     (limit . 0)))
 

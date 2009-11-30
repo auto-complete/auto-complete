@@ -3,8 +3,9 @@
 ;; Copyright (C) 2008, 2009  Tomohiro Matsuyama
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
+;; Repository http://github.com/m2ym/auto-complete
 ;; Keywords: convenience
-;; Version: 1.0a
+;; Version: 1.0
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -40,14 +41,33 @@
 
 ;;; Installation:
 ;;
-;; To use this extension, locate auto-complete.el to your load-path directory.
+;; To use this extension, compile necessary elisp files and locate them to your load-path directory.
 ;;
-;;     $ cp auto-complete.el ~/.emacs.d/
+;;     $ emacs -L . -batch -f batch-byte-compile *.el
+;;     $ cp *.el *.elc ~/.emacs.d/
 ;;
 ;; And write following code into your .emacs.
 ;;
 ;;     (require 'auto-complete)
+;;     (require 'auto-complete-config)
 ;;     (global-auto-complete-mode t)
+
+;;; Sample configuration:
+;;
+;; Here is my configuration. It is useful for many people.
+;;
+;;     (setq-default ac-sources '(ac-source-words-in-same-mode-buffers))
+;;     (add-hook 'emacs-lisp-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-symbols)))
+;;     (add-hook 'auto-complete-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-filename)))
+;;     (global-auto-complete-mode t)
+;;     (set-face-background 'ac-candidate-face "lightgray")
+;;     (set-face-underline 'ac-candidate-face "darkgray")
+;;     (set-face-background 'ac-selection-face "steelblue")
+;;     (define-key ac-completing-map "\M-n" 'ac-next)
+;;     (define-key ac-completing-map "\M-p" 'ac-previous)
+;;     (setq ac-auto-start 2)
+;;     (setq ac-dwim t)
+;;     (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
 
 ;;; Tips:
 ;;
@@ -56,8 +76,8 @@
 ;;
 ;; Add following code to your .emacs.
 ;; 
-;;     (define-key ac-complete-mode-map "\C-n" 'ac-next)
-;;     (define-key ac-complete-mode-map "\C-p" 'ac-previous)
+;;     (define-key ac-completing-map "\C-n" 'ac-next)
+;;     (define-key ac-completing-map "\C-p" 'ac-previous)
 ;;
 ;;
 ;; Don't start completion automatically
@@ -66,7 +86,7 @@
 ;; Add following code to your .emacs.
 ;;
 ;;     (setq ac-auto-start nil)
-;;     (global-set-key "\M-/" 'ac-start)
+;;     (global-set-key "\M-/" 'auto-complete)
 ;;
 ;; or
 ;;
@@ -74,12 +94,34 @@
 ;;     (setq ac-auto-start 3)
 ;;
 ;;
+;; Use trigger key
+;; ---------------
+;;
+;; You can use common key as auto-complete trigger.
+;; Add following code to your .emacs.
+;;
+;;     (ac-set-trigger-key "TAB")
+;;
+;; Now you can use TAB as auto-complete trigger.
+;; It is enabled only when
+;; a. After insertion/deletion command
+;; b. With prefix (C-u TAB)
+;;
+;;
+;; Use M-TAB for completion
+;; ------------------------
+;;
+;; Add following code to your .emacs.
+;;
+;;     (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+;;
+;;
 ;; Stop completion
 ;; ---------------
 ;;
 ;; Add following code to your .emacs.
 ;;
-;;     (define-key ac-complete-mode-map "\M-/" 'ac-stop)
+;;     (define-key ac-completing-map "\M-/" 'ac-stop)
 ;;
 ;; Now you can stop completion by pressing M-/.
 ;;
@@ -89,8 +131,8 @@
 ;;
 ;; Add following code to your .emacs.
 ;;
-;;     (define-key ac-complete-mode-map "\t" 'ac-complete)
-;;     (define-key ac-complete-mode-map "\r" nil)
+;;     (define-key ac-completing-map "\t" 'ac-complete)
+;;     (define-key ac-completing-map "\r" nil)
 ;;
 ;;
 ;; Do What I Mean mode
