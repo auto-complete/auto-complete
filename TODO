@@ -1,4 +1,3 @@
-* auto-complete
 - complete ignore list
 - etags, ctags
 - emacswiki
@@ -13,7 +12,5 @@
 - show description
 - semantic
 - icon
-- linum.el bug (reported by Andy Stewart)
-- flymake bug (reported by TiagoCamargo)
 - asynchronous processing
 - kanji henkan support
