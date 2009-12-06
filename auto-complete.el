@@ -3,9 +3,9 @@
 ;; Copyright (C) 2008, 2009  Tomohiro Matsuyama
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
-;; Repository http://github.com/m2ym/auto-complete
+;; URL: http://github.com/m2ym/auto-complete
 ;; Keywords: convenience
-;; Version: 1.0
+;; Version: 1.1a
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -233,6 +233,15 @@ If you specify `nil', never be started automatically."
   :type '(choice (const :tag "Yes" t)
                  (const :tag "Never" nil)
                  (integer :tag "Require"))
+  :group 'auto-complete)
+
+(defcustom ac-ignore-case nil
+  "Non-nil means auto-complete ignores case.
+If this value is `smart', auto-complete ignores case only when
+a prefix doen't contain any upper case letters."
+  :type '(choice (const :tag "Yes" t)
+                 (const :tag "Smart" smart)
+                 (const :tag "No" nil))
   :group 'auto-complete)
 
 (defcustom ac-dwim nil
@@ -561,7 +570,10 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-candidates ()
   "Produce candidates for current sources."
-  (loop with prefix-len = (length ac-prefix)
+  (loop with completion-ignore-case = (or (eq ac-ignore-case t)
+                                          (and (eq ac-ignore-case 'smart)
+                                               (let ((case-fold-search nil)) (not (string-match "[[:upper:]]" ac-prefix)))))
+        with prefix-len = (length ac-prefix)
         for source in ac-current-sources
         for function = (assoc-default 'candidates source)
         for requires = (or (assoc-default 'requires source) 0)
