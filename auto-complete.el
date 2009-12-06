@@ -207,6 +207,12 @@
   :type '(repeat symbol)
   :group 'auto-complete)
 
+(defcustom ac-compatible-packages-regexp
+  "^\\(ac\\|autopair\\)-"
+  "Regexp to indicate what packages can work with auto-complete."
+  :type 'string
+  :group 'auto-complete)
+
 (defcustom ac-trigger-commands
   '(self-insert-command)
   "Trigger commands that specify whether `auto-complete' should start or not."
@@ -792,7 +798,7 @@ that have been made before in this function."
   (condition-case var
       (if (or (ac-trigger-command-p this-command)
               (and (symbolp this-command)
-                   (string-match "^ac-" (symbol-name this-command))))
+                   (string-match ac-compatible-packages-regexp (symbol-name this-command))))
           ;; Not to cause inline completion to be disrupted.
           (if (ac-expander-live-p)
               (expander-hide ac-expander))
