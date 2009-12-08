@@ -183,6 +183,16 @@
   :group 'convenience
   :prefix "ac-")
 
+(defcustom ac-delay 0.1
+  "Delay to show menu."
+  :type 'float
+  :group 'auto-complete
+  :set (lambda (symbol value)
+         (set-default symbol value)
+         (when (and (boundp 'ac-idle-timer)
+                    ac-idle-timer)
+           (ac-set-idle-timer t))))
+  
 (defcustom ac-menu-height 10
   "Max height of candidate menu."
   :type 'integer
@@ -214,7 +224,10 @@
   :group 'auto-complete)
 
 (defcustom ac-trigger-commands
-  '(self-insert-command)
+  '(self-insert-command
+    delete-backward-char
+    backward-delete-char
+    backward-delete-char-untabify)
   "Trigger commands that specify whether `auto-complete' should start or not."
   :type '(repeat symbol)
   :group 'auto-complete)
@@ -295,6 +308,15 @@ a prefix doen't contain any upper case letters."
 (defvar ac-prefix nil
   "Prefix string.")
 (defvaralias 'ac-target 'ac-prefix)
+
+(defvar ac-idle-timer nil
+  "Menu idle timer.")
+
+(defvar ac-last-command-type nil
+  "Indicating what is the last-command.
+If `trigger', the last-command is a trigger command.
+If `compable', the last-command is a compatible package command.
+Otherwise, the last-command is not what auto-complete cares about.")
 
 (defvar ac-common-part nil
   "Common part string of candidates.
@@ -665,6 +687,17 @@ that have been made before in this function."
   (undo-boundary)
   (setq ac-prefix string))
 
+(defun ac-set-trigger-key (key)
+  "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
+  ;; Remove old mapping
+  (when ac-trigger-key
+    (define-key ac-mode-map (read-kbd-macro ac-trigger-key) nil))
+
+  ;; Make new mapping
+  (setq ac-trigger-key key)
+  (when key
+    (define-key ac-mode-map (read-kbd-macro key) 'ac-trigger-key-command)))
+
 
 
 ;; Auto completion commands
@@ -778,42 +811,6 @@ that have been made before in this function."
   (interactive)
   (ac-abort))
 
-
-
-;; Auto complete mode
-
-(defun ac-trigger-command-p (command)
-  "Return non-nil if `COMMAND' is a trigger command."
-  (and (symbolp command)
-       (or (memq command ac-trigger-commands)
-           (string-match "self-insert-command" (symbol-name command))
-           (string-match "electric" (symbol-name command))
-           (and                         ;ac-completing
-            (memq command
-                  '(delete-backward-char
-                    backward-delete-char
-                    backward-delete-char-untabify))))))
-
-(defun ac-handle-pre-command ()
-  (condition-case var
-      (if (or (ac-trigger-command-p this-command)
-              (and (symbolp this-command)
-                   (string-match ac-compatible-packages-regexp (symbol-name this-command))))
-          ;; Not to cause inline completion to be disrupted.
-          (if (ac-expander-live-p)
-              (expander-hide ac-expander))
-        (ac-abort))
-    (error (ac-error var))))
-
-(defun ac-handle-post-command ()
-  (condition-case var
-      (if (and (or ac-auto-start
-                   ac-completing)
-               (not isearch-mode)
-               (ac-trigger-command-p this-command))
-          (ac-start t))
-    (error (ac-error var))))
-
 (defun ac-trigger-key-command (&optional force)
   (interactive "P")
   (or (and (or force
@@ -833,22 +830,54 @@ that have been made before in this function."
           (setq this-command command)
           (call-interactively command)))))
 
-(defun ac-set-trigger-key (key)
-  "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
-  ;; Remove old mapping
-  (when ac-trigger-key
-    (define-key ac-mode-map (read-kbd-macro ac-trigger-key) nil))
+
 
-  ;; Make new mapping
-  (setq ac-trigger-key key)
-  (when key
-    (define-key ac-mode-map (read-kbd-macro key) 'ac-trigger-key-command)))
+;; Auto complete mode
 
-(defun auto-complete-mode-maybe ()
-  "What buffer `auto-complete-mode' prefers."
-  (if (and (not (minibufferp (current-buffer)))
-           (memq major-mode ac-modes))
-      (auto-complete-mode 1)))
+(defun ac-trigger-command-p (command)
+  "Return non-nil if `COMMAND' is a trigger command."
+  (and (symbolp command)
+       (or (memq command ac-trigger-commands)
+           (string-match "self-insert-command" (symbol-name command))
+           (string-match "electric" (symbol-name command)))))
+
+(defun ac-compatible-package-command-p (command)
+  "Return non-nil if `COMMAND' is compatible with auto-complete."
+  (and (symbolp command)
+       (string-match ac-compatible-packages-regexp (symbol-name command))))
+
+(defun ac-set-idle-timer (&optional reset)
+  (when (and ac-idle-timer
+             (timerp ac-idle-timer)
+             reset)
+    (cancel-timer ac-idle-timer)
+    (setq ac-idle-timer nil))
+  (unless ac-idle-timer
+    (setq ac-idle-timer (run-with-idle-timer ac-delay ac-delay 'ac-timer))))
+
+(defun ac-timer ()
+  (when (and auto-complete-mode
+             (or ac-auto-start
+                 ac-completing)
+             (eq ac-last-command-type 'trigger)
+             (not isearch-mode))
+    (ac-start t)))
+
+(defun ac-handle-pre-command ()
+  (condition-case var
+      (if (setq ac-last-command-type
+                (cond
+                 ((ac-trigger-command-p this-command)
+                  'trigger)
+                 ((ac-compatible-package-command-p this-command)
+                  'compatible)
+                 (t
+                  nil)))
+          ;; Not to cause inline completion to be disrupted.
+          (if (ac-expander-live-p)
+              (expander-hide ac-expander))
+        (ac-abort))
+    (error (ac-error var))))
 
 (defun ac-setup ()
   (make-local-variable 'ac-clear-variables-after-save)
@@ -862,16 +891,21 @@ that have been made before in this function."
   "AutoComplete mode"
   :lighter " AC"
   :group 'auto-complete
+  (ac-set-idle-timer)
   (if auto-complete-mode
       (progn
         (ac-setup)
-        (add-hook 'post-command-hook 'ac-handle-post-command nil t)
         (add-hook 'pre-command-hook 'ac-handle-pre-command nil t)
         (run-hooks 'auto-complete-mode-hook))
-    (remove-hook 'post-command-hook 'ac-handle-post-command t)
     (remove-hook 'pre-command-hook 'ac-handle-pre-command t)
     (ac-abort)
     (assq-delete-all 'auto-complete-mode minor-mode-map-alist)))
+
+(defun auto-complete-mode-maybe ()
+  "What buffer `auto-complete-mode' prefers."
+  (if (and (not (minibufferp (current-buffer)))
+           (memq major-mode ac-modes))
+      (auto-complete-mode 1)))
 
 (define-global-minor-mode global-auto-complete-mode
   auto-complete-mode auto-complete-mode-maybe
