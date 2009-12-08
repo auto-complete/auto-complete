@@ -182,7 +182,7 @@
   :group 'convenience
   :prefix "ac-")
 
-(defcustom ac-delay 0.3
+(defcustom ac-delay 0.2
   "Delay to show menu."
   :type 'float
   :group 'auto-complete
@@ -486,6 +486,9 @@ You can not use it in source definition like (prefix . `NAME')."
 (defsubst ac-menu-live-p ()
   (pulldown-live-p ac-menu))
 
+(defun ac-menu-create (point width height)
+  (setq ac-menu (pulldown-create point width height :scroll-bar t :margin 1)))
+
 (defun ac-menu-delete ()
   (when ac-menu
     (pulldown-delete ac-menu)
@@ -705,7 +708,7 @@ You can not use it in source definition like (prefix . `NAME')."
   (let ((cursor (pulldown-cursor ac-menu))
         (scroll-top (pulldown-scroll-top ac-menu)))
     (pulldown-delete ac-menu)
-    (setq ac-menu (pulldown-create ac-point (pulldown-preferred-width ac-candidates) (pulldown-height ac-menu)))
+    (ac-menu-create ac-point (pulldown-preferred-width ac-candidates) (pulldown-height ac-menu))
     (ac-update-candidates cursor scroll-top)))
 
 (defun ac-cleanup ()
@@ -930,7 +933,7 @@ that have been made before in this function."
                   (and (> (pulldown-direction ac-menu) 0)
                        (ac-menu-at-wrapper-line-p)))
           (ac-menu-delete)
-          (setq ac-menu (pulldown-create ac-point preferred-width ac-menu-height))))
+          (ac-menu-create ac-point preferred-width ac-menu-height)))
       (ac-update-candidates 0 0))))
 
 (defun ac-handle-pre-command ()
