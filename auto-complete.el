@@ -176,7 +176,6 @@
   (require 'cl))
 
 (require 'pulldown)
-(require 'expander)
 
 (defgroup auto-complete nil
   "Auto completion."
@@ -290,8 +289,11 @@ a prefix doen't contain any upper case letters."
 
 ;; Internal variables
 
-(defvar ac-expander nil
-  "Expander instance.")
+(defvar auto-complete-mode nil
+  "Dummy variable to suppress compiler warnings.")
+
+(defvar ac-preview nil
+  "Preview instance.")
 
 (defvar ac-menu nil
   "Menu instance.")
@@ -484,29 +486,86 @@ You can not use it in source definition like (prefix . `NAME')."
     (pulldown-delete ac-menu)
     (setq ac-menu)))
 
-(defun ac-expander-live-p ()
-  (expander-live-p ac-expander))
+(defsubst ac-preview-marker ()
+  (nth 0 ac-preview))
 
-(defun ac-expander-show (point string)
-  (unless ac-expander
-    (setq ac-expander (expander-create 'ac-completion-face)))
-  (expander-show ac-expander point string))
+(defsubst ac-preview-overlay ()
+  (nth 1 ac-preview))
 
-(defun ac-expander-delete ()
-  (when ac-expander
-    (expander-delete ac-expander)
-    (setq ac-expander nil)))
+(defsubst ac-preview-live-p ()
+  (and ac-preview (ac-preview-overlay) t))
 
-(defun ac-expander-hide ()
-  (if ac-expander
-      (expander-hide ac-expander)))
+(defun ac-preview-show (point string)
+  (unless ac-preview
+    (setq ac-preview (list (make-marker) nil)))
+  (save-excursion
+    (let ((overlay (ac-preview-overlay))
+          (width 0)
+          (string-width (string-width string))
+          (original-string string))
+      ;; Calculate string space to show completion
+      (goto-char point)
+      (while (and (not (eolp))
+                  (< width string-width))
+        (incf width (char-width (char-after)))
+        (forward-char))
 
-(defun ac-expander-update ()
+      ;; Show completion
+      (goto-char point)
+      (cond
+       ((= width 0)
+        (set-marker (ac-preview-marker) point)
+        (let ((buffer-undo-list t))
+          (insert " "))
+        (setq width 1))
+       ((<= width string-width)
+        ;; No space to show
+        ;; Do nothing
+        )
+       ((> width string-width)
+        ;; Need to fill space
+        (setq string (concat string (make-string (- width string-width) ? )))))
+      (setq string (propertize string 'face 'ac-completion-face))
+      (if overlay
+          (progn
+            (move-overlay overlay point (+ point width))
+            (overlay-put overlay 'invisible nil))
+        (setq overlay (make-overlay point (+ point width)))
+        (setf (nth 1 ac-preview)  overlay)
+        (overlay-put overlay 'priority 9999))
+      (overlay-put overlay 'display (substring string 0 1))
+      ;; TODO no width but char
+      (overlay-put overlay 'after-string (substring string 1))
+      (overlay-put overlay 'string original-string))))
+
+(defun ac-preview-delete ()
+  (when (ac-preview-live-p)
+    (ac-preview-hide)
+    (delete-overlay (ac-preview-overlay))
+    (setq ac-preview nil)))
+
+(defun ac-preview-hide ()
+  (when (ac-preview-live-p)
+    (let ((overlay (ac-preview-overlay))
+          (marker (ac-preview-marker))
+          (buffer-undo-list t))
+      (when overlay
+        (when (marker-position marker)
+          (save-excursion
+            (goto-char marker)
+            (delete-char 1)
+            (set-marker marker nil)))
+        (move-overlay overlay (point-min) (point-min))
+        (overlay-put overlay 'invisible t)
+        (overlay-put overlay 'display nil)
+        (overlay-put overlay 'after-string nil)))))
+
+(defun ac-preview-update ()
   (setq ac-common-part (try-completion ac-prefix ac-candidates))
   (if (and (stringp ac-common-part)
            (> (length ac-common-part) (length ac-prefix)))
-      (ac-expander-show (point) (substring ac-common-part (length ac-prefix)))
-    (ac-expander-delete)))
+      (ac-preview-show (point) (substring ac-common-part (length ac-prefix)))
+    (ac-preview-delete)))
 
 (defun ac-activate-mode-map ()
   "Activate `ac-completing-map'. This cause `ac-completing' to be used temporaly."
@@ -621,7 +680,7 @@ You can not use it in source definition like (prefix . `NAME')."
         (ac-activate-mode-map))
     (setq ac-completing nil)
     (ac-deactivate-mode-map))
-  (ac-expander-update)
+  (ac-preview-update)
   (when (and ac-common-part
              (member ac-common-part ac-candidates))
     ;; TODO general implementation
@@ -642,9 +701,9 @@ You can not use it in source definition like (prefix . `NAME')."
 (defun ac-cleanup ()
   "Cleanup auto completion."
   (ac-deactivate-mode-map)
-  (ac-expander-delete)
+  (ac-preview-delete)
   (ac-menu-delete)
-  (setq ac-expander nil
+  (setq ac-preview nil
         ac-menu nil
         ac-completing nil
         ac-point nil
@@ -708,8 +767,8 @@ that have been made before in this function."
   (ac-abort)
   (ac-start)
   ;; TODO Not to cause inline completion to be disrupted.
-  (if (ac-expander-live-p)
-      (expander-hide ac-expander))
+  (if (ac-preview-live-p)
+      (ac-preview-hide))
   (ac-expand-common)
   t)
 
@@ -749,7 +808,7 @@ that have been made before in this function."
   (interactive)
   (if (and ac-dwim ac-dwim-enable)
       (ac-complete)
-    (when (and (ac-expander-live-p)
+    (when (and (ac-preview-live-p)
                ac-common-part)
       (ac-expand-string ac-common-part (eq last-command this-command))
       (setq ac-common-part nil)
@@ -874,8 +933,8 @@ that have been made before in this function."
                  (t
                   nil)))
           ;; Not to cause inline completion to be disrupted.
-          (if (ac-expander-live-p)
-              (expander-hide ac-expander))
+          (if (ac-preview-live-p)
+              (ac-preview-hide))
         (ac-abort))
     (error (ac-error var))))
 
