@@ -240,11 +240,13 @@
 
 (defface ac-gtags-candidate-face
   '((t (:background "lightgray" :foreground "navy")))
-  "Face for gtags candidate")
+  "Face for gtags candidate"
+  :group 'auto-complete)
 
 (defface ac-gtags-selection-face
   '((t (:background "navy" :foreground "white")))
-  "Face for the gtags selected candidate.")
+  "Face for the gtags selected candidate."
+  :group 'auto-complete)
 
 (defun ac-gtags-candidate ()
   (if (memq major-mode ac-gtags-modes)
@@ -391,11 +393,13 @@
 
 (defface ac-yasnippet-candidate-face
   '((t (:background "sandybrown" :foreground "black")))
-  "Face for yasnippet candidate.")
+  "Face for yasnippet candidate."
+  :group 'auto-complete)
 
 (defface ac-yasnippet-selection-face
   '((t (:background "coral3" :foreground "white")))
-  "Face for the yasnippet selected candidate.")
+  "Face for the yasnippet selected candidate."
+  :group 'auto-complete)
 
 (defvar ac-source-yasnippet
   '((candidates . ac-yasnippet-candidate)

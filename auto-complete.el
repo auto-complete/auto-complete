@@ -182,7 +182,7 @@
   :group 'convenience
   :prefix "ac-")
 
-(defcustom ac-delay 0.1
+(defcustom ac-delay 0.3
   "Delay to show menu."
   :type 'float
   :group 'auto-complete
@@ -262,7 +262,12 @@ a prefix doen't contain any upper case letters."
                  (const :tag "No" nil))
   :group 'auto-complete)
 
-(defcustom ac-dwim nil
+(defcustom ac-common-part-threshold 1
+  "Threshold whether the larger length of string will be common-part."
+  :type 'integer
+  :group 'auto-complete)
+
+(defcustom ac-dwim t
   "Non-nil means `auto-complete' works based on Do What I Mean."
   :type 'boolean
   :group 'auto-complete)
@@ -292,8 +297,8 @@ a prefix doen't contain any upper case letters."
 (defvar auto-complete-mode nil
   "Dummy variable to suppress compiler warnings.")
 
-(defvar ac-preview nil
-  "Preview instance.")
+(defvar ac-inline nil
+  "Inline completion instance.")
 
 (defvar ac-menu nil
   "Menu instance.")
@@ -311,19 +316,19 @@ a prefix doen't contain any upper case letters."
   "Prefix string.")
 (defvaralias 'ac-target 'ac-prefix)
 
-(defvar ac-idle-timer nil
-  "Menu idle timer.")
-
-(defvar ac-last-command-type nil
-  "Indicating what is the last-command.
-If `trigger', the last-command is a trigger command.
-If `compable', the last-command is a compatible package command.
-Otherwise, the last-command is not what auto-complete cares about.")
-
 (defvar ac-common-part nil
   "Common part string of candidates.
 If there is no common part, this will be nil.")
-  
+
+(defvar ac-prefix-overlay nil
+  "Overlay for prefix string.")
+
+(defvar ac-idle-timer nil
+  "Menu idle timer.")
+
+(defvar ac-triggered nil
+  "Flag to update.")
+
 (defvar ac-limit 0
   "Limit number of candidates for each sources.")
 
@@ -358,7 +363,7 @@ If there is no common part, this will be nil.")
     (c-dot . ac-prefix-c-dot))
   "Prefix definitions for common use.")
 
-(defvar ac-sources '(ac-source-words-in-buffer)
+(defvar ac-sources '(ac-source-words-in-same-mode-buffers)
   "Sources for completion.
 
 Source takes a form of just function which returns candidates or alist:
@@ -478,7 +483,7 @@ You can not use it in source definition like (prefix . `NAME')."
       (setq ac-compiled-sources
             (ac-compile-sources ac-sources))))
 
-(defun ac-menu-live-p ()
+(defsubst ac-menu-live-p ()
   (pulldown-live-p ac-menu))
 
 (defun ac-menu-delete ()
@@ -486,20 +491,20 @@ You can not use it in source definition like (prefix . `NAME')."
     (pulldown-delete ac-menu)
     (setq ac-menu)))
 
-(defsubst ac-preview-marker ()
-  (nth 0 ac-preview))
+(defsubst ac-inline-marker ()
+  (nth 0 ac-inline))
 
-(defsubst ac-preview-overlay ()
-  (nth 1 ac-preview))
+(defsubst ac-inline-overlay ()
+  (nth 1 ac-inline))
 
-(defsubst ac-preview-live-p ()
-  (and ac-preview (ac-preview-overlay) t))
+(defsubst ac-inline-live-p ()
+  (and ac-inline (ac-inline-overlay) t))
 
-(defun ac-preview-show (point string)
-  (unless ac-preview
-    (setq ac-preview (list (make-marker) nil)))
+(defun ac-inline-show (point string)
+  (unless ac-inline
+    (setq ac-inline (list (make-marker) nil)))
   (save-excursion
-    (let ((overlay (ac-preview-overlay))
+    (let ((overlay (ac-inline-overlay))
           (width 0)
           (string-width (string-width string))
           (original-string string))
@@ -514,7 +519,7 @@ You can not use it in source definition like (prefix . `NAME')."
       (goto-char point)
       (cond
        ((= width 0)
-        (set-marker (ac-preview-marker) point)
+        (set-marker (ac-inline-marker) point)
         (let ((buffer-undo-list t))
           (insert " "))
         (setq width 1))
@@ -531,23 +536,23 @@ You can not use it in source definition like (prefix . `NAME')."
             (move-overlay overlay point (+ point width))
             (overlay-put overlay 'invisible nil))
         (setq overlay (make-overlay point (+ point width)))
-        (setf (nth 1 ac-preview)  overlay)
+        (setf (nth 1 ac-inline)  overlay)
         (overlay-put overlay 'priority 9999))
       (overlay-put overlay 'display (substring string 0 1))
       ;; TODO no width but char
       (overlay-put overlay 'after-string (substring string 1))
       (overlay-put overlay 'string original-string))))
 
-(defun ac-preview-delete ()
-  (when (ac-preview-live-p)
-    (ac-preview-hide)
-    (delete-overlay (ac-preview-overlay))
-    (setq ac-preview nil)))
+(defun ac-inline-delete ()
+  (when (ac-inline-live-p)
+    (ac-inline-hide)
+    (delete-overlay (ac-inline-overlay))
+    (setq ac-inline nil)))
 
-(defun ac-preview-hide ()
-  (when (ac-preview-live-p)
-    (let ((overlay (ac-preview-overlay))
-          (marker (ac-preview-marker))
+(defun ac-inline-hide ()
+  (when (ac-inline-live-p)
+    (let ((overlay (ac-inline-overlay))
+          (marker (ac-inline-marker))
           (buffer-undo-list t))
       (when overlay
         (when (marker-position marker)
@@ -560,33 +565,38 @@ You can not use it in source definition like (prefix . `NAME')."
         (overlay-put overlay 'display nil)
         (overlay-put overlay 'after-string nil)))))
 
-(defun ac-preview-update ()
-  (setq ac-common-part (try-completion ac-prefix ac-candidates))
-  (if (and (stringp ac-common-part)
-           (> (length ac-common-part) (length ac-prefix)))
-      (ac-preview-show (point) (substring ac-common-part (length ac-prefix)))
-    (ac-preview-delete)))
+(defun ac-inline-update ()
+  (when (and ac-completing ac-prefix
+             (stringp (setq ac-common-part (try-completion ac-prefix ac-candidates))))
+    (let ((common-part-length (length ac-common-part))
+          (prefix-length (length ac-prefix)))
+      (if (and (> common-part-length prefix-length)
+               (> (- common-part-length prefix-length) ac-common-part-threshold))
+          (progn
+            (ac-inline-hide)
+            (ac-inline-show (point) (substring ac-common-part prefix-length)))
+        (ac-inline-delete)))))
 
-(defun ac-activate-mode-map ()
-  "Activate `ac-completing-map'. This cause `ac-completing' to be used temporaly."
-  (assq-delete-all 'ac-completing minor-mode-map-alist)
-  (push (cons 'ac-completing ac-completing-map) minor-mode-map-alist))
+(defun ac-put-prefix-overlay ()
+  (unless ac-prefix-overlay
+    (setq ac-prefix-overlay (make-overlay ac-point (1+ (point)) nil t t))
+    (overlay-put ac-prefix-overlay 'priority 9999)
+    (overlay-put ac-prefix-overlay 'keymap (make-sparse-keymap))))
 
-(defun ac-deactivate-mode-map ()
-  "Deactivate `ac-completing-map'."
-  (assq-delete-all 'ac-completing minor-mode-map-alist))
+(defun ac-remove-prefix-overlay ()
+  (when ac-prefix-overlay
+    (delete-overlay ac-prefix-overlay)))
 
-(defun ac-get-selected-candidate ()
+(defun ac-activate-completing-map ()
+  (when ac-prefix-overlay
+    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) ac-completing-map)))
+
+(defun ac-deactivate-completing-map ()
+  (when ac-prefix-overlay
+    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
+
+(defsubst ac-get-selected-candidate ()
   (nth (pulldown-cursor ac-menu) ac-candidates))
-
-(defun ac-get-candidate-action (candidate)
-  (ac-get-candidate-property 'action candidate))
-
-(defun ac-propertize-candidate (candidate &rest properties)
-  (apply 'propertize candidate properties))
-
-(defun ac-get-candidate-property (prop candidate)
-  (get-text-property 0 prop candidate))
 
 (defun ac-prefix ()
   "Return a pair of POINT of prefix and SOURCES to be applied."
@@ -677,10 +687,10 @@ You can not use it in source definition like (prefix . `NAME')."
   (if ac-candidates
       (progn
         (setq ac-completing t)
-        (ac-activate-mode-map))
+        (ac-activate-completing-map))
     (setq ac-completing nil)
-    (ac-deactivate-mode-map))
-  (ac-preview-update)
+    (ac-deactivate-completing-map))
+  (ac-inline-update)
   (when (and ac-common-part
              (member ac-common-part ac-candidates))
     ;; TODO general implementation
@@ -700,20 +710,21 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-cleanup ()
   "Cleanup auto completion."
-  (ac-deactivate-mode-map)
-  (ac-preview-delete)
+  (ac-remove-prefix-overlay)
+  (ac-inline-delete)
   (ac-menu-delete)
-  (setq ac-preview nil
+  (setq ac-inline nil
         ac-menu nil
         ac-completing nil
         ac-point nil
         ac-prefix nil
+        ac-prefix-overlay nil
         ac-candidates nil
         ac-candidates-cache nil
         ac-compiled-sources nil
         ac-current-sources nil))
 
-(defun ac-abort ()
+(defsubst ac-abort ()
   "Abort completion."
   (ac-cleanup))
 
@@ -767,8 +778,8 @@ that have been made before in this function."
   (ac-abort)
   (ac-start)
   ;; TODO Not to cause inline completion to be disrupted.
-  (if (ac-preview-live-p)
-      (ac-preview-hide))
+  (if (ac-inline-live-p)
+      (ac-inline-hide))
   (ac-expand-common)
   t)
 
@@ -808,8 +819,9 @@ that have been made before in this function."
   (interactive)
   (if (and ac-dwim ac-dwim-enable)
       (ac-complete)
-    (when (and (ac-preview-live-p)
+    (when (and (ac-inline-live-p)
                ac-common-part)
+      (ac-inline-hide) 
       (ac-expand-string ac-common-part (eq last-command this-command))
       (setq ac-common-part nil)
       t)))
@@ -818,7 +830,7 @@ that have been made before in this function."
   "Try complete."
   (interactive)
   (let* ((candidate (ac-get-selected-candidate))
-         (action (ac-get-candidate-action candidate)))
+         (action (pulldown-item-property candidate 'action)))
     (ac-expand-string candidate)
     (ac-abort)
     (if action
@@ -851,19 +863,7 @@ that have been made before in this function."
               ac-completing t)
         (when (or init (null ac-menu))
           (ac-init))
-        (setq ac-candidates (ac-candidates))
-        (unless nomessage (message "Completion started"))
-        (let ((preferred-width (pulldown-preferred-width ac-candidates)))
-          ;; Reposition if needed
-          (when (or (null ac-menu)
-                    (>= (pulldown-width ac-menu) preferred-width)
-                    (<= (pulldown-width ac-menu) (- preferred-width 10))
-                    (and (> (pulldown-direction ac-menu) 0)
-                         (ac-menu-at-wrapper-line-p)))
-            (ac-menu-delete)
-            (setq ac-menu (pulldown-create ac-point preferred-width ac-menu-height))))
-        (ac-update-candidates 0 0)
-        (not (null ac-candidates))))))
+        (ac-put-prefix-overlay)))))
 
 (defun ac-stop ()
   "Stop completiong."
@@ -916,26 +916,41 @@ that have been made before in this function."
 
 (defun ac-timer ()
   (when (and auto-complete-mode
+             ac-triggered
              (or ac-auto-start
                  ac-completing)
-             (eq ac-last-command-type 'trigger)
              (not isearch-mode))
-    (ac-start t)))
+    (progn
+      (setq ac-candidates (ac-candidates))
+      (let ((preferred-width (pulldown-preferred-width ac-candidates)))
+        ;; Reposition if needed
+        (when (or (null ac-menu)
+                  (>= (pulldown-width ac-menu) preferred-width)
+                  (<= (pulldown-width ac-menu) (- preferred-width 10))
+                  (and (> (pulldown-direction ac-menu) 0)
+                       (ac-menu-at-wrapper-line-p)))
+          (ac-menu-delete)
+          (setq ac-menu (pulldown-create ac-point preferred-width ac-menu-height))))
+      (ac-update-candidates 0 0))))
 
 (defun ac-handle-pre-command ()
   (condition-case var
-      (if (setq ac-last-command-type
-                (cond
-                 ((ac-trigger-command-p this-command)
-                  'trigger)
-                 ((ac-compatible-package-command-p this-command)
-                  'compatible)
-                 (t
-                  nil)))
+      (if (or (setq ac-triggered (ac-trigger-command-p this-command))
+              (ac-compatible-package-command-p this-command))
           ;; Not to cause inline completion to be disrupted.
-          (if (ac-preview-live-p)
-              (ac-preview-hide))
+          (if (ac-inline-live-p)
+              (ac-inline-hide))
         (ac-abort))
+    (error (ac-error var))))
+
+(defun ac-handle-post-command ()
+  (condition-case var
+      (when (and ac-triggered
+                 (or ac-auto-start
+                     ac-completing)
+                 (not isearch-mode))
+        (ac-start t)
+        (ac-inline-update))
     (error (ac-error var))))
 
 (defun ac-setup ()
@@ -955,8 +970,10 @@ that have been made before in this function."
       (progn
         (ac-setup)
         (add-hook 'pre-command-hook 'ac-handle-pre-command nil t)
+        (add-hook 'post-command-hook 'ac-handle-post-command nil t)
         (run-hooks 'auto-complete-mode-hook))
     (remove-hook 'pre-command-hook 'ac-handle-pre-command t)
+    (remove-hook 'post-command-hook 'ac-handle-post-command t)
     (ac-abort)
     (assq-delete-all 'auto-complete-mode minor-mode-map-alist)))
 
@@ -1066,7 +1083,7 @@ that have been made before in this function."
   "Source for Emacs lisp symbols.")
 
 (defvar ac-source-abbrev
-  '((candidates . (mapcar 'prin1-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
+  '((candidates . (mapcar 'pulldown-x-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
     (action . expand-abbrev)
     (cache))
   "Source for abbrev.")

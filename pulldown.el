@@ -58,11 +58,6 @@
     (float (number-to-string x))
     (t (format "%s" x))))
 
-(defun pulldown-goto-line (line)
-  "Goto `LINE' regarding of narrowing."
-  (goto-char (point-min))
-  (forward-line (1- line)))
-
 (defun pulldown-current-physical-column ()
   "Current physical column. (not logical column)"
   (car (posn-col-row (posn-at-point))))
@@ -286,7 +281,7 @@
                      :overlays overlays))))
 
 (defun pulldown-delete (menu)
-  (mapcar 'delete-overlay (pulldown-overlays menu))
+  (mapc 'delete-overlay (pulldown-overlays menu))
   (setf (pulldown-overlays menu) nil)
   (if (pulldown-newline-added menu)
       (save-excursion
@@ -294,7 +289,7 @@
         (if (and (bolp) (eolp))
             (delete-char -1)))))
 
-(defun pulldown-live-p (menu)
+(defsubst pulldown-live-p (menu)
   (and menu (pulldown-overlays menu) t))
 
 (defun pulldown-preferred-width (list)
