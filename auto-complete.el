@@ -182,7 +182,7 @@
   :group 'convenience
   :prefix "ac-")
 
-(defcustom ac-delay 0.2
+(defcustom ac-delay 0.1
   "Delay to show menu."
   :type 'float
   :group 'auto-complete
@@ -191,7 +191,7 @@
          (when (and (boundp 'ac-idle-timer)
                     ac-idle-timer)
            (ac-set-idle-timer t))))
-  
+
 (defcustom ac-menu-height 10
   "Max height of candidate menu."
   :type 'integer

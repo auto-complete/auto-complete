@@ -156,7 +156,7 @@
   (loop with height = (pulldown-height menu)
         with list = (pulldown-list menu)
         with length = (length list)
-        with thum-size = (/ (* height height) length)
+        with thum-size = (max (/ (* height height) length) 1)
         with page-size = (/ length height)
         with margin-left = (make-string (pulldown-margin-left menu) ? )
         with margin-right = (make-string (pulldown-margin-right menu) ? )
