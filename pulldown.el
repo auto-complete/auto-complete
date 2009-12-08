@@ -157,7 +157,7 @@
         with list = (pulldown-list menu)
         with length = (length list)
         with thum-size = (max (/ (* height height) length) 1)
-        with page-size = (/ length height)
+        with page-size = (/ (+ 0.0 length) height)
         with margin-left = (make-string (pulldown-margin-left menu) ? )
         with margin-right = (make-string (pulldown-margin-right menu) ? )
         with cursor = (pulldown-cursor menu)
@@ -166,7 +166,7 @@
         for o from offset
         for i from scroll-top
         for item in (nthcdr scroll-top list)
-        for page-index = (* thum-size (floor o thum-size))
+        for page-index = (* thum-size (/ o thum-size))
         while (< o height)
 
         do
@@ -183,8 +183,8 @@
              (cond
               ((<= page-size 1)
                " ")
-              ((and (>= scroll-top (* page-index page-size))
-                    (< scroll-top (* (+ page-index thum-size) page-size)))
+              ((and (>= cursor (* page-index page-size))
+                    (< cursor (* (+ page-index thum-size) page-size)))
                pulldown-scroll-bar-foreground-char)
               (t
                pulldown-scroll-bar-background-char))
