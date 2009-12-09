@@ -217,7 +217,7 @@
   :group 'auto-complete)
 
 (defcustom ac-compatible-packages-regexp
-  "^\\(ac\\|autopair\\)-"
+  "^ac-"
   "Regexp to indicate what packages can work with auto-complete."
   :type 'string
   :group 'auto-complete)
@@ -657,15 +657,17 @@ You can not use it in source definition like (prefix . `NAME')."
                            (eval function)))))
       (when do-cache
         (push (cons source candidates) ac-candidates-cache)))
+    (setq candidates (funcall (assoc-default 'match source) ac-prefix candidates))
+    ;; Remove extra items regarding to ac-limit
+    (if (and (> ac-limit 1) (> (length candidates) ac-limit))
+        (setcdr (nthcdr (1- ac-limit) candidates) nil))
+    ;; Put candidate properties
     (setq candidates (mapcar (lambda (candidate)
                                (pulldown-item-propertize (pulldown-x-to-string candidate)
                                                          'action action
                                                          'menu-face face
                                                          'selection-face selection-face))
-                             (funcall (assoc-default 'match source) ac-prefix candidates)))
-    ;; Remove extra items regarding to ac-limit
-    (if (and (> ac-limit 1) (> (length candidates) ac-limit))
-        (setcdr (nthcdr (1- ac-limit) candidates) nil))
+                             candidates))
     candidates))
 
 (defun ac-candidates ()

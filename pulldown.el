@@ -4,7 +4,7 @@
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: lisp
-;; Version: 0.1
+;; Version: 0.2a
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -292,7 +292,7 @@
             (backward-char)
             (setq current-column (pulldown-current-physical-column)))
           (when (< current-column column)
-	   ;; Extend short buffer lines by menu prefix (line of spaces)
+            ;; Extend short buffer lines by menu prefix (line of spaces)
             (setq prefix (make-string (+ (if (= current-column 0)
                                              (- window-hscroll (current-column))
                                            0)
