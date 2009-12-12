@@ -174,6 +174,9 @@ See also `pulldown-item-propertize'."
               (concat string (make-string (- menu-width string-width) ? ))
             string))))
 
+(defsubst pulldown-live-p (menu)
+  (and menu (pulldown-overlays menu) t))
+
 (defun pulldown-hide (menu)
   (dotimes (i (pulldown-height menu))
     (pulldown-hide-line menu i)))
@@ -406,9 +409,6 @@ See also `pulldown-item-propertize'."
       (let ((buffer-undo-list t))
         (delete-char (- (pulldown-height menu)))))))
 
-(defsubst pulldown-live-p (menu)
-  (and menu (pulldown-overlays menu) t))
-
 (defun pulldown-preferred-width (list)
   "Return preferred width of pulldown menu to show `LIST' beautifully."
   (loop for item in list
@@ -430,8 +430,8 @@ See also `pulldown-item-propertize'."
                     (setq event (progn (clear-this-command-keys) (read-event prompt))))
           (setq binding (pulldown-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
           (cond
-           ((eq binding 'pulldown-back)
-            (if parent (return nil)))
+           ((eq binding 'pulldown-close)
+            (if (pulldown-parent menu) (return nil)))
            ((memq binding '(pulldown-select pulldown-open))
             (let* ((item (pulldown-selected-item menu))
                    (sublist (pulldown-item-sublist item)))
@@ -517,8 +517,8 @@ list of submenu."
     (define-key map "\C-p" 'pulldown-previous)
     (define-key map [down] 'pulldown-next)
     (define-key map [up] 'pulldown-previous)
-    (define-key map [left] 'pulldown-back)
     (define-key map [right] 'pulldown-open)
+    (define-key map [left] 'pulldown-close)
     map))
 
 (provide 'pulldown)

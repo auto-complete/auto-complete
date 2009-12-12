@@ -599,7 +599,7 @@ You can not use it in source definition like (prefix . `NAME')."
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
 
 (defsubst ac-get-selected-candidate ()
-  (pulldown-selected-item))
+  (pulldown-selected-item ac-menu))
 
 (defun ac-prefix ()
   "Return a pair of POINT of prefix and SOURCES to be applied."
