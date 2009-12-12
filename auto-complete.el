@@ -487,7 +487,7 @@ You can not use it in source definition like (prefix . `NAME')."
   (pulldown-live-p ac-menu))
 
 (defun ac-menu-create (point width height)
-  (setq ac-menu (pulldown-create point width height :scroll-bar t :margin 1)))
+  (setq ac-menu (pulldown-create point width height :scroll-bar t :margin-left 1)))
 
 (defun ac-menu-delete ()
   (when ac-menu
@@ -663,7 +663,7 @@ You can not use it in source definition like (prefix . `NAME')."
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
     ;; Put candidate properties
     (setq candidates (mapcar (lambda (candidate)
-                               (pulldown-item-propertize (pulldown-x-to-string candidate)
+                               (pulldown-item-propertize candidate
                                                          'action action
                                                          'menu-face face
                                                          'selection-face selection-face))

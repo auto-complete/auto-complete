@@ -291,6 +291,8 @@ See also `pulldown-item-propertize'."
     (setq margin-left 0))
   (unless margin-right
     (setq margin-right 0))
+  (unless icon-width
+    (setq icon-width 0))
   (save-excursion
     (goto-char point)
     (let* ((row (line-number-at-pos))
@@ -300,7 +302,7 @@ See also `pulldown-item-propertize'."
                           (if scroll-bar 1 0)
                           margin-left
                           margin-right
-                          (if icon-width icon-width 0)))
+                          icon-width))
            margin-left-cancel
            (window (selected-window))
            (window-start (window-start))
