@@ -63,13 +63,14 @@
 
 (defstruct pulldown
   point row column width height direction overlays
-  newline-added
+  parent depth
   face selection-face
-  margin-left margin-right scroll-bar
+  margin-left margin-right margin-left-cancel scroll-bar icon-width
   cursor offset scroll-top list)
 
 (defun pulldown-x-to-string (x)
-  "Convert anything to string effeciently."
+  "Convert any object to string effeciently.
+This is faster than prin1-to-string in many cases."
   (typecase x
     (string x)
     (symbol (symbol-name x))
@@ -78,59 +79,86 @@
     (t (format "%s" x))))
 
 (defun pulldown-current-physical-column ()
-  "Current physical column. (not logical column)"
   (car (posn-col-row (posn-at-point))))
 
-(defun pulldown-last-line-of-buffer ()
-  "Return non-nil if at last line of buffer."
-  (save-excursion (/= (forward-line) 0)))
+(defun pulldown-last-line-of-buffer-p ()
+  (save-excursion (end-of-line) (/= (forward-line) 0)))
 
 (defun pulldown-item-propertize (item &rest properties)
-  (if (stringp item)
-      (apply 'propertize item properties)
-    item))
+  (apply 'propertize
+         (if (stringp item)
+             item
+           (pulldown-x-to-string item))
+         properties))
 
 (defun pulldown-item-property (item property)
   (if (stringp item)
       (get-text-property 0 property item)))
 
+(defsubst pulldown-item-value (item)
+  (pulldown-item-property item 'value))
+
+(defsubst pulldown-item-value-or-self (item)
+  (or (pulldown-item-value item)
+      item))
+
+(defsubst pulldown-item-icon (item)
+  (pulldown-item-property item 'icon))
+
+(defsubst pulldown-item-sublist (item)
+  (pulldown-item-property item 'sublist))
+
+(defun* pulldown-make-item (name
+                            &key
+                            value
+                            sublist
+                            icon)
+  "Utility function to make pulldown item.
+See also `pulldown-item-propertize'."
+  (pulldown-item-propertize name
+                            'value value
+                            'sublist sublist
+                            'icon icon))
+
+(defun pulldown-selected-item (menu)
+  (nth (pulldown-cursor menu) (pulldown-list menu)))
+  
 (defun pulldown-set-list (menu list)
-  "Set menu list."
   (setf (pulldown-list menu) list
         (pulldown-offset menu) (if (> (pulldown-direction menu) 0)
                                    0
                                  (max (- (pulldown-height menu) (length list)) 0))))
 
 (defun pulldown-line-overlay (menu line)
-  "Return a overlay of `MENU' at `LINE'."
   (aref (pulldown-overlays menu) line))
 
+(defun pulldown-selected-line-overlay (menu)
+  (aref (pulldown-overlays menu) (- (pulldown-cursor menu) (pulldown-scroll-top menu))))
+
 (defun pulldown-hide-line (menu line)
-  "Hide `LINE' in `MENU'."
   (let ((overlay (pulldown-line-overlay menu line)))
-    (overlay-put overlay 'invisible nil)
+    (overlay-put overlay 'display nil)
     (overlay-put overlay 'after-string nil)))
 
-(defun pulldown-show-line (menu line)
-  "Show `LINE' in `MENU'."
-  (overlay-put (pulldown-line-overlay menu line) 'invisible t))
-
-(defun pulldown-set-line-item (menu line item face margin-left margin-right scroll-bar-char)
-  "Set list of `LINE' in `MENU'."
-  (let* ((overlay (pulldown-line-overlay menu line)))
+(defun pulldown-set-line-item (menu line item face margin-left margin-right scroll-bar-char icon)
+  (let* ((overlay (pulldown-line-overlay menu line))
+         (content (propertize (concat margin-left
+                                      (pulldown-create-line-string menu item)
+                                      icon
+                                      margin-right)
+                              'face face)))
     (overlay-put overlay 'real-item item)
+    (unless (overlay-get overlay 'dangle)
+      (overlay-put overlay 'display (substring content 0 1))
+      (setq content (concat (substring content 1))))
     (overlay-put overlay
                  'after-string
                  (concat (overlay-get overlay 'prefix)
-                         (propertize (concat margin-left
-                                             (pulldown-create-line-string menu item)
-                                             margin-right)
-                                     'face face)
+                         (propertize content 'face face)
                          scroll-bar-char
                          (overlay-get overlay 'postfix)))))
 
 (defun pulldown-create-line-string (menu item)
-  "Create string for showing `ITEM' in `MENU'."
   (loop with string = (pulldown-x-to-string item)
         with width = 0
         with menu-width = (pulldown-width menu)
@@ -147,48 +175,54 @@
             string))))
 
 (defun pulldown-hide (menu)
-  "Hide `MENU'."
   (dotimes (i (pulldown-height menu))
     (pulldown-hide-line menu i)))
 
 (defun pulldown-draw (menu)
-  "Draw `MENU'."
   (loop with height = (pulldown-height menu)
         with list = (pulldown-list menu)
         with length = (length list)
         with thum-size = (max (/ (* height height) length) 1)
         with page-size = (/ (+ 0.0 length) height)
-        with margin-left = (make-string (pulldown-margin-left menu) ? )
+        with margin-left = (make-string (if (pulldown-margin-left-cancel menu) 0 (pulldown-margin-left menu)) ? )
         with margin-right = (make-string (pulldown-margin-right menu) ? )
+        with icon-width = (pulldown-icon-width menu)
         with cursor = (pulldown-cursor menu)
         with scroll-top = (pulldown-scroll-top menu)
         with offset = (pulldown-offset menu)
         for o from offset
         for i from scroll-top
+        while (< o height)
         for item in (nthcdr scroll-top list)
         for page-index = (* thum-size (/ o thum-size))
-        while (< o height)
-
+        for face = (if (= i cursor)
+                       (or (pulldown-item-property item 'selection-face) (pulldown-selection-face menu))
+                     (or (pulldown-item-property item 'menu-face) (pulldown-face menu)))
+        for empty-char = (propertize " " 'face face)
+        for scroll-bar-char = (if (pulldown-scroll-bar menu)
+                                  (cond
+                                   ((<= page-size 1)
+                                    empty-char)
+                                   ((and (> page-size 1)
+                                         (>= cursor (* page-index page-size))
+                                         (< cursor (* (+ page-index thum-size) page-size)))
+                                    pulldown-scroll-bar-foreground-char)
+                                   (t
+                                    pulldown-scroll-bar-background-char))
+                                "")
+        for icon = (let* ((icon (pulldown-item-icon item)) ; TODO double width characters
+                          (w (length icon)))
+                     (cond
+                      ((null icon)
+                       (make-string icon-width ? ))
+                      ((>= w icon-width)
+                       (substring icon 0 icon-width)) 
+                      (t
+                       (concat icon (make-string (- icon-width w) ? )))))
+        
         do
         ;; Show line and set item to the line
-        (pulldown-show-line menu o)
-        (pulldown-set-line-item
-         menu o item
-         (if (= i cursor)
-             (or (pulldown-item-property item 'selection-face) (pulldown-selection-face menu))
-           (or (pulldown-item-property item 'menu-face) (pulldown-face menu)))
-         margin-left
-         margin-right
-         (if (pulldown-scroll-bar menu)
-             (cond
-              ((<= page-size 1)
-               " ")
-              ((and (>= cursor (* page-index page-size))
-                    (< cursor (* (+ page-index thum-size) page-size)))
-               pulldown-scroll-bar-foreground-char)
-              (t
-               pulldown-scroll-bar-background-char))
-           ""))
+        (pulldown-set-line-item menu o item face margin-left margin-right scroll-bar-char icon)
         
         finally
         ;; Hide remaining lines
@@ -200,7 +234,6 @@
             (pulldown-hide-line menu o)))))
 
 (defun pulldown-next (menu)
-  "Select next item."
   (let ((height (pulldown-height menu))
         (cursor (1+ (pulldown-cursor menu)))
         (scroll-top (pulldown-scroll-top menu))
@@ -218,7 +251,6 @@
     (pulldown-draw menu)))
 
 (defun pulldown-previous (menu)
-  "Select previous item."
   (let ((height (pulldown-height menu))
         (cursor (1- (pulldown-cursor menu)))
         (scroll-top (pulldown-scroll-top menu))
@@ -235,13 +267,27 @@
           (pulldown-scroll-top menu) scroll-top)
     (pulldown-draw menu)))
 
-(defun* pulldown-create (point width height
-                               &key
-                               (face 'pulldown-default-face)
-                               (selection-face 'pulldown-default-selection-face)
-                               scroll-bar
-                               (margin 0))
-  "Create pulldown menu."
+(defun* pulldown-create (point
+                         width
+                         height
+                         &key
+                         (first-motion t)
+                         (face 'pulldown-default-face)
+                         (selection-face 'pulldown-default-selection-face)
+                         scroll-bar
+                         margin-left
+                         margin-right
+                         icon-width
+                         parent)
+  (unless point
+    (if parent
+        (setq point (overlay-end (pulldown-selected-line-overlay parent))
+              first-motion nil)
+      (setq point (point))))
+  (unless margin-left
+    (setq margin-left 0))
+  (unless margin-right
+    (setq margin-right 0))
   (save-excursion
     (goto-char point)
     (let* ((row (line-number-at-pos))
@@ -249,44 +295,54 @@
            (overlays (make-vector height nil))
            (menu-width (+ width
                           (if scroll-bar 1 0)
-                          (* margin 2)))
-           (margin-left margin)
-           (margin-right margin)
+                          margin-left
+                          margin-right
+                          (if icon-width icon-width 0)))
+           margin-left-cancel
            (window (selected-window))
            (window-start (window-start))
            (window-hscroll (window-hscroll))
            (window-width (window-width))
            (right (+ column menu-width))
-           (direction (if (and (> row height)
-                               (> height (- (max 1 (- (window-height)
-                                                      (if mode-line-format 1 0)
-                                                      (if header-line-format 1 0)))
-                                            (count-lines window-start (point)))))
-                          -1
-                        1))
-           (newline-added (save-excursion
-                            (goto-char (point-max))
-                            (when (/= (forward-line) 0)
-                              (newline)
-                              t)))
+           (direction (or
+                       ;; Currently the direction of cascade menu won't be changed
+                       (and parent (pulldown-direction parent))
+
+                       ;; Calculate direction
+                       (if (and (> row height)
+                                (> height (- (max 1 (- (window-height)
+                                                       (if mode-line-format 1 0)
+                                                       (if header-line-format 1 0)))
+                                             (count-lines window-start (point)))))
+                           -1
+                         1)))
+           (depth (if parent (1+ (pulldown-depth parent)) 0))
            current-column)
-      (if (and (> right window-width)
-               (>= right menu-width)
-               (>= column menu-width))
-          (decf column (- menu-width margin))
-        (decf column margin-left)
-        (when (< column 0)
-          ;; Cancel margin left
-          (setq column 0)
-          (decf menu-width margin-left)
-          (setq margin-left 0)))
+      (save-excursion
+        (goto-char (point-max))
+        (let ((buffer-undo-list t)) (insert (make-string height ?\n))))
+
+      (when (null parent)               ;TODO
+        (if (and (> right window-width)
+                 (>= right menu-width)
+                 (>= column menu-width))
+            (decf column (- menu-width margin-left margin-right))
+          (decf column margin-left)
+          (when (< column 0)
+            ;; Cancel margin left
+            (setq column 0)
+            (decf menu-width margin-left)
+            (setq margin-left-cancel t))))
+      
       (dotimes (i height)
-        (let (overlay begin w (prefix "") (postfix ""))
-          (if (>= emacs-major-version 23)
-              (vertical-motion (cons column direction))
-            (vertical-motion direction)
-            (move-to-column (+ (current-column) column)))
-	  (setq current-column (pulldown-current-physical-column))
+        (let (overlay begin w (dangle t) (prefix "") (postfix ""))
+          (when first-motion
+            (if (>= emacs-major-version 23)
+                (vertical-motion (cons column direction))
+              (vertical-motion direction)
+              (move-to-column (+ (current-column) column))))
+	  (setq first-motion t
+                current-column (pulldown-current-physical-column))
 
           (when (> current-column column)
             (backward-char)
@@ -302,22 +358,22 @@
           (setq begin (point))
           (setq w (+ menu-width (length prefix)))
           (while (and (not (eolp)) (> w 0))
+            (setq dangle nil)
             (decf w (char-width (char-after)))
             (forward-char))
           (if (< w 0)
               (setq postfix (make-string (- w) ? )))
-          (if (pulldown-last-line-of-buffer)
-              (setq postfix (concat postfix "\n")))
 
           (setq overlay (make-overlay begin (point)))
           (overlay-put overlay 'window window)
+          (overlay-put overlay 'dangle dangle)
           (overlay-put overlay 'prefix prefix)
           (overlay-put overlay 'postfix postfix)
           (overlay-put overlay 'width width)
           (aset overlays
 		(if (> direction 0) i (- height i 1))
 		overlay)))
-      (loop for p from 100
+      (loop for p from (- 10000 (* depth 1000))
             for overlay in (nreverse (append overlays nil))
             do (overlay-put overlay 'priority p))
       (make-pulldown :point point
@@ -326,25 +382,29 @@
                      :width width
                      :height height
                      :direction direction
-                     :newline-added newline-added
+                     :parent parent
+                     :depth depth
                      :face face
                      :selection-face selection-face
                      :margin-left margin-left
                      :margin-right margin-right
+                     :margin-left-cancel margin-left-cancel
                      :scroll-bar scroll-bar
+                     :icon-width icon-width
                      :cursor 0
                      :scroll-top 0
                      :list '()
                      :overlays overlays))))
 
 (defun pulldown-delete (menu)
-  (mapc 'delete-overlay (pulldown-overlays menu))
-  (setf (pulldown-overlays menu) nil)
-  (if (pulldown-newline-added menu)
-      (save-excursion
-        (goto-char (point-max))
-        (if (and (bolp) (eolp))
-            (delete-char -1)))))
+  (when (pulldown-live-p menu)
+    (pulldown-hide menu)
+    (mapc 'delete-overlay (pulldown-overlays menu))
+    (setf (pulldown-overlays menu) nil)
+    (save-excursion
+      (goto-char (point-max))
+      (let ((buffer-undo-list t))
+        (delete-char (- (pulldown-height menu)))))))
 
 (defsubst pulldown-live-p (menu)
   (and menu (pulldown-overlays menu) t))
@@ -363,17 +423,27 @@
                 (funcall function (vector (logior (or (get (car mask) 'ascii-character) 0)
                                                   (cadr mask)))))))))
 
-(defun* pulldown-event-loop (menu keymap fallback &optional message &aux event binding)
+(defun* pulldown-event-loop (menu keymap fallback &optional prompt &aux event binding)
   (unwind-protect
       (block nil
         (while (and (pulldown-live-p menu)
-                    (setq event (progn (clear-this-command-keys) (read-event message))))
-          (if (eq event 'Quit)
-              (return nil))
+                    (setq event (progn (clear-this-command-keys) (read-event prompt))))
           (setq binding (pulldown-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
           (cond
-           ((eq binding 'pulldown-select)
-            (return (nth (pulldown-cursor menu) (pulldown-list menu))))
+           ((eq binding 'pulldown-back)
+            (if parent (return nil)))
+           ((memq binding '(pulldown-select pulldown-open))
+            (let* ((item (pulldown-selected-item menu))
+                   (sublist (pulldown-item-sublist item)))
+              (if sublist
+                  (let ((value (pulldown-cascade-menu sublist
+                                                      :parent menu
+                                                      :margin-left (pulldown-margin-left menu)
+                                                      :margin-right (pulldown-margin-right menu)
+                                                      :scroll-bar (pulldown-scroll-bar menu))))
+                    (if value (return value)))
+                (if (eq binding 'pulldown-select)
+                    (return (pulldown-item-value-or-self item))))))
            ((eq binding 'pulldown-next)
             (pulldown-next menu))
            ((eq binding 'pulldown-previous)
@@ -388,27 +458,67 @@
   
 (defun* pulldown-menu (list
                        &key
+                       point
+                       (first-motion t)
                        (width (pulldown-preferred-width list))
                        (height 10)
-                       (margin 0)
+                       margin
+                       margin-left
+                       margin-right
                        scroll-bar
+                       icon
+                       icon-width
+                       parent
                        (keymap pulldown-keymap)
                        (fallback 'pulldown-default-fallback)
-                       message
+                       prompt
                        &aux menu event)
-  (setq menu (pulldown-create (point) width height :margin margin :scroll-bar scroll-bar))
+  (if (eq margin t) (setq margin 1))
+  (unless margin-left (setq margin-left margin))
+  (unless margin-right (setq margin-right margin))
+  (if (and scroll-bar
+           (integerp margin-right)
+           (> margin-right 0))
+      ;; Make scroll-bar space as margin-right
+      (decf margin-right))
+  (if (and (eq icon t)
+           (null icon-width))
+      (setq icon-width 1))
+
+  (setq menu (pulldown-create point width height
+                              :margin-left margin-left
+                              :margin-right margin-right
+                              :scroll-bar scroll-bar
+                              :icon-width icon-width
+                              :parent parent
+                              :first-motion first-motion))
   (pulldown-set-list menu list)
   (pulldown-draw menu)
-  (pulldown-event-loop menu keymap fallback message))
+  (pulldown-event-loop menu keymap fallback prompt))
+
+(defun pulldown-cascade-menu (list &rest args)
+  "Same to `pulldown-menu', but an element of `LIST' can be
+list of submenu." 
+  (apply 'pulldown-menu
+         (mapcar (lambda (item)
+                   (if (consp item)
+                       (pulldown-make-item (car item)
+                                           :sublist (cdr item)
+                                           :icon ">")
+                     item))
+                 list)
+         :icon t
+         args))
 
 (defvar pulldown-keymap
   (let ((map (make-sparse-keymap)))
     (define-key map "\r" 'pulldown-select)
-
     (define-key map "\C-n" 'pulldown-next)
     (define-key map "\C-p" 'pulldown-previous)
     (define-key map [down] 'pulldown-next)
     (define-key map [up] 'pulldown-previous)
+    (define-key map [left] 'pulldown-back)
+    (define-key map [right] 'pulldown-open)
     map))
 
 (provide 'pulldown)
