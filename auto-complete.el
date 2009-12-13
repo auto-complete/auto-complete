@@ -175,7 +175,7 @@
 (eval-when-compile
   (require 'cl))
 
-(require 'pulldown)
+(require 'popup)
 
 (defgroup auto-complete nil
   "Auto completion."
@@ -241,7 +241,7 @@ and if there is no completions, an original command will be fallbacked."
          (set-default symbol value)
          (when (and value
                     (fboundp 'ac-set-trigger-key))
-             (ac-set-trigger-key value))))
+           (ac-set-trigger-key value))))
 
 (defcustom ac-auto-start t
   "Non-nil means completion will be started automatically.
@@ -484,14 +484,20 @@ You can not use it in source definition like (prefix . `NAME')."
             (ac-compile-sources ac-sources))))
 
 (defsubst ac-menu-live-p ()
-  (pulldown-live-p ac-menu))
+  (popup-live-p ac-menu))
 
 (defun ac-menu-create (point width height)
-  (setq ac-menu (pulldown-create point width height :scroll-bar t :margin-left 1)))
+  (setq ac-menu
+        (popup-create point width height
+                      :around t
+                      :face 'ac-candidate-face
+                      :selection-face 'ac-selection-face
+                      :scroll-bar t
+                      :margin-left 1)))
 
 (defun ac-menu-delete ()
   (when ac-menu
-    (pulldown-delete ac-menu)
+    (popup-delete ac-menu)
     (setq ac-menu)))
 
 (defsubst ac-inline-marker ()
@@ -599,7 +605,7 @@ You can not use it in source definition like (prefix . `NAME')."
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
 
 (defsubst ac-get-selected-candidate ()
-  (pulldown-selected-item ac-menu))
+  (popup-selected-item ac-menu))
 
 (defun ac-prefix ()
   "Return a pair of POINT of prefix and SOURCES to be applied."
@@ -663,10 +669,10 @@ You can not use it in source definition like (prefix . `NAME')."
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
     ;; Put candidate properties
     (setq candidates (mapcar (lambda (candidate)
-                               (pulldown-item-propertize candidate
-                                                         'action action
-                                                         'menu-face face
-                                                         'selection-face selection-face))
+                               (popup-item-propertize candidate
+                                                      'action action
+                                                      'menu-face face
+                                                      'selection-face selection-face))
                              candidates))
     candidates))
 
@@ -686,8 +692,8 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-update-candidates (cursor scroll-top)
   "Update candidates of menu to `ac-candidates' and redraw it."
-  (setf (pulldown-cursor ac-menu) cursor
-        (pulldown-scroll-top ac-menu) scroll-top)
+  (setf (popup-cursor ac-menu) cursor
+        (popup-scroll-top ac-menu) scroll-top)
   (setq ac-dwim-enable (= (length ac-candidates) 1))
   (if ac-candidates
       (progn
@@ -702,15 +708,15 @@ You can not use it in source definition like (prefix . `NAME')."
     ;; Move common-part candidate to the first.
     (setq ac-candidates (cons ac-common-part
                               (delete ac-common-part ac-candidates))))
-  (pulldown-set-list ac-menu ac-candidates)
-  (pulldown-draw ac-menu))
+  (popup-set-list ac-menu ac-candidates)
+  (popup-draw ac-menu))
 
 (defun ac-reposition ()
   "Force to redraw candidate menu with current `ac-candidates'."
-  (let ((cursor (pulldown-cursor ac-menu))
-        (scroll-top (pulldown-scroll-top ac-menu)))
-    (pulldown-delete ac-menu)
-    (ac-menu-create ac-point (pulldown-preferred-width ac-candidates) (pulldown-height ac-menu))
+  (let ((cursor (popup-cursor ac-menu))
+        (scroll-top (popup-scroll-top ac-menu)))
+    (popup-delete ac-menu)
+    (ac-menu-create ac-point (popup-preferred-width ac-candidates) (popup-height ac-menu))
     (ac-update-candidates cursor scroll-top)))
 
 (defun ac-cleanup ()
@@ -792,7 +798,7 @@ that have been made before in this function."
   "Select next candidate."
   (interactive)
   (when (ac-menu-live-p)
-    (pulldown-next ac-menu)
+    (popup-next ac-menu)
     (if (eq this-command 'ac-next)
         (setq ac-dwim-enable t))))
 
@@ -800,7 +806,7 @@ that have been made before in this function."
   "Select previous candidate."
   (interactive)
   (when (ac-menu-live-p)
-    (pulldown-previous ac-menu)
+    (popup-previous ac-menu)
     (if (eq this-command 'ac-previous)
         (setq ac-dwim-enable t))))
 
@@ -814,7 +820,7 @@ that have been made before in this function."
         (setq string (ac-get-selected-candidate)))
       (ac-expand-string string (eq last-command this-command))
       ;; Do reposition if menu at long line
-      (if (and (> (pulldown-direction ac-menu) 0)
+      (if (and (> (popup-direction ac-menu) 0)
                (ac-menu-at-wrapper-line-p))
           (ac-reposition))
       string)))
@@ -835,7 +841,7 @@ that have been made before in this function."
   "Try complete."
   (interactive)
   (let* ((candidate (ac-get-selected-candidate))
-         (action (pulldown-item-property candidate 'action)))
+         (action (popup-item-property candidate 'action)))
     (ac-expand-string candidate)
     (ac-abort)
     (if action
@@ -846,7 +852,7 @@ that have been made before in this function."
   "Start completion."
   (interactive)
   (if (not auto-complete-mode)
-    (message "auto-complete-mode is not enabled")
+      (message "auto-complete-mode is not enabled")
     (let* ((info (ac-prefix))
            (prefix (nth 0 info))
            (point (nth 1 info))
@@ -927,12 +933,12 @@ that have been made before in this function."
              (not isearch-mode))
     (progn
       (setq ac-candidates (ac-candidates))
-      (let ((preferred-width (pulldown-preferred-width ac-candidates)))
+      (let ((preferred-width (popup-preferred-width ac-candidates)))
         ;; Reposition if needed
         (when (or (null ac-menu)
-                  (>= (pulldown-width ac-menu) preferred-width)
-                  (<= (pulldown-width ac-menu) (- preferred-width 10))
-                  (and (> (pulldown-direction ac-menu) 0)
+                  (>= (popup-width ac-menu) preferred-width)
+                  (<= (popup-width ac-menu) (- preferred-width 10))
+                  (and (> (popup-direction ac-menu) 0)
                        (ac-menu-at-wrapper-line-p)))
           (ac-menu-delete)
           (ac-menu-create ac-point preferred-width ac-menu-height)))
@@ -1088,7 +1094,7 @@ that have been made before in this function."
   "Source for Emacs lisp symbols.")
 
 (defvar ac-source-abbrev
-  '((candidates . (mapcar 'pulldown-x-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
+  '((candidates . (mapcar 'popup-x-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
     (action . expand-abbrev)
     (cache))
   "Source for abbrev.")
