@@ -788,6 +788,7 @@ that have been made before in this function."
   (interactive)
   (ac-abort)
   (ac-start)
+  (ac-update t)
   ;; TODO Not to cause inline completion to be disrupted.
   (if (ac-inline-live-p)
       (ac-inline-hide))
@@ -871,7 +872,7 @@ that have been made before in this function."
               ac-point point
               ac-prefix (buffer-substring-no-properties point (point))
               ac-limit ac-candidate-limit
-              ac-completing t)
+              ac-triggered t)
         (when (or init (null ac-menu))
           (ac-init))
         (ac-put-prefix-overlay)))))
@@ -880,6 +881,24 @@ that have been made before in this function."
   "Stop completiong."
   (interactive)
   (ac-abort))
+
+(defun ac-update (&optional force)
+  (when (and auto-complete-mode
+             (or ac-triggered
+                 force)
+             (not isearch-mode))
+    (progn
+      (setq ac-candidates (ac-candidates))
+      (let ((preferred-width (popup-preferred-width ac-candidates)))
+        ;; Reposition if needed
+        (when (or (null ac-menu)
+                  (>= (popup-width ac-menu) preferred-width)
+                  (<= (popup-width ac-menu) (- preferred-width 10))
+                  (and (> (popup-direction ac-menu) 0)
+                       (ac-menu-at-wrapper-line-p)))
+          (ac-menu-delete)
+          (ac-menu-create ac-point preferred-width ac-menu-height)))
+      (ac-update-candidates 0 0))))
 
 (defun ac-trigger-key-command (&optional force)
   (interactive "P")
@@ -923,26 +942,7 @@ that have been made before in this function."
     (cancel-timer ac-idle-timer)
     (setq ac-idle-timer nil))
   (unless ac-idle-timer
-    (setq ac-idle-timer (run-with-idle-timer ac-delay ac-delay 'ac-timer))))
-
-(defun ac-timer ()
-  (when (and auto-complete-mode
-             ac-triggered
-             (or ac-auto-start
-                 ac-completing)
-             (not isearch-mode))
-    (progn
-      (setq ac-candidates (ac-candidates))
-      (let ((preferred-width (popup-preferred-width ac-candidates)))
-        ;; Reposition if needed
-        (when (or (null ac-menu)
-                  (>= (popup-width ac-menu) preferred-width)
-                  (<= (popup-width ac-menu) (- preferred-width 10))
-                  (and (> (popup-direction ac-menu) 0)
-                       (ac-menu-at-wrapper-line-p)))
-          (ac-menu-delete)
-          (ac-menu-create ac-point preferred-width ac-menu-height)))
-      (ac-update-candidates 0 0))))
+    (setq ac-idle-timer (run-with-idle-timer ac-delay ac-delay 'ac-update))))
 
 (defun ac-handle-pre-command ()
   (condition-case var

@@ -130,7 +130,7 @@ This is faster than prin1-to-string in many cases."
   "Background face for scroll-bar."
   :group 'popup)
 
-(defvar popups nil
+(defvar popup-instances nil
   "Popup instances.")
 
 (defvar popup-scroll-bar-foreground-char
@@ -347,7 +347,7 @@ See also `popup-item-propertize'."
                             :scroll-top 0
                             :list nil
                             :overlays overlays)))
-        (push it popups)
+        (push it popup-instances)
         it))))
 
 (defun popup-delete (popup)
@@ -355,7 +355,7 @@ See also `popup-item-propertize'."
     (popup-hide popup)
     (mapc 'delete-overlay (popup-overlays popup))
     (setf (popup-overlays popup) nil)
-    (setq popups (delq popup popups))
+    (setq popup-instances (delq popup popup-instances))
     (popup-save-buffer-state
       (goto-char (point-max))
       (dotimes (i (popup-height popup))
