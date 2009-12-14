@@ -198,6 +198,11 @@
   :group 'auto-complete)
 (defvaralias 'ac-candidate-menu-height 'ac-menu-height)
 
+(defcustom ac-quick-help-height 60
+  "Max height of quick help"
+  :type 'integer
+  :group 'auto-complete)
+
 (defcustom ac-candidate-limit 10
   "Limit number of candidates."
   :type 'integer
@@ -829,7 +834,7 @@ that have been made before in this function."
 
 (defun ac-quick-help ()
   (when (ac-menu-live-p)
-    (popup-menu-show-help ac-menu)))
+    (popup-menu-show-help ac-menu nil :height ac-quick-help-height)))
 
 
 

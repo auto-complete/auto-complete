@@ -550,7 +550,7 @@ See also `popup-item-propertize'."
 
 (defun popup-menu-show-help (menu &optional item &rest args)
   (or item (setq item (popup-selected-item menu)))
-  (let ((height (popup-height menu))
+  (let ((height (or (plist-get args :height) (popup-height menu)))
         (doc (popup-item-document item)))
     (if (functionp doc)
         (setq doc (funcall doc item)))
