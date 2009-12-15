@@ -930,7 +930,7 @@ that have been made before in this function."
               ac-prefix (buffer-substring-no-properties point (point))
               ac-limit ac-candidate-limit
               ac-triggered t)
-        (when (or init (null ac-menu))
+        (when (or init (null ac-prefix-overlay))
           (ac-init))
         (ac-set-timer)
         (ac-set-quick-help-timer)
