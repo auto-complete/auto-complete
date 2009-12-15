@@ -1005,6 +1005,7 @@ that have been made before in this function."
 (define-minor-mode auto-complete-mode
   "AutoComplete mode"
   :lighter " AC"
+  :keymap ac-mode-map
   :group 'auto-complete
   (if auto-complete-mode
       (progn
