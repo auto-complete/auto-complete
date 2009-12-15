@@ -1127,7 +1127,7 @@ that have been made before in this function."
               (setq ac-symbols-cache
                     (loop for x being the symbols collect (symbol-name x)))))
     (candidates . ac-symbols-cache)
-    (document . ac-symbol-documentation)
+    ;(document . ac-symbol-documentation)
     (cache))
   "Source for Emacs lisp symbols.")
 
