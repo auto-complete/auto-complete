@@ -273,6 +273,10 @@ See also `popup-item-propertize'."
            (window-hscroll (window-hscroll))
            (window-width (window-width))
            (right (+ column popup-width))
+           (overflow (and (> right window-width)
+                          (>= right popup-width)))
+           (foldable (and (null parent)
+                          (>= column popup-width)))
            (direction (or
                        ;; Currently the direction of cascade popup won't be changed
                        (and parent (popup-direction parent))
@@ -287,23 +291,27 @@ See also `popup-item-propertize'."
                          1)))
            (depth (if parent (1+ (popup-depth parent)) 0))
            current-column)
+      ;; TODO no need to insert newlines
       (popup-save-buffer-state
         (goto-char (point-max))
         (insert (make-string height ?\n)))
       
-      (when (null parent) ;TODO
-        (if (and (null parent)
-                 (> right window-width)
-                 (>= right popup-width)
-                 (>= column popup-width))
-            (progn
-              (decf column (- popup-width margin-left margin-right))
-              (unless around (move-to-column column)))
-          (when (< (decf column margin-left) 0)
-            ;; Cancel margin left
-            (setq column 0)
-            (decf popup-width margin-left)
-            (setq margin-left-cancel t))))
+      (if overflow
+          (if foldable
+              (progn
+                (decf column (- popup-width margin-left margin-right))
+                (unless around (move-to-column column)))
+            (when (not truncate-lines)
+              ;; Cut out overflow
+              (let ((d (1+ (- popup-width (- window-width column)))))
+                (decf popup-width d)
+                (decf width d))))
+        (when (and (null parent)
+                   (< (decf column margin-left) 0))
+          ;; Cancel margin left
+          (setq column 0)
+          (decf popup-width margin-left)
+          (setq margin-left-cancel t)))
       
       (dotimes (i height)
         (let (overlay begin w (dangle t) (prefix "") (postfix ""))
@@ -485,6 +493,20 @@ See also `popup-item-propertize'."
           (popup-scroll-top popup) scroll-top)
     (popup-draw popup)))
 
+(defun popup-scroll-down (popup &optional n)
+  (let ((scroll-top (min (+ (popup-scroll-top popup) (or n 1))
+                         (- (length (popup-list popup)) (popup-height popup)))))
+    (setf (popup-cursor popup) scroll-top
+          (popup-scroll-top popup) scroll-top)
+    (popup-draw popup)))
+
+(defun popup-scroll-up (popup &optional n)
+  (let ((scroll-top (max (- (popup-scroll-top popup) (or n 1))
+                         0)))
+    (setf (popup-cursor popup) scroll-top
+          (popup-scroll-top popup) scroll-top)
+    (popup-draw popup)))
+
 
 
 ;; Popup tip
@@ -503,17 +525,23 @@ See also `popup-item-propertize'."
                    width
                    (height 15)
                    min-height
+                   truncate
                    margin
-                   margin-left margin
+                   margin-left
                    margin-right
+                   scroll-bar
                    parent
                    parent-offset
+                   nowait
                    prompt
                    &aux tip lines)
+  (if (bufferp string)
+      (setq string (with-current-buffer string (buffer-string))))
+  
   (and (eq margin t) (setq margin 1))
   (or margin-left (setq margin-left margin))
   (or margin-right (setq margin-right margin))
-
+  
   (let ((it (popup-fill-string string width popup-tip-max-width)))
     (setq width (car it)
           lines (cdr it)))
@@ -523,16 +551,28 @@ See also `popup-item-propertize'."
                           :around around
                           :margin-left margin-left
                           :margin-right margin-right
+                          :scroll-bar scroll-bar
                           :face 'popup-tip-face
                           :parent parent
                           :parent-offset parent-offset))
+  
+
+  (when (and (not (eq width (popup-width tip))) ; truncated
+             (not truncate))
+    ;; Refill once again to lines be fitted to popup width
+    (setq width (popup-width tip))
+    (setq lines (cdr (popup-fill-string string width width))))
+
   (unwind-protect
       (progn
         (popup-set-list tip lines)
         (popup-draw tip)
-        (push (read-event prompt) unread-command-events)
-        t)
-    (popup-delete tip)))
+        (if nowait
+            tip
+          (push (read-event prompt) unread-command-events)
+          t))
+    (unless nowait
+      (popup-delete tip))))
 
 
 

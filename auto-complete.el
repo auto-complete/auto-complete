@@ -198,7 +198,7 @@
   :group 'auto-complete)
 (defvaralias 'ac-candidate-menu-height 'ac-menu-height)
 
-(defcustom ac-quick-help-height 60
+(defcustom ac-quick-help-height 20
   "Max height of quick help"
   :type 'integer
   :group 'auto-complete)
@@ -313,6 +313,9 @@ a prefix doen't contain any upper case letters."
 (defvar ac-menu nil
   "Menu instance.")
 
+(defvar ac-quick-help nil
+  "Quick help instance")
+
 (defvar ac-completing nil
   "Non-nil means `auto-complete-mode' is now working on completion.")
 
@@ -364,6 +367,9 @@ If there is no common part, this will be nil.")
     
     (define-key map [down] 'ac-next)
     (define-key map [up] 'ac-previous)
+
+    (define-key map [C-down] 'ac-quick-help-scroll-down)
+    (define-key map [C-up] 'ac-quick-help-scroll-up)
 
     map)
   "Keymap for completion")
@@ -736,6 +742,7 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-cleanup ()
   "Cleanup auto completion."
+  (ac-remove-quick-help)
   (ac-remove-prefix-overlay)
   (ac-inline-delete)
   (ac-menu-delete)
@@ -785,15 +792,6 @@ that have been made before in this function."
   (undo-boundary)
   (setq ac-prefix string))
 
-(defun ac-set-timer ()
-  (unless ac-timer
-    (setq ac-timer (run-with-idle-timer ac-delay ac-delay 'ac-update))))
-
-(defun ac-cancel-timer ()
-  (when (timerp  ac-timer)
-    (cancel-timer ac-timer)
-    (setq ac-timer nil)))
-
 (defun ac-set-trigger-key (key)
   "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
   ;; Remove old mapping
@@ -805,14 +803,14 @@ that have been made before in this function."
   (when key
     (define-key ac-mode-map (read-kbd-macro key) 'ac-trigger-key-command)))
 
-(defun ac-set-quick-help-timer ()
-  (unless ac-quick-help-timer
-    (setq ac-quick-help-timer (run-with-idle-timer ac-quick-help-delay ac-quick-help-delay 'ac-quick-help))))
+(defun ac-set-timer ()
+  (unless ac-timer
+    (setq ac-timer (run-with-idle-timer ac-delay ac-delay 'ac-update))))
 
-(defun ac-cancel-quick-help-timer ()
-  (when (timerp ac-quick-help-timer)
-    (cancel-timer ac-quick-help-timer)
-    (setq ac-quick-help-timer nil)))
+(defun ac-cancel-timer ()
+  (when (timerp  ac-timer)
+    (cancel-timer ac-timer)
+    (setq ac-timer nil)))
 
 (defun ac-update (&optional force)
   (when (and auto-complete-mode
@@ -832,9 +830,34 @@ that have been made before in this function."
           (ac-menu-create ac-point preferred-width ac-menu-height)))
       (ac-update-candidates 0 0))))
 
+(defun ac-set-quick-help-timer ()
+  (unless ac-quick-help-timer
+    (setq ac-quick-help-timer (run-with-idle-timer ac-quick-help-delay ac-quick-help-delay 'ac-quick-help))))
+
+(defun ac-cancel-quick-help-timer ()
+  (when (timerp ac-quick-help-timer)
+    (cancel-timer ac-quick-help-timer)
+    (setq ac-quick-help-timer nil)))
+
 (defun ac-quick-help ()
-  (when (ac-menu-live-p)
-    (popup-menu-show-help ac-menu nil :height ac-quick-help-height)))
+  (when (and (ac-menu-live-p)
+             (null ac-quick-help))
+    (setq ac-quick-help
+          (popup-menu-show-help ac-menu nil :height ac-quick-help-height :scroll-bar t :nowait t))))
+
+(defun ac-remove-quick-help ()
+  (when ac-quick-help
+    (popup-delete ac-quick-help)
+    (setq ac-quick-help nil)))
+
+(defmacro ac-define-quick-help-command (name arglist &rest body)
+  (declare (indent 2))
+  `(progn
+     (defun ,name ,arglist ,@body)
+     (put ',name 'ac-quick-help-command t)))
+
+(defun ac-make-quick-help-command (command)
+  (put command 'ac-quick-help-command t))
 
 
 
@@ -941,6 +964,16 @@ that have been made before in this function."
   (interactive)
   (ac-abort))
 
+(ac-define-quick-help-command ac-quick-help-scroll-down ()
+  (interactive)
+  (when ac-quick-help
+    (popup-scroll-down ac-quick-help)))
+
+(ac-define-quick-help-command ac-quick-help-scroll-up ()
+  (interactive)
+  (when ac-quick-help
+    (popup-scroll-up ac-quick-help)))
+
 (defun ac-trigger-key-command (&optional force)
   (interactive "P")
   (or (and (or force
@@ -982,9 +1015,13 @@ that have been made before in this function."
                                      (and ac-completing
                                           (memq this-command ac-trigger-commands-on-completing))))
               (ac-compatible-package-command-p this-command))
-          ;; Not to cause inline completion to be disrupted.
-          (if (ac-inline-live-p)
-              (ac-inline-hide))
+          (progn
+            (if (or (not (symbolp this-command))
+                    (not (get this-command 'ac-quick-help-command)))
+                (ac-remove-quick-help))
+            ;; Not to cause inline completion to be disrupted.
+            (if (ac-inline-live-p)
+                (ac-inline-hide)))
         (ac-abort))
     (error (ac-error var))))
 
