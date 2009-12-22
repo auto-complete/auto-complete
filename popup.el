@@ -266,7 +266,7 @@ See also `popup-item-propertize'."
                            (if scroll-bar 1 0)
                            margin-left
                            margin-right
-                           (if symbol 1 0)))
+                           (if symbol 3 0)))
            margin-left-cancel
            (window (selected-window))
            (window-start (window-start))
@@ -428,7 +428,7 @@ See also `popup-item-propertize'."
                                     popup-scroll-bar-background-char))
                                 "")
         for sym = (if symbol
-                      (or (popup-item-symbol item) " ")
+                      (concat " " (or (popup-item-symbol item) " ") " ")
                     "")
         
         do

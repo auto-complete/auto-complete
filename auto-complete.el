@@ -511,6 +511,7 @@ You can not use it in source definition like (prefix . `NAME')."
                       :around t
                       :face 'ac-candidate-face
                       :selection-face 'ac-selection-face
+                      :symbol t
                       :scroll-bar t
                       :margin-left 1)))
 
@@ -640,8 +641,15 @@ You can not use it in source definition like (prefix . `NAME')."
                        ((symbolp prefix)
                         (funcall prefix))
                        ((stringp prefix)
-                        (when (re-search-backward (concat prefix "\\=") nil t)
-                          (or (match-beginning 1) (match-beginning 0))))
+                        (and (re-search-backward (concat prefix "\\=") nil t)
+                             (or (match-beginning 1) (match-beginning 0))))
+                       ((stringp (car-safe prefix))
+                        (let ((regexp (nth 0 prefix))
+                              (end (nth 1 prefix))
+                              (group (nth 2 prefix)))
+                          (and (re-search-backward (concat regexp "\\=") nil t)
+                               (funcall (if end 'match-end 'match-beginning)
+                                        (or group 0)))))
                        (t
                         (eval prefix))))
           (if point
@@ -669,6 +677,7 @@ You can not use it in source definition like (prefix . `NAME')."
          (function (assoc-default 'candidates source))
          (action (assoc-default 'action source))
          (document (assoc-default 'document source))
+         (symbol (assoc-default 'symbol source))
          (ac-limit (or (assoc-default 'limit source) ac-limit))
          (face (or (assoc-default 'face source) (assoc-default 'candidate-face source)))
          (selection-face (assoc-default 'selection-face source))
@@ -691,6 +700,7 @@ You can not use it in source definition like (prefix . `NAME')."
     (setq candidates (mapcar (lambda (candidate)
                                (popup-item-propertize candidate
                                                       'action action
+                                                      'symbol symbol
                                                       'document document
                                                       'popup-face face
                                                       'selection-face selection-face))
@@ -1049,9 +1059,11 @@ that have been made before in this function."
         (ac-setup)
         (add-hook 'pre-command-hook 'ac-handle-pre-command nil t)
         (add-hook 'post-command-hook 'ac-handle-post-command nil t)
+        (add-hook 'after-save-hook 'ac-clear-variables-after-save nil t)
         (run-hooks 'auto-complete-mode-hook))
     (remove-hook 'pre-command-hook 'ac-handle-pre-command t)
     (remove-hook 'post-command-hook 'ac-handle-post-command t)
+    (remove-hook 'after-save-hook 'ac-clear-variables-after-save t)
     (ac-abort)
     (assq-delete-all 'auto-complete-mode minor-mode-map-alist)))
 
@@ -1152,6 +1164,7 @@ that have been made before in this function."
   "Source for completing words in all of same mode buffers.")
 
 (defvar ac-symbols-cache nil)
+(ac-clear-variable-after-save 'ac-symbols-cache)
 
 (defun ac-symbol-documentation (symbol)
   (if (stringp symbol)
@@ -1160,13 +1173,45 @@ that have been made before in this function."
       (ignore-errors (documentation-property symbol 'variable-documentation t))))
 
 (defvar ac-source-symbols
-  '((init . (unless ac-symbols-cache
-              (setq ac-symbols-cache
-                    (loop for x being the symbols collect (symbol-name x)))))
+  '((init . (or ac-symbols-cache
+                (setq ac-symbols-cache
+                      (loop for x being the symbols collect (symbol-name x)))))
     (candidates . ac-symbols-cache)
-    ;(document . ac-symbol-documentation)
+    (document . ac-symbol-documentation)
+    (symbol . "s")
     (cache))
   "Source for Emacs lisp symbols.")
+
+(defvar ac-functions-cache nil)
+(ac-clear-variable-after-save 'ac-functions-cache)
+
+(defvar ac-source-functions
+  '((init . (or ac-functions-cache
+                (setq ac-functions-cache
+                      (loop for x being the symbols
+                            if (and (fboundp x)
+                                    (or (functionp x)
+                                        (subrp (symbol-function x))))
+                            collect (symbol-name x)))))
+    (candidates . ac-functions-cache)
+    (document . ac-symbol-documentation)
+    (symbol . "f")
+    (prefix . "(\\(\\(?:\\sw\\|\\s_\\)*\\)")
+    (cache)))
+
+(defvar ac-variables-cache nil)
+(ac-clear-variable-after-save 'ac-variables-cache)
+
+(defvar ac-source-variables
+  '((init . (or ac-variables-cache
+                (setq ac-variables-cache
+                      (loop for x being the symbols
+                            if (boundp x)
+                            collect (symbol-name x)))))
+    (candidates . ac-variables-cache)
+    (document . ac-symbol-documentation)
+    (symbol . "v")
+    (cache)))
 
 (defvar ac-source-abbrev
   '((candidates . (mapcar 'popup-x-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
