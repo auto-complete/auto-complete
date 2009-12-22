@@ -272,11 +272,6 @@ a prefix doen't contain any upper case letters."
                  (const :tag "No" nil))
   :group 'auto-complete)
 
-(defcustom ac-common-part-threshold 1
-  "Threshold whether the larger length of string will be common-part."
-  :type 'integer
-  :group 'auto-complete)
-
 (defcustom ac-dwim t
   "Non-nil means `auto-complete' works based on Do What I Mean."
   :type 'boolean
@@ -599,8 +594,7 @@ You can not use it in source definition like (prefix . `NAME')."
              (stringp (setq ac-common-part (try-completion ac-prefix ac-candidates))))
     (let ((common-part-length (length ac-common-part))
           (prefix-length (length ac-prefix)))
-      (if (and (> common-part-length prefix-length)
-               (> (- common-part-length prefix-length) ac-common-part-threshold))
+      (if (> common-part-length prefix-length)
           (progn
             (ac-inline-hide)
             (ac-inline-show (point) (substring ac-common-part prefix-length)))
