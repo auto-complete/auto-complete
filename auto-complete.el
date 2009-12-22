@@ -1196,7 +1196,7 @@ that have been made before in this function."
     (candidates . ac-functions-cache)
     (document . ac-symbol-documentation)
     (symbol . "f")
-    (prefix . "(\\(\\(?:\\sw\\|\\s_\\)*\\)")
+    (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
     (cache)))
 
 (defvar ac-variables-cache nil)
