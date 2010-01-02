@@ -1183,9 +1183,7 @@ that have been made before in this function."
   '((init . (or ac-functions-cache
                 (setq ac-functions-cache
                       (loop for x being the symbols
-                            if (and (fboundp x)
-                                    (or (functionp x)
-                                        (subrp (symbol-function x))))
+                            if (fboundp x)
                             collect (symbol-name x)))))
     (candidates . ac-functions-cache)
     (document . ac-symbol-documentation)

@@ -569,6 +569,7 @@ See also `popup-item-propertize'."
         (popup-draw tip)
         (if nowait
             tip
+          (clear-this-command-keys)
           (push (read-event prompt) unread-command-events)
           t))
     (unless nowait
