@@ -82,6 +82,7 @@ This is faster than prin1-to-string in many cases."
   (declare (indent 0))
   `(save-excursion
      (let ((buffer-undo-list t)
+           (buffer-read-only nil)
            (modified (buffer-modified-p)))
        (unwind-protect
            (progn ,@body)
