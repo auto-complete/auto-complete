@@ -1058,8 +1058,7 @@ that have been made before in this function."
     (remove-hook 'pre-command-hook 'ac-handle-pre-command t)
     (remove-hook 'post-command-hook 'ac-handle-post-command t)
     (remove-hook 'after-save-hook 'ac-clear-variables-after-save t)
-    (ac-abort)
-    (assq-delete-all 'auto-complete-mode minor-mode-map-alist)))
+    (ac-abort)))
 
 (defun auto-complete-mode-maybe ()
   "What buffer `auto-complete-mode' prefers."
