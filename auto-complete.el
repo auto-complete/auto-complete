@@ -442,7 +442,7 @@ requires REQUIRES-NUM
   "Existed (or to be existed) file prefix."
   (let* ((line-beg (line-beginning-position))
          (end (point))
-         (start (or (let ((point (re-search-backward "[\"<>' \t\r\n]" line-beg t)))
+         (start (or (let ((point (re-search-backward "[\"<>'= \t\r\n]" line-beg t)))
                       (if point (1+ point)))
                     line-beg))
          (file (buffer-substring start end)))
