@@ -641,39 +641,24 @@ See also `popup-item-propertize'."
          (t
           (funcall fallback event (popup-lookup-key-by-event (lambda (key) (key-binding key)) event))))))))
 
-(defvar mouse-popup-menu (symbol-function 'popup-menu)
-  "popup.el shadows mouse.el's popup-menu function.
-We won't change the name, so we provide a way to
-call two functions as workaround.")
-
-(defun popup-menu (menu &rest args)
-  (if (or (keymapp menu)
-          (and (listp menu)
-               (keymapp (car menu))))
-      (apply mouse-popup-menu (cons menu args))
-    (apply 'popup-menu-show (cons menu args))))
-
-;; We really really want to use a name popup-menu.
-;; However, mouse.el use this name for providing
-;; unuseful function...
-(defun* popup-menu-show (list
-                         &key
-                         point
-                         (around t)
-                         (width (popup-preferred-width list))
-                         (height 15)
-                         margin
-                         margin-left
-                         margin-right
-                         scroll-bar
-                         symbol
-                         parent
-                         parent-offset
-                         (keymap popup-menu-keymap)
-                         (fallback 'popup-menu-fallback)
-                         help-delay
-                         prompt
-                         &aux menu event)
+(defun* popup-menu* (list
+                     &key
+                     point
+                     (around t)
+                     (width (popup-preferred-width list))
+                     (height 15)
+                     margin
+                     margin-left
+                     margin-right
+                     scroll-bar
+                     symbol
+                     parent
+                     parent-offset
+                     (keymap popup-menu-keymap)
+                     (fallback 'popup-menu-fallback)
+                     help-delay
+                     prompt
+                     &aux menu event)
   (and (eq margin t) (setq margin 1))
   (or margin-left (setq margin-left margin))
   (or margin-right (setq margin-right margin))
@@ -701,7 +686,7 @@ call two functions as workaround.")
 (defun popup-cascade-menu (list &rest args)
   "Same to `popup-menu', but an element of `LIST' can be
 list of submenu."
-  (apply 'popup-menu
+  (apply 'popup-menu*
          (mapcar (lambda (item)
                    (if (consp item)
                        (popup-make-item (car item)
