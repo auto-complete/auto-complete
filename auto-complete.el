@@ -187,6 +187,11 @@
   :type 'float
   :group 'auto-complete)
 
+(defcustom ac-use-quick-help t
+  "Non-nil means use quick help."
+  :type 'boolean
+  :group 'auto-complete)
+
 (defcustom ac-quick-help-delay 1.0
   "Delay to show quick help."
   :type 'float
@@ -841,7 +846,8 @@ that have been made before in this function."
       (ac-update-candidates 0 0))))
 
 (defun ac-set-quick-help-timer ()
-  (unless ac-quick-help-timer
+  (when (and ac-use-quick-help
+             (null ac-quick-help-timer))
     (setq ac-quick-help-timer (run-with-idle-timer ac-quick-help-delay ac-quick-help-delay 'ac-quick-help))))
 
 (defun ac-cancel-quick-help-timer ()
