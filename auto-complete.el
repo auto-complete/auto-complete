@@ -745,7 +745,9 @@ You can not use it in source definition like (prefix . `NAME')."
     (setq ac-candidates (cons ac-common-part
                               (delete ac-common-part ac-candidates))))
   (popup-set-list ac-menu ac-candidates)
-  (popup-draw ac-menu))
+  (if (<= (length ac-candidates) 1)
+      (popup-hide ac-menu)
+    (popup-draw ac-menu)))
 
 (defun ac-reposition ()
   "Force to redraw candidate menu with current `ac-candidates'."
@@ -912,15 +914,16 @@ that have been made before in this function."
   (interactive)
   (unless (ac-expand-common)
     (let ((string (ac-selected-candidate)))
-      (when (equal ac-prefix string)
-        (ac-next)
-        (setq string (ac-selected-candidate)))
-      (ac-expand-string string (eq last-command this-command))
-      ;; Do reposition if menu at long line
-      (if (and (> (popup-direction ac-menu) 0)
-               (ac-menu-at-wrapper-line-p))
-          (ac-reposition))
-      string)))
+      (when string
+        (when (equal ac-prefix string)
+          (ac-next)
+          (setq string (ac-selected-candidate)))
+        (ac-expand-string string (eq last-command this-command))
+        ;; Do reposition if menu at long line
+        (if (and (> (popup-direction ac-menu) 0)
+                 (ac-menu-at-wrapper-line-p))
+            (ac-reposition))
+        string))))
 
 (defun ac-expand-common ()
   "Try expand common part."
@@ -939,7 +942,8 @@ that have been made before in this function."
   (interactive)
   (let* ((candidate (ac-selected-candidate))
          (action (popup-item-property candidate 'action)))
-    (ac-expand-string candidate)
+    (if candidate
+        (ac-expand-string candidate))
     (ac-abort)
     (if action
         (funcall action))

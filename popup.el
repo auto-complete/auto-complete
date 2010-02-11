@@ -209,6 +209,11 @@ See also `popup-item-propertize'."
     (overlay-put overlay 'display nil)
     (overlay-put overlay 'after-string nil)))
 
+(defun popup-line-hidden-p (popup line)
+  (let ((overlay (popup-line-overlay popup line)))
+    (and (eq (overlay-get overlay 'display) nil)
+         (eq (overlay-get overlay 'after-string) nil))))
+
 (defun popup-set-line-item (popup line item face margin-left margin-right scroll-bar-char symbol)
   (let* ((overlay (popup-line-overlay popup line))
          (content (propertize (concat margin-left
@@ -380,6 +385,7 @@ See also `popup-item-propertize'."
                             :symbol symbol
                             :cursor 0
                             :scroll-top 0
+                            :current-height 0
                             :list nil
                             :overlays overlays)))
         (push it popup-instances)
@@ -468,6 +474,13 @@ See also `popup-item-propertize'."
 (defun popup-hide (popup)
   (dotimes (i (popup-height popup))
     (popup-hide-line popup i)))
+
+(defun popup-hidden-p (popup)
+  (let ((hidden t))
+    (dotimes (i (popup-height popup))
+      (unless (popup-line-hidden-p popup i)
+        (setq hidden nil)))
+    hidden))
 
 (defun popup-next (popup)
   (let ((height (popup-height popup))
@@ -601,18 +614,25 @@ See also `popup-item-propertize'."
 
 (defun popup-menu-show-help (menu &optional item &rest args)
   (or item (setq item (popup-selected-item menu)))
-  (let ((height (or (plist-get args :height) (popup-height menu)))
-        (doc (popup-item-document item)))
+  (let* ((height (or (plist-get args :height) (popup-height menu)))
+         (min-height (min height (popup-current-height menu)))
+         (around nil)
+         (parent-offset (popup-offset menu))
+         (doc (popup-item-document item)))
     (if (functionp doc)
         (setq doc (funcall doc (popup-item-value-or-self item))))
     (when (stringp doc)
+      (when (popup-hidden-p menu)
+        (setq around t
+              menu nil
+              parent-offset nil))
       (apply 'popup-tip
              doc
              :height height
-             :min-height (min height (popup-current-height menu))
-             :around nil
+             :min-height min-height
+             :around around
              :parent menu
-             :parent-offset (popup-offset menu)
+             :parent-offset parent-offset
              args))))
 
 (defun popup-menu-fallback (event default))
