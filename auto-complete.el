@@ -861,7 +861,11 @@ that have been made before in this function."
   (when (and (ac-menu-live-p)
              (null ac-quick-help))
     (setq ac-quick-help
-          (popup-menu-show-help ac-menu nil :height ac-quick-help-height :scroll-bar t :nowait t))))
+          (popup-menu-show-help ac-menu nil
+                                :point ac-point
+                                :height ac-quick-help-height
+                                :scroll-bar t
+                                :nowait t))))
 
 (defun ac-remove-quick-help ()
   (when ac-quick-help

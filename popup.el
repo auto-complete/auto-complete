@@ -614,7 +614,8 @@ See also `popup-item-propertize'."
 
 (defun popup-menu-show-help (menu &optional item &rest args)
   (or item (setq item (popup-selected-item menu)))
-  (let* ((height (or (plist-get args :height) (popup-height menu)))
+  (let* ((point (plist-get args :point))
+         (height (or (plist-get args :height) (popup-height menu)))
          (min-height (min height (popup-current-height menu)))
          (around nil)
          (parent-offset (popup-offset menu))
@@ -622,12 +623,14 @@ See also `popup-item-propertize'."
     (if (functionp doc)
         (setq doc (funcall doc (popup-item-value-or-self item))))
     (when (stringp doc)
-      (when (popup-hidden-p menu)
-        (setq around t
-              menu nil
-              parent-offset nil))
+      (if (popup-hidden-p menu)
+          (setq around t
+                menu nil
+                parent-offset nil)
+        (setq point nil))
       (apply 'popup-tip
              doc
+             :point point
              :height height
              :min-height min-height
              :around around
