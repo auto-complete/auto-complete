@@ -147,7 +147,7 @@ This is faster than prin1-to-string in many cases."
   parent depth
   face selection-face
   margin-left margin-right margin-left-cancel scroll-bar symbol
-  cursor offset scroll-top list)
+  cursor offset scroll-top current-height list)
 
 (defun popup-item-propertize (item &rest properties)
   (apply 'propertize
@@ -163,6 +163,8 @@ This is faster than prin1-to-string in many cases."
 (defun* popup-make-item (name
                          &key
                          value
+                         popup-face
+                         selection-face
                          sublist
                          document
                          symbol)
@@ -170,12 +172,16 @@ This is faster than prin1-to-string in many cases."
 See also `popup-item-propertize'."
   (popup-item-propertize name
                          'value value
+                         'popup-face popup-face
+                         'selection-face selection-face
                          'document document
                          'symbol symbol
                          'sublist sublist))
 
 (defsubst popup-item-value (item)               (popup-item-property item 'value))
 (defsubst popup-item-value-or-self (item)       (or (popup-item-value item) item))
+(defsubst popup-item-popup-face (item)          (popup-item-property item 'popup-face))
+(defsubst popup-item-selection-face (item)      (popup-item-property item 'selection-face))
 (defsubst popup-item-document (item)            (popup-item-property item 'document))
 (defsubst popup-item-symbol (item)              (popup-item-property item 'symbol))
 (defsubst popup-item-sublist (item)             (popup-item-property item 'sublist))
@@ -414,8 +420,8 @@ See also `popup-item-propertize'."
         for item in (nthcdr scroll-top list)
         for page-index = (* thum-size (/ o thum-size))
         for face = (if (= i cursor)
-                       (or (popup-item-property item 'selection-face) selection-face)
-                     (or (popup-item-property item 'popup-face) popup-face))
+                       (or (popup-item-selection-face item) selection-face)
+                     (or (popup-item-popup-face item) popup-face))
         for empty-char = (propertize " " 'face face)
         for scroll-bar-char = (if scroll-bar
                                   (cond
@@ -437,6 +443,9 @@ See also `popup-item-propertize'."
         (popup-set-line-item popup o item face margin-left margin-right scroll-bar-char sym)
         
         finally
+        ;; Remember current height
+        (setf (popup-current-height popup) (- o offset))
+
         ;; Hide remaining lines
         (let ((scroll-bar-char (if scroll-bar (propertize " " 'face popup-face) ""))
               (symbol (if symbol " " "")))
@@ -600,10 +609,10 @@ See also `popup-item-propertize'."
       (apply 'popup-tip
              doc
              :height height
-             :min-height (min height (length (popup-list menu)))
+             :min-height (min height (popup-current-height menu))
              :around nil
              :parent menu
-             :parent-offset 0
+             :parent-offset (popup-offset menu)
              args))))
 
 (defun popup-menu-fallback (event default))
