@@ -595,7 +595,7 @@ See also `popup-item-propertize'."
   (let ((height (or (plist-get args :height) (popup-height menu)))
         (doc (popup-item-document item)))
     (if (functionp doc)
-        (setq doc (funcall doc item)))
+        (setq doc (funcall doc (popup-item-value-or-self item))))
     (when (stringp doc)
       (apply 'popup-tip
              doc

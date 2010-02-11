@@ -684,6 +684,12 @@ You can not use it in source definition like (prefix . `NAME')."
                            (funcall function))
                           (t
                            (eval function)))))
+      ;; Convert (name value) format candidates into name with text properties.
+      (setq candidates (mapcar (lambda (candidate)
+                                 (if (consp candidate)
+                                     (propertize (car candidate) 'value (cdr candidate))
+                                   candidate))
+                               candidates))
       (when do-cache
         (push (cons source candidates) ac-candidates-cache)))
     (setq candidates (funcall (assoc-default 'match source) ac-prefix candidates))
