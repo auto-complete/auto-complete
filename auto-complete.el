@@ -283,7 +283,7 @@ a prefix doen't contain any upper case letters."
   :group 'auto-complete)
 
 (defface ac-completion-face
-  '((t (:background "darkblue" :foreground "white")))
+  '((t (:foreground "darkgray")))
   "Face for inline completion"
   :group 'auto-complete)
 
@@ -367,6 +367,8 @@ If there is no common part, this will be nil.")
     
     (define-key map [down] 'ac-next)
     (define-key map [up] 'ac-previous)
+
+    (define-key map "\C-s" 'ac-isearch)
 
     (define-key map [C-down] 'ac-quick-help-scroll-down)
     (define-key map [C-up] 'ac-quick-help-scroll-up)
@@ -857,8 +859,9 @@ that have been made before in this function."
     (cancel-timer ac-quick-help-timer)
     (setq ac-quick-help-timer nil)))
 
-(defun ac-quick-help ()
-  (when (and (ac-menu-live-p)
+(defun ac-quick-help (&optional force)
+  (when (and (or force (null this-command))
+             (ac-menu-live-p)
              (null ac-quick-help))
     (setq ac-quick-help
           (popup-menu-show-help ac-menu nil
@@ -880,6 +883,15 @@ that have been made before in this function."
 
 (defun ac-make-quick-help-command (command)
   (put command 'ac-quick-help-command t))
+
+
+
+;; Auto completion isearch
+
+(defun ac-isearch ()
+  (interactive)
+  (when (ac-menu-live-p)
+    (popup-isearch ac-menu)))
 
 
 
