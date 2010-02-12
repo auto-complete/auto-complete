@@ -1,6 +1,6 @@
 ;;; auto-complete.el --- Auto completion
 
-;; Copyright (C) 2008, 2009  Tomohiro Matsuyama
+;; Copyright (C) 2008, 2009, 2010  Tomohiro Matsuyama
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; URL: http://github.com/m2ym/auto-complete
@@ -187,6 +187,16 @@
   :type 'float
   :group 'auto-complete)
 
+(defcustom ac-use-fuzzy t
+  "Non-nil means use fuzzy matching."
+  :type 'boolean
+  :group 'auto-complete)
+
+(defcustom ac-fuzzy-cursor-color "red"
+  "Cursor color in fuzzy mode."
+  :type 'string
+  :group 'auto-complete)
+
 (defcustom ac-use-quick-help t
   "Non-nil means use quick help."
   :type 'boolean
@@ -307,6 +317,9 @@ a prefix doen't contain any upper case letters."
 (defvar auto-complete-mode nil
   "Dummy variable to suppress compiler warnings.")
 
+(defvar ac-cursor-color nil
+  "Old cursor color.")
+
 (defvar ac-inline nil
   "Inline completion instance.")
 
@@ -354,6 +367,9 @@ If there is no common part, this will be nil.")
 (defvar ac-candidates-cache nil
   "Candidates cache for individual sources.")
 
+(defvar ac-fuzzy-enable nil
+  "Non-nil means fuzzy matching is enabled.")
+
 (defvar ac-dwim-enable nil
   "Non-nil means DWIM completion will be allowed.")
 
@@ -376,6 +392,9 @@ If there is no common part, this will be nil.")
     map)
   "Keymap for completion")
 (defvaralias 'ac-complete-mode-map 'ac-completing-map)
+
+(defvar ac-match-function 'all-completions
+  "Default match function.")
 
 (defvar ac-prefix-definitions
   '((symbol . ac-prefix-symbol)
@@ -494,9 +513,7 @@ You can not use it in source definition like (prefix . `NAME')."
           (let ((match (assq 'match source)))
             (cond
              ((eq (cdr match) 'substring)
-              (setcdr match 'ac-match-substring))
-             ((null match)
-              (add-attribute 'match 'all-completions)))))
+              (setcdr match 'ac-match-substring)))))
         collect source))
 
 (defun ac-compiled-sources ()
@@ -699,7 +716,9 @@ You can not use it in source definition like (prefix . `NAME')."
                                candidates))
       (when do-cache
         (push (cons source candidates) ac-candidates-cache)))
-    (setq candidates (funcall (assoc-default 'match source) ac-prefix candidates))
+    (setq candidates (funcall (or (assoc-default 'match source)
+                                  ac-match-function)
+                              ac-prefix candidates))
     ;; Remove extra items regarding to ac-limit
     (if (and (> ac-limit 1) (> (length candidates) ac-limit))
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
@@ -747,7 +766,8 @@ You can not use it in source definition like (prefix . `NAME')."
     (setq ac-candidates (cons ac-common-part
                               (delete ac-common-part ac-candidates))))
   (popup-set-list ac-menu ac-candidates)
-  (if (<= (length ac-candidates) 1)
+  (if (and (not ac-fuzzy-enable)
+           (<= (length ac-candidates) 1))
       (popup-hide ac-menu)
     (popup-draw ac-menu)))
 
@@ -761,6 +781,7 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-cleanup ()
   "Cleanup auto completion."
+  (set-cursor-color ac-cursor-color)
   (ac-remove-quick-help)
   (ac-remove-prefix-overlay)
   (ac-inline-delete)
@@ -775,6 +796,8 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-prefix-overlay nil
         ac-candidates nil
         ac-candidates-cache nil
+        ac-fuzzy-enable nil
+        ac-dwim-enable nil
         ac-compiled-sources nil
         ac-current-sources nil))
 
@@ -907,6 +930,22 @@ that have been made before in this function."
   (if (ac-inline-live-p)
       (ac-inline-hide))
   (ac-expand-common)
+  (when (and ac-use-fuzzy
+             (null ac-candidates))
+    (ac-fuzzy-complete))
+  t)
+
+(defun ac-fuzzy-complete ()
+  "Start fuzzy completion at current point."
+  (interactive)
+  (when (require 'fuzzy nil)
+    (unless (ac-menu-live-p)
+      (ac-start))
+    (let ((ac-match-function 'fuzzy-all-completions))
+      (set-cursor-color ac-fuzzy-cursor-color)
+      (setq ac-fuzzy-enable t)
+      (setq ac-triggered nil)
+      (ac-update t)))
   t)
 
 (defun ac-next ()
@@ -983,7 +1022,8 @@ that have been made before in this function."
           (prog1 nil
             (ac-abort)
             (unless nomessage (message "Nothing to complete")))
-        (setq ac-current-sources sources
+        (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)
+              ac-current-sources sources
               ac-buffer (current-buffer)
               ac-point point
               ac-prefix (buffer-substring-no-properties point (point))
@@ -1047,9 +1087,10 @@ that have been made before in this function."
 
 (defun ac-handle-pre-command ()
   (condition-case var
-      (if (or (setq ac-triggered (or (ac-trigger-command-p this-command)
-                                     (and ac-completing
-                                          (memq this-command ac-trigger-commands-on-completing))))
+      (if (or (setq ac-triggered (and (not ac-fuzzy-enable) ; ignore key storkes in fuzzy mode
+                                      (or (ac-trigger-command-p this-command)
+                                          (and ac-completing
+                                               (memq this-command ac-trigger-commands-on-completing)))))
               (ac-compatible-package-command-p this-command))
           (progn
             (if (or (not (symbolp this-command))

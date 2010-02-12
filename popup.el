@@ -1,6 +1,6 @@
 ;;; popup.el --- Visual popup interface
 
-;; Copyright (C) 2009  Tomohiro Matsuyama
+;; Copyright (C) 2009, 2010  Tomohiro Matsuyama
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: lisp
