@@ -496,6 +496,13 @@ See also `popup-item-propertize'."
         (setq hidden nil)))
     hidden))
 
+(defun popup-select (popup i)
+  (setq i (+ i (popup-offset popup)))
+  (when (and (<= 0 i) (< i (popup-height popup)))
+    (setf (popup-cursor popup) i)
+    (popup-draw popup)
+    t))
+
 (defun popup-next (popup)
   (let ((height (popup-height popup))
         (cursor (1+ (popup-cursor popup)))
@@ -557,7 +564,7 @@ See also `popup-item-propertize'."
 
 (defvar popup-isearch-keymap
   (let ((map (make-sparse-keymap)))
-    (define-key map "\r"        'popup-isearch-done)
+    ;(define-key map "\r"        'popup-isearch-done)
     (define-key map "\C-h"      'popup-isearch-delete)
     (define-key map (kbd "DEL") 'popup-isearch-delete)
     map))

@@ -389,6 +389,15 @@ If there is no common part, this will be nil.")
     (define-key map [C-down] 'ac-quick-help-scroll-down)
     (define-key map [C-up] 'ac-quick-help-scroll-up)
 
+    (dotimes (i 9)
+      (let ((symbol (intern (format "ac-complete-%d" (1+ i)))))
+        (fset symbol
+              `(lambda ()
+                 (interactive)
+                 (when (and (ac-menu-live-p) (popup-select ac-menu ,i))
+                   (ac-complete))))
+        (define-key map (read-kbd-macro (format "M-%s" (1+ i))) symbol)))
+
     map)
   "Keymap for completion")
 (defvaralias 'ac-complete-mode-map 'ac-completing-map)
@@ -738,6 +747,7 @@ You can not use it in source definition like (prefix . `NAME')."
   (loop with completion-ignore-case = (or (eq ac-ignore-case t)
                                           (and (eq ac-ignore-case 'smart)
                                                (let ((case-fold-search nil)) (not (string-match "[[:upper:]]" ac-prefix)))))
+        with case-fold-search = completion-ignore-case
         with prefix-len = (length ac-prefix)
         for source in ac-current-sources
         for function = (assoc-default 'candidates source)
@@ -929,8 +939,8 @@ that have been made before in this function."
   ;; TODO Not to cause inline completion to be disrupted.
   (if (ac-inline-live-p)
       (ac-inline-hide))
-  (ac-expand-common)
-  (when (and ac-use-fuzzy
+  (when (and (not (ac-expand-common))
+             ac-use-fuzzy
              (null ac-candidates))
     (ac-fuzzy-complete))
   t)
