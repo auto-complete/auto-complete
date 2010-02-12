@@ -293,7 +293,7 @@ a prefix doen't contain any upper case letters."
   :group 'auto-complete)
 
 (defface ac-completion-face
-  '((t (:foreground "darkgray")))
+  '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
   :group 'auto-complete)
 
@@ -400,6 +400,7 @@ If there is no common part, this will be nil.")
 
     map)
   "Keymap for completion")
+
 (defvaralias 'ac-complete-mode-map 'ac-completing-map)
 
 (defvar ac-match-function 'all-completions
@@ -791,14 +792,16 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-cleanup ()
   "Cleanup auto completion."
-  (set-cursor-color ac-cursor-color)
+  (if ac-cursor-color
+      (set-cursor-color ac-cursor-color))
   (ac-remove-quick-help)
   (ac-remove-prefix-overlay)
   (ac-inline-delete)
   (ac-menu-delete)
   (ac-cancel-timer)
   (ac-cancel-quick-help-timer)
-  (setq ac-inline nil
+  (setq ac-cursor-color nil
+        ac-inline nil
         ac-menu nil
         ac-completing nil
         ac-point nil
@@ -952,7 +955,8 @@ that have been made before in this function."
     (unless (ac-menu-live-p)
       (ac-start))
     (let ((ac-match-function 'fuzzy-all-completions))
-      (set-cursor-color ac-fuzzy-cursor-color)
+      (if ac-fuzzy-cursor-color
+          (set-cursor-color ac-fuzzy-cursor-color))
       (setq ac-fuzzy-enable t)
       (setq ac-triggered nil)
       (ac-update t)))

@@ -613,7 +613,8 @@ See also `popup-item-propertize'."
         prompt event binding done)
     (unwind-protect
         (block nil
-          (set-cursor-color cursor-color)
+          (if cursor-color
+              (set-cursor-color cursor-color))
           (while (setq event (popup-isearch-read-event popup pattern))
             (setq binding (popup-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
             (cond
@@ -630,7 +631,8 @@ See also `popup-item-propertize'."
             (setf (popup-pattern popup) pattern)
             (popup-set-filtered-list popup (popup-isearch-filter-list pattern list))
             (popup-draw popup)))
-      (set-cursor-color old-cursor-color))))
+      (if old-cursor-color
+          (set-cursor-color old-cursor-color)))))
 
 
 
