@@ -197,6 +197,20 @@
   :type 'string
   :group 'auto-complete)
 
+(defcustom ac-use-comphist nil
+  "Non-nil means use intelligent completion history."
+  :type 'boolean
+  :group 'auto-complete)
+
+(defcustom ac-comphist-file
+  (expand-file-name (concat (if (boundp 'user-emacs-directory)
+                                user-emacs-directory
+                              "~/.emacs.d/")
+                            "/ac-comphist.dat"))
+  "Completion history file name."
+  :type 'string
+  :group 'auto-complete)
+
 (defcustom ac-use-quick-help t
   "Non-nil means use quick help."
   :type 'boolean
@@ -338,9 +352,15 @@ a prefix doen't contain any upper case letters."
 (defvar ac-point nil
   "Start point of prefix.")
 
+(defvar ac-last-point nil
+  "Last point of updating pattern.")
+
 (defvar ac-prefix nil
   "Prefix string.")
 (defvaralias 'ac-target 'ac-prefix)
+
+(defvar ac-selected-candidate nil
+  "Last selected candidate.")
 
 (defvar ac-common-part nil
   "Common part string of candidates.
@@ -756,7 +776,12 @@ You can not use it in source definition like (prefix . `NAME')."
 
         if (and function (>= prefix-len requires))
         append (ac-candidates-1 source) into candidates
-        finally return (delete-dups candidates)))
+        finally return
+        (progn
+          (delete-dups candidates)
+          (if ac-comphist
+              (ac-comphist-sort ac-comphist candidates prefix-len)
+            candidates))))
 
 (defun ac-update-candidates (cursor scroll-top)
   "Update candidates of menu to `ac-candidates' and redraw it."
@@ -770,12 +795,6 @@ You can not use it in source definition like (prefix . `NAME')."
     (setq ac-completing nil)
     (ac-deactivate-completing-map))
   (ac-inline-update)
-  (when (and ac-common-part
-             (member ac-common-part ac-candidates))
-    ;; TODO general implementation
-    ;; Move common-part candidate to the first.
-    (setq ac-candidates (cons ac-common-part
-                              (delete ac-common-part ac-candidates))))
   (popup-set-list ac-menu ac-candidates)
   (if (and (not ac-fuzzy-enable)
            (<= (length ac-candidates) 1))
@@ -794,6 +813,12 @@ You can not use it in source definition like (prefix . `NAME')."
   "Cleanup auto completion."
   (if ac-cursor-color
       (set-cursor-color ac-cursor-color))
+  (when (and ac-selected-candidate ac-comphist)
+    (ac-comphist-add ac-comphist
+                     ac-selected-candidate
+                     (if ac-last-point
+                         (- ac-last-point ac-point)
+                       (length ac-prefix))))
   (ac-remove-quick-help)
   (ac-remove-prefix-overlay)
   (ac-inline-delete)
@@ -805,8 +830,10 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-menu nil
         ac-completing nil
         ac-point nil
+        ac-last-point nil
         ac-prefix nil
         ac-prefix-overlay nil
+        ac-selected-candidate nil
         ac-candidates nil
         ac-candidates-cache nil
         ac-fuzzy-enable nil
@@ -845,6 +872,7 @@ that have been made before in this function."
              (integerp (cadr buffer-undo-list)))
     (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
   (undo-boundary)
+  (setq ac-selected-candidate string)
   (setq ac-prefix string))
 
 (defun ac-set-trigger-key (key)
@@ -919,6 +947,140 @@ that have been made before in this function."
 
 (defun ac-make-quick-help-command (command)
   (put command 'ac-quick-help-command t))
+
+
+
+;; Intelligent completion history
+
+(defvar ac-comphist nil
+  "Database of completion history.")
+
+(defun ac-comphist-make (&optional n tab seq)
+  (list (or n 5) (or tab (ac-comphist-make-tab)) seq))
+
+(defun ac-comphist-n (db)
+  (nth 0 db))
+
+(defun ac-comphist-make-tab ()
+  (make-hash-table :test 'equal))
+
+(defun ac-comphist-tab (db)
+  (nth 1 db))
+
+(defun ac-comphist-seq (db)
+  (nth 2 db))
+
+(defun ac-comphist-set-seq (db seq)
+  (setf (nth 2 db) seq))
+
+(defun ac-comphist-get (db string &optional create)
+  (let* ((tab (ac-comphist-tab db))
+         (index (gethash string tab)))
+    (when (and create (null index))
+      (setq index (make-vector (length string) nil))
+      (puthash string index tab))
+    index))
+
+(defun ac-comphist-stat (db index prefix &optional create)
+  (let ((stat (aref index prefix)))
+    (when (and create (null stat))
+      (setq stat (make-vector (1+ (ac-comphist-n db)) 0))
+      (aset index prefix stat))
+    stat))
+
+(defun ac-comphist-add (db string prefix)
+  (setq prefix (min prefix (1- (length string))))
+  (setq string (substring-no-properties string))
+  (let* ((index (ac-comphist-get db string t))
+         (stat (ac-comphist-stat db index prefix t))
+         (seq (ac-comphist-seq db)))
+    (loop with added
+          for i from 1
+          for s in seq
+          if (equal string s)
+          do
+          (setq added t)
+          (incf (aref stat i))
+          finally
+          (push string seq)
+          (ac-comphist-set-seq db seq)
+          (let ((cons (nthcdr (1- (ac-comphist-n db)) seq)))
+            (if cons
+                (setcdr cons nil)))
+          (unless added
+            (incf (aref stat 0))))))
+
+(defun ac-comphist-freq (db string prefix)
+  (setq prefix (min prefix (1- (length string))))
+  (let ((index (ac-comphist-get db string))
+        (freq 0.0))
+    (when index
+      (loop with seq = (ac-comphist-seq db)
+            for p from 1 to (1- (length string))
+            for r = (/ (float (if (<= p prefix) p (max 0 (- prefix (- p prefix))))) prefix)
+            for stat = (ac-comphist-stat db index p)
+            if (and stat (> r 0))
+            do
+            (loop with found
+                  for i from 1
+                  for s in seq
+                  if (equal string s)
+                  do
+                  (setq found t)
+                  (incf freq (* (aref stat i) r))
+                  finally
+                  (unless found
+                    (incf freq (* (aref stat 0) r))))))
+    (floor freq)))
+
+(defun ac-comphist-sort (db collection prefix)
+  (mapcar 'car
+          (sort (mapcar (lambda (string)
+                          (cons string (ac-comphist-freq db string prefix)))
+                        collection)
+                (lambda (a b) (< (cdr b) (cdr a))))))
+
+(defun ac-comphist-serialize (db)
+  (let (alist)
+    (maphash (lambda (k v)
+               (push (cons k v) alist))
+             (ac-comphist-tab db))
+    (list (ac-comphist-n db)
+          alist
+          (ac-comphist-seq db))))
+
+(defun ac-comphist-deserialize (sexp)
+  (condition-case nil
+      (ac-comphist-make (nth 0 sexp)
+                        (let ((tab (ac-comphist-make-tab)))
+                          (mapc (lambda (cons)
+                                  (puthash (car cons) (cdr cons) tab))
+                                (nth 1 sexp))
+                          tab)
+                        (nth 2 sexp))
+    (error (message "Invalid comphist db.") nil)))
+
+(defun ac-comphist-init ()
+  (ac-comphist-load)
+  (add-hook 'kill-emacs-hook 'ac-comphist-save))
+
+(defun ac-comphist-load ()
+  (interactive)
+  (let ((db (if (file-exists-p ac-comphist-file)
+                (ignore-errors
+                  (with-temp-buffer
+                    (insert-file-contents ac-comphist-file)
+                    (goto-char (point-min))
+                    (ac-comphist-deserialize (read (current-buffer))))))))
+    (setq ac-comphist (or db (ac-comphist-make)))))
+
+(defun ac-comphist-save ()
+  (interactive)
+  (require 'pp)
+  (ignore-errors
+    (with-temp-buffer
+      (pp (ac-comphist-serialize ac-comphist) (current-buffer))
+      (write-region (point-min) (point-max) ac-comphist-file))))
 
 
 
@@ -1011,8 +1173,8 @@ that have been made before in this function."
   (interactive)
   (let* ((candidate (ac-selected-candidate))
          (action (popup-item-property candidate 'action)))
-    (if candidate
-        (ac-expand-string candidate))
+    (when candidate
+      (ac-expand-string candidate))
     (ac-abort)
     (if action
         (funcall action))
@@ -1052,6 +1214,7 @@ that have been made before in this function."
 (defun ac-stop ()
   "Stop completiong."
   (interactive)
+  (setq ac-selected-candidate nil)
   (ac-abort))
 
 (ac-define-quick-help-command ac-quick-help-scroll-down ()
@@ -1122,13 +1285,16 @@ that have been made before in this function."
                  (or ac-auto-start
                      ac-completing)
                  (not isearch-mode))
+        (setq ac-last-point (point))
         (ac-start t)
         (ac-inline-update))
     (error (ac-error var))))
 
 (defun ac-setup ()
   (if ac-trigger-key
-      (ac-set-trigger-key ac-trigger-key)))
+      (ac-set-trigger-key ac-trigger-key))
+  (if ac-use-comphist
+      (ac-comphist-init)))
 
 (define-minor-mode auto-complete-mode
   "AutoComplete mode"
