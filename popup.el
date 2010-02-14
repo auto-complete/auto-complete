@@ -565,6 +565,7 @@ See also `popup-item-propertize'."
 (defvar popup-isearch-keymap
   (let ((map (make-sparse-keymap)))
     ;(define-key map "\r"        'popup-isearch-done)
+    (define-key map (kbd "ESC") 'popup-isearch-cancel)
     (define-key map "\C-h"      'popup-isearch-delete)
     (define-key map (kbd "DEL") 'popup-isearch-delete)
     map))
@@ -612,25 +613,30 @@ See also `popup-item-propertize'."
         (old-cursor-color (frame-parameter (selected-frame) 'cursor-color))
         prompt event binding done)
     (unwind-protect
-        (block nil
-          (if cursor-color
-              (set-cursor-color cursor-color))
-          (while (setq event (popup-isearch-read-event popup pattern))
-            (setq binding (popup-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
-            (cond
-             ((popup-isearch-char-p event)
-              (setq pattern (concat pattern (char-to-string event))))
-             ((eq binding 'popup-isearch-done)
-              (return))
-             ((eq binding 'popup-isearch-delete)
-              (if (> (length pattern) 0)
-                  (setq pattern (substring pattern 0 (1- (length pattern))))))
-             (t
-              (push event unread-command-events)
-              (return)))
-            (setf (popup-pattern popup) pattern)
-            (popup-set-filtered-list popup (popup-isearch-filter-list pattern list))
-            (popup-draw popup)))
+        (unless (block nil
+                  (if cursor-color
+                      (set-cursor-color cursor-color))
+                  (while (setq event (popup-isearch-read-event popup pattern))
+                    (setq binding (popup-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
+                    (cond
+                     ((popup-isearch-char-p event)
+                      (setq pattern (concat pattern (char-to-string event))))
+                     ((eq binding 'popup-isearch-done)
+                      (return t))
+                     ((eq binding 'popup-isearch-cancel)
+                      (return nil))
+                     ((eq binding 'popup-isearch-delete)
+                      (if (> (length pattern) 0)
+                          (setq pattern (substring pattern 0 (1- (length pattern))))))
+                     (t
+                      (push event unread-command-events)
+                      (return t)))
+                    (setf (popup-pattern popup) pattern)
+                    (popup-set-filtered-list popup (popup-isearch-filter-list pattern list))
+                    (popup-draw popup)))
+          (setf (popup-pattern popup) "")
+          (popup-set-filtered-list popup (popup-isearch-filter-list "" list))
+          (popup-draw popup))
       (if old-cursor-color
           (set-cursor-color old-cursor-color)))))
 

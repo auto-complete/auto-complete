@@ -619,7 +619,9 @@ You can not use it in source definition like (prefix . `NAME')."
             (overlay-put overlay 'invisible nil))
         (setq overlay (make-overlay point (+ point width)))
         (setf (nth 1 ac-inline)  overlay)
-        (overlay-put overlay 'priority 9999))
+        (overlay-put overlay 'priority 9999)
+        ;; Help prefix-overlay in some cases
+        (overlay-put overlay 'keymap ac-completing-map))
       (overlay-put overlay 'display (substring string 0 1))
       ;; TODO no width but char
       (overlay-put overlay 'after-string (substring string 1))
@@ -993,7 +995,7 @@ that have been made before in this function."
     stat))
 
 (defun ac-comphist-add (db string prefix)
-  (setq prefix (min prefix (1- (length string))))
+  (setq prefix (max 0 (min prefix (1- (length string)))))
   (setq string (substring-no-properties string))
   (let* ((index (ac-comphist-get db string t))
          (stat (ac-comphist-stat db index prefix t))
@@ -1278,8 +1280,7 @@ that have been made before in this function."
                     (not (get this-command 'ac-quick-help-command)))
                 (ac-remove-quick-help))
             ;; Not to cause inline completion to be disrupted.
-            (if (ac-inline-live-p)
-                (ac-inline-hide)))
+            (ac-inline-hide))
         (ac-abort))
     (error (ac-error var))))
 
