@@ -1396,10 +1396,10 @@ that have been made before in this function."
 (defun ac-word-candidates (&optional buffer-pred)
   (loop initially (setq candidates (ac-candidate-words-in-buffer t))
         for buffer in (buffer-list)
-        while (< (length candidates) ac-limit)
-        if (and (not (eq buffer ac-buffer))
+        if (and (or (eq ac-limit 0)
+                    (< (length candidates) ac-limit))
                 (if buffer-pred (funcall buffer-pred buffer) t))
-        append (all-completions ac-prefix (buffer-local-value 'ac-word-index buffer)) into candidates
+        append (buffer-local-value 'ac-word-index buffer) into candidates
         finally return (delete-dups candidates)))
 
 (defvar ac-source-words-in-all-buffer
