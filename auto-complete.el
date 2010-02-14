@@ -232,8 +232,8 @@
   :type 'integer
   :group 'auto-complete)
 
-(defcustom ac-candidate-limit 10
-  "Limit number of candidates."
+(defcustom ac-candidate-limit 0
+  "Limit number of candidates. Zero means no limit."
   :type 'integer
   :group 'auto-complete)
 (defvaralias 'ac-candidate-max 'ac-candidate-limit)
@@ -292,7 +292,7 @@ If you specify `nil', never be started automatically."
                  (integer :tag "Require"))
   :group 'auto-complete)
 
-(defcustom ac-ignore-case nil
+(defcustom ac-ignore-case 'smart
   "Non-nil means auto-complete ignores case.
 If this value is `smart', auto-complete ignores case only when
 a prefix doen't contain any upper case letters."
@@ -317,7 +317,7 @@ a prefix doen't contain any upper case letters."
   :group 'auto-complete)
 
 (defface ac-selection-face
-  '((t (:background "blue" :foreground "white")))
+  '((t (:background "steelblue" :foreground "white")))
   "Face for selected candidate."
   :group 'auto-complete)
 
@@ -400,14 +400,18 @@ If there is no common part, this will be nil.")
   (let ((map (make-sparse-keymap)))
     (define-key map "\t" 'ac-expand)
     (define-key map "\r" 'ac-complete)
-    
+    (define-key map (kbd "M-TAB") 'auto-complete)
+    (define-key map "\C-s" 'ac-isearch)
+
+    (define-key map "\M-n" 'ac-next)
+    (define-key map "\M-r" 'ac-previous)
     (define-key map [down] 'ac-next)
     (define-key map [up] 'ac-previous)
 
-    (define-key map "\C-s" 'ac-isearch)
-
     (define-key map [C-down] 'ac-quick-help-scroll-down)
     (define-key map [C-up] 'ac-quick-help-scroll-up)
+    (define-key map "\C-\M-n" 'ac-quick-help-scroll-down)
+    (define-key map "\C-\M-p" 'ac-quick-help-scroll-up)
 
     (dotimes (i 9)
       (let ((symbol (intern (format "ac-complete-%d" (1+ i)))))
