@@ -903,6 +903,7 @@ that have been made before in this function."
 
 (defun ac-update (&optional force)
   (when (and auto-complete-mode
+             ac-prefix
              (or ac-triggered
                  force)
              (not isearch-mode))
@@ -917,7 +918,8 @@ that have been made before in this function."
                        (ac-menu-at-wrapper-line-p)))
           (ac-menu-delete)
           (ac-menu-create ac-point preferred-width ac-menu-height)))
-      (ac-update-candidates 0 0))))
+      (ac-update-candidates 0 0)
+      t)))
 
 (defun ac-set-quick-help-timer ()
   (when (and ac-use-quick-help
@@ -1106,15 +1108,14 @@ that have been made before in this function."
   (interactive)
   (ac-abort)
   (ac-start)
-  (ac-update t)
-  ;; TODO Not to cause inline completion to be disrupted.
-  (if (ac-inline-live-p)
-      (ac-inline-hide))
-  (when (and (not (ac-expand-common))
-             ac-use-fuzzy
-             (null ac-candidates))
-    (ac-fuzzy-complete))
-  t)
+  (when (ac-update t)
+    ;; TODO Not to cause inline completion to be disrupted.
+    (if (ac-inline-live-p)
+        (ac-inline-hide))
+    (when (and (not (ac-expand-common))
+               ac-use-fuzzy
+               (null ac-candidates))
+      (ac-fuzzy-complete))))
 
 (defun ac-fuzzy-complete ()
   "Start fuzzy completion at current point."
