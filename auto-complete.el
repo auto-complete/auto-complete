@@ -232,8 +232,8 @@
   :type 'integer
   :group 'auto-complete)
 
-(defcustom ac-candidate-limit 0
-  "Limit number of candidates. Zero means no limit."
+(defcustom ac-candidate-limit nil
+  "Limit number of candidates. Non-integer means no limit."
   :type 'integer
   :group 'auto-complete)
 (defvaralias 'ac-candidate-max 'ac-candidate-limit)
@@ -378,7 +378,7 @@ If there is no common part, this will be nil.")
 (defvar ac-triggered nil
   "Flag to update.")
 
-(defvar ac-limit 0
+(defvar ac-limit nil
   "Limit number of candidates for each sources.")
 
 (defvar ac-candidates nil
@@ -756,7 +756,7 @@ You can not use it in source definition like (prefix . `NAME')."
                                   ac-match-function)
                               ac-prefix candidates))
     ;; Remove extra items regarding to ac-limit
-    (if (and (> ac-limit 1) (> (length candidates) ac-limit))
+    (if (and (integerp ac-limit) (> ac-limit 1) (> (length candidates) ac-limit))
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
     ;; Put candidate properties
     (setq candidates (mapcar (lambda (candidate)
@@ -1345,8 +1345,8 @@ that have been made before in this function."
 
 ;;;; Standard sources
 
-(defun ac-candidate-words-in-buffer (&optional limit)
-  (or limit (setq limit ac-limit))
+(defun ac-candidate-words-in-buffer (limit)
+  (message "prefix=%s" ac-prefix)
   (let ((i 0)
         candidate
         candidates
@@ -1354,8 +1354,7 @@ that have been made before in this function."
     (save-excursion
       ;; Search backward
       (goto-char ac-point)
-      (while (and (or (eq limit t)
-                      (< i limit))
+      (while (and (or (not (integerp limit)) (< i limit))
                   (re-search-backward regexp nil t))
         (setq candidate (match-string-no-properties 0))
         (unless (member candidate candidates)
@@ -1363,8 +1362,7 @@ that have been made before in this function."
           (incf i)))
       ;; Search backward
       (goto-char (+ ac-point (length ac-prefix)))
-      (while (and (or (eq limit t)
-                      (< i limit))
+      (while (and (or (not (integerp limit)) (< i limit))
                   (re-search-forward regexp nil t))
         (setq candidate (match-string-no-properties 0))
         (unless (member candidate candidates)
@@ -1373,7 +1371,7 @@ that have been made before in this function."
       (nreverse candidates))))
 
 (defvar ac-source-words-in-buffer
-  '((candidates . ac-candidate-words-in-buffer))
+  '((candidates . (ac-candidate-words-in-buffer ac-limit)))
   "Source for completing words in current buffer.")
 
 (defvar ac-word-index nil
@@ -1383,24 +1381,22 @@ that have been made before in this function."
 
 (defun ac-build-word-index ()
   (dolist (buffer (buffer-list))
-    (unless (eq buffer ac-buffer)
-      (with-current-buffer buffer
-        (unless (local-variable-p 'ac-word-index)
-          (make-local-variable 'ac-word-index))
-        (when (and (null ac-word-index)
-                   (< (buffer-size) 102400))
-          (let ((ac-prefix "")
-                (ac-point (point-min)))
-            (setq ac-word-index (ac-candidate-words-in-buffer t))))))))
+    (with-current-buffer buffer
+      (unless (local-variable-p 'ac-word-index)
+        (make-local-variable 'ac-word-index))
+      (when (and (null ac-word-index)
+                 (< (buffer-size) 102400))
+        (let ((ac-prefix "")
+              (ac-point (point-min)))
+          (setq ac-word-index (ac-candidate-words-in-buffer nil)))))))
 
 (defun ac-word-candidates (&optional buffer-pred)
-  (loop initially (setq candidates (ac-candidate-words-in-buffer t))
+  (loop initially (setq candidates (ac-candidate-words-in-buffer nil))
         for buffer in (buffer-list)
-        if (and (or (eq ac-limit 0)
-                    (< (length candidates) ac-limit))
+        if (and (or (not (integerp ac-limit)) (< (length candidates) ac-limit))
                 (if buffer-pred (funcall buffer-pred buffer) t))
         append (buffer-local-value 'ac-word-index buffer) into candidates
-        finally return (delete-dups candidates)))
+        finally return candidates))
 
 (defvar ac-source-words-in-all-buffer
   '((init . ac-build-word-index)
@@ -1494,50 +1490,8 @@ that have been made before in this function."
     (candidates . ac-filename-candidate)
     (prefix . valid-file)
     (action . ac-start)
-    (limit . 0))
+    (limit . nil))
   "Source for completing file name.")
-
-(defvar ac-imenu-index nil
-  "Imenu index.")
-
-(defun ac-imenu-candidate ()
-  (require 'imenu)
-  (let ((i 0)
-        (stack ac-imenu-index)
-        candidates
-        node)
-    (while (and stack
-                (< i ac-limit))
-      (setq node (pop stack))
-      (when (consp node)
-        (let ((car (car node))
-              (cdr (cdr node)))
-          (if (consp cdr)
-              (mapc (lambda (child)
-                      (push child stack))
-                    cdr)
-            (when (and (stringp car)
-                       (string-match (concat "^" (regexp-quote ac-prefix)) car))
-              (push car candidates)
-              (setq i (1+ i)))))))
-    (nreverse candidates)))
-
-(defvar ac-source-imenu
-  '((init
-     . (lambda ()
-         (require 'imenu)
-         (setq ac-imenu-index
-               (ignore-errors (imenu--make-index-alist)))))
-    (candidates . ac-imenu-candidate))
-  "Source for imenu.")
-
-(defmacro ac-define-dictionary-source (name list)
-  "Define dictionary source named `NAME'.
-`LIST' is a list of string.
-This is useful if you just want to define a dictionary/keywords source."
-  `(defvar ,name
-     '((candidates . (list ,@list))
-       (cache))))
 
 (provide 'auto-complete)
 ;;; auto-complete.el ends here

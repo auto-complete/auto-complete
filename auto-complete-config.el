@@ -33,6 +33,56 @@
 
 
 
+;; Imenu
+
+(defvar ac-imenu-index nil
+  "Imenu index.")
+
+(defun ac-imenu-candidate ()
+  (require 'imenu)
+  (let ((i 0)
+        (stack ac-imenu-index)
+        candidates
+        node)
+    (while (and stack
+                (< i ac-limit))
+      (setq node (pop stack))
+      (when (consp node)
+        (let ((car (car node))
+              (cdr (cdr node)))
+          (if (consp cdr)
+              (mapc (lambda (child)
+                      (push child stack))
+                    cdr)
+            (when (and (stringp car)
+                       (string-match (concat "^" (regexp-quote ac-prefix)) car))
+              (push car candidates)
+              (setq i (1+ i)))))))
+    (nreverse candidates)))
+
+(defvar ac-source-imenu
+  '((init
+     . (lambda ()
+         (require 'imenu)
+         (setq ac-imenu-index
+               (ignore-errors (imenu--make-index-alist)))))
+    (candidates . ac-imenu-candidate))
+  "Source for imenu.")
+
+
+
+;; Dictionary
+
+(defmacro ac-define-dictionary-source (name list)
+  "Define dictionary source named `NAME'.
+`LIST' is a list of string.
+This is useful if you just want to define a dictionary/keywords source."
+  `(defvar ,name
+     '((candidates . (list ,@list))
+       (cache))))
+
+
+
 ;; Emacs Lisp sources
 
 (defvar ac-emacs-lisp-features nil)
