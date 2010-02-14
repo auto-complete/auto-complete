@@ -1347,7 +1347,6 @@ that have been made before in this function."
 ;;;; Standard sources
 
 (defun ac-candidate-words-in-buffer (limit)
-  (message "prefix=%s" ac-prefix)
   (let ((i 0)
         candidate
         candidates
