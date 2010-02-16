@@ -1103,19 +1103,20 @@ that have been made before in this function."
 
 ;; Auto completion commands
 
-(defun auto-complete ()
+(defun auto-complete (&optional sources)
   "Start auto-completion at current point."
   (interactive)
-  (ac-abort)
-  (ac-start)
-  (when (ac-update t)
-    ;; TODO Not to cause inline completion to be disrupted.
-    (if (ac-inline-live-p)
-        (ac-inline-hide))
-    (when (and (not (ac-expand-common))
-               ac-use-fuzzy
-               (null ac-candidates))
-      (ac-fuzzy-complete))))
+  (let ((ac-sources (or sources ac-sources)))
+    (ac-abort)
+    (ac-start)
+    (when (ac-update t)
+      ;; TODO Not to cause inline completion to be disrupted.
+      (if (ac-inline-live-p)
+          (ac-inline-hide))
+      (when (and (not (ac-expand-common))
+                 ac-use-fuzzy
+                 (null ac-candidates))
+        (ac-fuzzy-complete)))))
 
 (defun ac-fuzzy-complete ()
   "Start fuzzy completion at current point."
