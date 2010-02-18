@@ -964,22 +964,25 @@ that have been made before in this function."
   "Database of completion history.")
 
 (defun ac-comphist-make (&optional n tab seq)
-  (list (or n 5) (or tab (ac-comphist-make-tab)) seq))
+  (list (or n 5) (or tab (ac-comphist-make-tab)) seq (make-hash-table :test 'equal :weakness t)))
 
-(defun ac-comphist-n (db)
+(defsubst ac-comphist-n (db)
   (nth 0 db))
 
-(defun ac-comphist-make-tab ()
+(defsubst ac-comphist-make-tab ()
   (make-hash-table :test 'equal))
 
-(defun ac-comphist-tab (db)
+(defsubst ac-comphist-tab (db)
   (nth 1 db))
 
-(defun ac-comphist-seq (db)
+(defsubst ac-comphist-seq (db)
   (nth 2 db))
 
-(defun ac-comphist-set-seq (db seq)
+(defsubst ac-comphist-set-seq (db seq)
   (setf (nth 2 db) seq))
+
+(defsubst ac-comphist-cache (db)
+  (nth 3 db))
 
 (defun ac-comphist-get (db string &optional create)
   (let* ((tab (ac-comphist-tab db))
@@ -1020,26 +1023,33 @@ that have been made before in this function."
 
 (defun ac-comphist-freq (db string prefix)
   (setq prefix (min prefix (1- (length string))))
-  (let ((index (ac-comphist-get db string))
-        (freq 0.0))
-    (when index
-      (loop with seq = (ac-comphist-seq db)
-            for p from 1 to (1- (length string))
-            for r = (/ (float (if (<= p prefix) p (max 0 (- prefix (- p prefix))))) prefix)
-            for stat = (ac-comphist-stat db index p)
-            if (and stat (> r 0))
-            do
-            (loop with found
-                  for i from 1
-                  for s in seq
-                  if (equal string s)
+  (let ((cache (gethash string (ac-comphist-cache db))))
+    (or (and cache (aref cache prefix))
+        (let ((index (ac-comphist-get db string))
+              (freq 0.0))
+          (when index
+            (loop with seq = (ac-comphist-seq db)
+                  for p from 1 to (1- (length string))
+                  for r = (/ (float (if (<= p prefix) p (max 0 (- prefix (- p prefix))))) prefix)
+                  for stat = (ac-comphist-stat db index p)
+                  if (and stat (> r 0))
                   do
-                  (setq found t)
-                  (incf freq (* (aref stat i) r))
-                  finally
-                  (unless found
-                    (incf freq (* (aref stat 0) r))))))
-    (floor freq)))
+                  (loop with found
+                        for i from 1
+                        for s in seq
+                        if (equal string s)
+                        do
+                        (setq found t)
+                        (incf freq (* (aref stat i) r))
+                        finally
+                        (unless found
+                          (incf freq (* (aref stat 0) r))))))
+          (setq freq (floor freq))
+          (unless cache
+            (setq cache (make-vector (length string) nil))
+            (puthash string cache (ac-comphist-cache db)))
+          (aset cache prefix freq)
+          freq))))
 
 (defun ac-comphist-sort (db collection prefix)
   (mapcar 'car
