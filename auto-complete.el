@@ -202,6 +202,11 @@
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-comphist-threshold 0.7
+  "Percentage of ignoring low scored candidates."
+  :type 'float
+  :group 'auto-complete)
+
 (defcustom ac-comphist-file
   (expand-file-name (concat (if (boundp 'user-emacs-directory)
                                 user-emacs-directory
@@ -650,8 +655,7 @@ You can not use it in source definition like (prefix . `NAME')."
         (overlay-put overlay 'after-string nil)))))
 
 (defun ac-inline-update ()
-  (when (and ac-completing ac-prefix
-             (stringp (setq ac-common-part (try-completion ac-prefix ac-candidates))))
+  (when (and ac-completing ac-prefix (stringp ac-common-part))
     (let ((common-part-length (length ac-common-part))
           (prefix-length (length ac-prefix)))
       (if (> common-part-length prefix-length)
@@ -785,8 +789,17 @@ You can not use it in source definition like (prefix . `NAME')."
         finally return
         (progn
           (delete-dups candidates)
-          (if ac-comphist
-              (ac-comphist-sort ac-comphist candidates prefix-len)
+          (if ac-use-comphist
+              (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
+                     (n (car pair))
+                     (result (cdr pair))
+                     (cons (if (> n 0) (nthcdr (1- n) result)))
+                     (cdr (cdr cons)))
+                (if cons (setcdr cons nil))
+                (setq ac-common-part (try-completion ac-prefix result))
+                (if cons (setcdr cons cdr))
+                result)
+            (setq ac-common-part (try-completion ac-prefix candidates))
             candidates))))
 
 (defun ac-update-candidates (cursor scroll-top)
@@ -1051,12 +1064,27 @@ that have been made before in this function."
           (aset cache prefix freq)
           freq))))
 
-(defun ac-comphist-sort (db collection prefix)
-  (mapcar 'car
-          (sort (mapcar (lambda (string)
-                          (cons string (ac-comphist-freq db string prefix)))
-                        collection)
-                (lambda (a b) (< (cdr b) (cdr a))))))
+(defun ac-comphist-sort (db collection prefix &optional threshold)
+  (let (result
+        (n 0)
+        (total 0)
+        (cur 0))
+    (setq result (mapcar (lambda (a)
+                           (when (and cur threshold)
+                             (if (>= cur (* total threshold))
+                                 (setq cur nil)
+                               (incf n)
+                               (incf cur (cdr a))))
+                           (car a))
+                         (sort (mapcar (lambda (string)
+                                         (let ((freq (ac-comphist-freq db string prefix)))
+                                           (incf total freq)
+                                           (cons string freq)))
+                                       collection)
+                               (lambda (a b) (< (cdr b) (cdr a))))))
+    (if threshold
+        (cons n result)
+      result)))
 
 (defun ac-comphist-serialize (db)
   (let (alist)
