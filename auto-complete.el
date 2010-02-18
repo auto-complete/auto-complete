@@ -1097,6 +1097,7 @@ that have been made before in this function."
 (defun ac-isearch ()
   (interactive)
   (when (ac-menu-live-p)
+    (setq ac-dwim-enable t)
     (popup-isearch ac-menu)))
 
 

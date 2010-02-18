@@ -147,7 +147,7 @@ This is faster than prin1-to-string in many cases."
   parent depth
   face selection-face
   margin-left margin-right margin-left-cancel scroll-bar symbol
-  cursor offset scroll-top current-height list
+  cursor offset scroll-top current-height list newlines
   pattern original-list)
 
 (defun popup-item-propertize (item &rest properties)
@@ -316,11 +316,12 @@ See also `popup-item-propertize'."
                            -1
                          1)))
            (depth (if parent (1+ (popup-depth parent)) 0))
+           (newlines (max 0 (+ (- height (count-lines point (point-max))) (if around 1 0))))
            current-column)
-      ;; TODO no need to insert newlines
-      (popup-save-buffer-state
-        (goto-char (point-max))
-        (insert (make-string height ?\n)))
+      (when (> newlines 0)
+        (popup-save-buffer-state
+          (goto-char (point-max))
+          (insert (make-string newlines ?\n))))
       
       (if overflow
           (if foldable
@@ -401,6 +402,7 @@ See also `popup-item-propertize'."
                             :scroll-top 0
                             :current-height 0
                             :list nil
+                            :newlines newlines
                             :overlays overlays)))
         (push it popup-instances)
         it))))
@@ -411,11 +413,13 @@ See also `popup-item-propertize'."
     (mapc 'delete-overlay (popup-overlays popup))
     (setf (popup-overlays popup) nil)
     (setq popup-instances (delq popup popup-instances))
-    (popup-save-buffer-state
-      (goto-char (point-max))
-      (dotimes (i (popup-height popup))
-        (if (= (char-before) ?\n)
-            (delete-char -1)))))
+    (let ((newlines (popup-newlines popup)))
+      (when (> newlines 0)
+        (popup-save-buffer-state
+          (goto-char (point-max))
+          (dotimes (i newlines)
+            (if (= (char-before) ?\n)
+                (delete-char -1)))))))
   nil)
 
 (defun popup-draw (popup)
@@ -604,6 +608,13 @@ See also `popup-item-propertize'."
                                   pattern)))
     (read-event prompt pattern)))
 
+(defun popup-isearch-update (popup pattern)
+  (setf (popup-cursor popup) 0
+        (popup-scroll-top popup) 0
+        (popup-pattern popup) pattern)
+  (popup-set-filtered-list popup (popup-isearch-filter-list pattern (popup-original-list popup)))
+  (popup-draw popup))
+
 (defun* popup-isearch (popup
                        &key
                        (cursor-color popup-isearch-cursor-color)
@@ -631,12 +642,8 @@ See also `popup-item-propertize'."
                      (t
                       (push event unread-command-events)
                       (return t)))
-                    (setf (popup-pattern popup) pattern)
-                    (popup-set-filtered-list popup (popup-isearch-filter-list pattern list))
-                    (popup-draw popup)))
-          (setf (popup-pattern popup) "")
-          (popup-set-filtered-list popup (popup-isearch-filter-list "" list))
-          (popup-draw popup))
+                    (popup-isearch-update popup pattern)))
+          (popup-isearch-update popup ""))
       (if old-cursor-color
           (set-cursor-color old-cursor-color)))))
 
@@ -859,73 +866,3 @@ list of submenu."
 
 (provide 'popup)
 ;;; popup.el ends here
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
