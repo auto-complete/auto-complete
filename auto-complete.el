@@ -183,8 +183,13 @@
   :prefix "ac-")
 
 (defcustom ac-delay 0.1
-  "Delay to show menu."
+  "Delay to completions will be available."
   :type 'float
+  :group 'auto-complete)
+
+(defcustom ac-auto-show-menu t
+  "Non-nil means completion menu will be automatically shown."
+  :type 'boolean
   :group 'auto-complete)
 
 (defcustom ac-use-fuzzy t
@@ -345,6 +350,9 @@ a prefix doen't contain any upper case letters."
 (defvar ac-menu nil
   "Menu instance.")
 
+(defvar ac-show-menu nil
+  "Flag to show menu on timer tick.")
+
 (defvar ac-quick-help nil
   "Quick help instance")
 
@@ -375,7 +383,10 @@ If there is no common part, this will be nil.")
   "Overlay for prefix string.")
 
 (defvar ac-timer nil
-  "Menu idle timer.")
+  "Completion idle timer.")
+
+(defvar ac-show-menu-timer nil
+  "Show menu idle timer.")
 
 (defvar ac-quick-help-timer nil
   "Quick help idle timer.")
@@ -790,15 +801,19 @@ You can not use it in source definition like (prefix . `NAME')."
         (progn
           (delete-dups candidates)
           (if ac-use-comphist
-              (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
-                     (n (car pair))
-                     (result (cdr pair))
-                     (cons (if (> n 0) (nthcdr (1- n) result)))
-                     (cdr (cdr cons)))
-                (if cons (setcdr cons nil))
-                (setq ac-common-part (try-completion ac-prefix result))
-                (if cons (setcdr cons cdr))
-                result)
+              (if ac-show-menu
+                  (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
+                         (n (car pair))
+                         (result (cdr pair))
+                         (cons (if (> n 0) (nthcdr (1- n) result)))
+                         (cdr (cdr cons)))
+                    (if cons (setcdr cons nil))
+                    (setq ac-common-part (try-completion ac-prefix result))
+                    (if cons (setcdr cons cdr))
+                    result)
+                (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len ))
+                (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
+                candidates)
             (setq ac-common-part (try-completion ac-prefix candidates))
             candidates))))
 
@@ -818,7 +833,8 @@ You can not use it in source definition like (prefix . `NAME')."
   (if (and (not ac-fuzzy-enable)
            (<= (length ac-candidates) 1))
       (popup-hide ac-menu)
-    (popup-draw ac-menu)))
+    (if ac-show-menu
+        (popup-draw ac-menu))))
 
 (defun ac-reposition ()
   "Force to redraw candidate menu with current `ac-candidates'."
@@ -843,9 +859,11 @@ You can not use it in source definition like (prefix . `NAME')."
   (ac-inline-delete)
   (ac-menu-delete)
   (ac-cancel-timer)
+  (ac-cancel-show-menu-timer)
   (ac-cancel-quick-help-timer)
   (setq ac-cursor-color nil
         ac-inline nil
+        ac-show-menu nil
         ac-menu nil
         ac-completing nil
         ac-point nil
@@ -910,7 +928,7 @@ that have been made before in this function."
     (setq ac-timer (run-with-idle-timer ac-delay ac-delay 'ac-update))))
 
 (defun ac-cancel-timer ()
-  (when (timerp  ac-timer)
+  (when (timerp ac-timer)
     (cancel-timer ac-timer)
     (setq ac-timer nil)))
 
@@ -933,6 +951,22 @@ that have been made before in this function."
           (ac-menu-create ac-point preferred-width ac-menu-height)))
       (ac-update-candidates 0 0)
       t)))
+
+(defun ac-set-show-menu-timer ()
+  (when (and (floatp ac-auto-show-menu) (null ac-show-menu-timer))
+    (setq ac-show-menu-timer (run-with-idle-timer ac-auto-show-menu ac-auto-show-menu 'ac-show-menu))))
+
+(defun ac-cancel-show-menu-timer ()
+  (when (timerp ac-show-menu-timer)
+    (cancel-timer ac-show-menu-timer)
+    (setq ac-show-menu-timer nil)))
+
+(defun ac-show-menu ()
+  (when (not (eq ac-show-menu t))
+    (setq ac-show-menu t)
+    (ac-inline-hide)
+    (ac-remove-quick-help)
+    (ac-update t)))
 
 (defun ac-set-quick-help-timer ()
   (when (and ac-use-quick-help
@@ -1136,6 +1170,9 @@ that have been made before in this function."
   (interactive)
   (when (ac-menu-live-p)
     (setq ac-dwim-enable t)
+    (ac-cancel-show-menu-timer)
+    (ac-cancel-quick-help-timer)
+    (popup-draw ac-menu)
     (popup-isearch ac-menu)))
 
 
@@ -1166,6 +1203,7 @@ that have been made before in this function."
     (let ((ac-match-function 'fuzzy-all-completions))
       (if ac-fuzzy-cursor-color
           (set-cursor-color ac-fuzzy-cursor-color))
+      (setq ac-show-menu t)
       (setq ac-fuzzy-enable t)
       (setq ac-triggered nil)
       (ac-update t)))
@@ -1176,6 +1214,7 @@ that have been made before in this function."
   (interactive)
   (when (ac-menu-live-p)
     (popup-next ac-menu)
+    (setq ac-show-menu t)
     (if (eq this-command 'ac-next)
         (setq ac-dwim-enable t))))
 
@@ -1184,6 +1223,7 @@ that have been made before in this function."
   (interactive)
   (when (ac-menu-live-p)
     (popup-previous ac-menu)
+    (setq ac-show-menu t)
     (if (eq this-command 'ac-previous)
         (setq ac-dwim-enable t))))
 
@@ -1201,6 +1241,7 @@ that have been made before in this function."
         (if (and (> (popup-direction ac-menu) 0)
                  (ac-menu-at-wrapper-line-p))
             (ac-reposition))
+        (setq ac-show-menu t)
         string))))
 
 (defun ac-expand-common ()
@@ -1246,6 +1287,7 @@ that have been made before in this function."
             (ac-abort)
             (unless nomessage (message "Nothing to complete")))
         (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)
+              ac-show-menu (if (eq ac-auto-show-menu t) t)
               ac-current-sources sources
               ac-buffer (current-buffer)
               ac-point point
@@ -1255,6 +1297,7 @@ that have been made before in this function."
         (when (or init (null ac-prefix-overlay))
           (ac-init))
         (ac-set-timer)
+        (ac-set-show-menu-timer)
         (ac-set-quick-help-timer)
         (ac-put-prefix-overlay)))))
 
