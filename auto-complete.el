@@ -666,14 +666,15 @@ You can not use it in source definition like (prefix . `NAME')."
         (overlay-put overlay 'after-string nil)))))
 
 (defun ac-inline-update ()
-  (when (and ac-completing ac-prefix (stringp ac-common-part))
-    (let ((common-part-length (length ac-common-part))
-          (prefix-length (length ac-prefix)))
-      (if (> common-part-length prefix-length)
-          (progn
-            (ac-inline-hide)
-            (ac-inline-show (point) (substring ac-common-part prefix-length)))
-        (ac-inline-delete)))))
+  (if (and ac-completing ac-prefix (stringp ac-common-part))
+      (let ((common-part-length (length ac-common-part))
+            (prefix-length (length ac-prefix)))
+        (if (> common-part-length prefix-length)
+            (progn
+              (ac-inline-hide)
+              (ac-inline-show (point) (substring ac-common-part prefix-length)))
+          (ac-inline-delete)))
+    (ac-inline-delete)))
 
 (defun ac-put-prefix-overlay ()
   (unless ac-prefix-overlay
@@ -871,6 +872,7 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-prefix nil
         ac-prefix-overlay nil
         ac-selected-candidate nil
+        ac-common-part nil
         ac-candidates nil
         ac-candidates-cache nil
         ac-fuzzy-enable nil
@@ -1046,7 +1048,7 @@ that have been made before in this function."
           (when stat
             (loop for p from 0 below (length string)
                   ;; sigmoid function
-                  with a = 3
+                  with a = 5
                   with d = (/ 6.0 a)
                   for x = (- d (abs (- prefix p)))
                   for r = (/ 1.0 (1+ (exp (* (- a) x))))
