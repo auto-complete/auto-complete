@@ -1010,88 +1010,48 @@ that have been made before in this function."
 (defvar ac-comphist nil
   "Database of completion history.")
 
-(defun ac-comphist-make (&optional n tab seq)
-  (list (or n 5) (or tab (ac-comphist-make-tab)) seq (make-hash-table :test 'equal :weakness t)))
-
-(defsubst ac-comphist-n (db)
-  (nth 0 db))
+(defun ac-comphist-make (&optional tab)
+  (list (or tab (ac-comphist-make-tab)) (make-hash-table :test 'equal :weakness t)))
 
 (defsubst ac-comphist-make-tab ()
   (make-hash-table :test 'equal))
 
 (defsubst ac-comphist-tab (db)
-  (nth 1 db))
-
-(defsubst ac-comphist-seq (db)
-  (nth 2 db))
-
-(defsubst ac-comphist-set-seq (db seq)
-  (setf (nth 2 db) seq))
+  (nth 0 db))
 
 (defsubst ac-comphist-cache (db)
-  (nth 3 db))
+  (nth 1 db))
 
 (defun ac-comphist-get (db string &optional create)
   (let* ((tab (ac-comphist-tab db))
          (index (gethash string tab)))
     (when (and create (null index))
-      (setq index (make-vector (length string) nil))
+      (setq index (make-vector (length string) 0))
       (puthash string index tab))
     index))
-
-(defun ac-comphist-stat (db index prefix &optional create)
-  (let ((stat (aref index prefix)))
-    (when (and create (null stat))
-      (setq stat (make-vector (1+ (ac-comphist-n db)) 0))
-      (aset index prefix stat))
-    stat))
 
 (defun ac-comphist-add (db string prefix)
   (setq prefix (max 0 (min prefix (1- (length string)))))
   (setq string (substring-no-properties string))
-  (let* ((index (ac-comphist-get db string t))
-         (stat (ac-comphist-stat db index prefix t))
-         (seq (ac-comphist-seq db)))
-    (loop with added
-          for i from 1
-          for s in seq
-          if (equal string s)
-          do
-          (setq added t)
-          (incf (aref stat i))
-          finally
-          (push string seq)
-          (ac-comphist-set-seq db seq)
-          (let ((cons (nthcdr (1- (ac-comphist-n db)) seq)))
-            (if cons
-                (setcdr cons nil)))
-          (unless added
-            (incf (aref stat 0))))))
+  (let ((stat (ac-comphist-get db string t)))
+    (incf (aref stat prefix))
+    (remhash string (ac-comphist-cache db))))
 
 (defun ac-comphist-freq (db string prefix)
   (setq prefix (min prefix (1- (length string))))
   (let ((cache (gethash string (ac-comphist-cache db))))
     (or (and cache (aref cache prefix))
-        (let ((index (ac-comphist-get db string))
+        (let ((stat (ac-comphist-get db string))
               (freq 0.0))
-          (when index
-            (loop with seq = (ac-comphist-seq db)
-                  for p from 1 to (1- (length string))
-                  for r = (/ (float (if (<= p prefix) p (max 0 (- prefix (- p prefix))))) prefix)
-                  for stat = (ac-comphist-stat db index p)
-                  if (and stat (> r 0))
+          (when stat
+            (loop for p from 0 below (length string)
+                  ;; sigmoid function
+                  with a = 3
+                  with d = (/ 6.0 a)
+                  for x = (- d (abs (- prefix p)))
+                  for r = (/ 1.0 (1+ (exp (* (- a) x))))
                   do
-                  (loop with found
-                        for i from 1
-                        for s in seq
-                        if (equal string s)
-                        do
-                        (setq found t)
-                        (incf freq (* (aref stat i) r))
-                        finally
-                        (unless found
-                          (incf freq (* (aref stat 0) r))))))
-          (setq freq (floor freq))
+                  (incf freq (* (aref stat p) r))))
           (unless cache
             (setq cache (make-vector (length string) nil))
             (puthash string cache (ac-comphist-cache db)))
@@ -1125,19 +1085,15 @@ that have been made before in this function."
     (maphash (lambda (k v)
                (push (cons k v) alist))
              (ac-comphist-tab db))
-    (list (ac-comphist-n db)
-          alist
-          (ac-comphist-seq db))))
+    (list alist)))
 
 (defun ac-comphist-deserialize (sexp)
   (condition-case nil
-      (ac-comphist-make (nth 0 sexp)
-                        (let ((tab (ac-comphist-make-tab)))
+      (ac-comphist-make (let ((tab (ac-comphist-make-tab)))
                           (mapc (lambda (cons)
                                   (puthash (car cons) (cdr cons) tab))
-                                (nth 1 sexp))
-                          tab)
-                        (nth 2 sexp))
+                                (nth 0 sexp))
+                          tab))
     (error (message "Invalid comphist db.") nil)))
 
 (defun ac-comphist-init ()
