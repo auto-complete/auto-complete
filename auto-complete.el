@@ -1182,14 +1182,16 @@ that have been made before in this function."
 (defun auto-complete (&optional sources)
   "Start auto-completion at current point."
   (interactive)
-  (let ((ac-sources (or sources ac-sources)))
+  (let ((live (ac-menu-live-p))
+        (ac-sources (or sources ac-sources)))
     (ac-abort)
     (ac-start)
     (when (ac-update t)
       ;; TODO Not to cause inline completion to be disrupted.
       (if (ac-inline-live-p)
           (ac-inline-hide))
-      (when (and (not (ac-expand-common))
+      (when (and (or (not live)
+                     (not (ac-expand-common)))
                  ac-use-fuzzy
                  (null ac-candidates))
         (ac-fuzzy-complete)))))
@@ -1355,7 +1357,8 @@ that have been made before in this function."
 (defun ac-handle-pre-command ()
   (condition-case var
       (if (or (setq ac-triggered (and (not ac-fuzzy-enable) ; ignore key storkes in fuzzy mode
-                                      (or (ac-trigger-command-p this-command)
+                                      (or (eq this-command 'auto-complete) ; special case
+                                          (ac-trigger-command-p this-command)
                                           (and ac-completing
                                                (memq this-command ac-trigger-commands-on-completing)))))
               (ac-compatible-package-command-p this-command))
