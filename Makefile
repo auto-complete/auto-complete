@@ -14,6 +14,10 @@ package:
 	mkdir ${PACKAGE}
 	cp *.el Makefile README TEST TODO ${PACKAGE}
 
+install: byte-compile
+	for f in *.el *.elc; do cp -f $$f ${DIR}/; done
+	cp -r dict ${DIR}/
+
 tar.bz2: package
 	tar cjf ${PACKAGE}.tar.bz2 ${PACKAGE}
 

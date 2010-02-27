@@ -182,6 +182,11 @@
   :group 'convenience
   :prefix "ac-")
 
+(defcustom ac-root-directory nil
+  "Auto complete installed directory."
+  :type 'string
+  :group 'auto-complete)
+
 (defcustom ac-delay 0.1
   "Delay to completions will be available."
   :type 'float
@@ -487,6 +492,13 @@ requires REQUIRES-NUM
 
 
 ;; Auto completion internals
+
+(defun ac-root-directory ()
+  (or ac-root-directory
+      (when (require 'find-func nil t)
+        (let ((name (find-library-name "auto-complete")))
+          (if name
+              (setq ac-root-directory (file-name-directory name)))))))
 
 (defun ac-error (&optional var)
   "Report an error and disable `auto-complete-mode'."
@@ -1148,7 +1160,9 @@ that have been made before in this function."
       ;; TODO Not to cause inline completion to be disrupted.
       (if (ac-inline-live-p)
           (ac-inline-hide))
-      (when (and (or (not live)
+      ;; Not to expand when it is first time to complete
+      (when (and (or (and (> (length ac-candidates) 1)
+                          (not live))
                      (not (ac-expand-common)))
                  ac-use-fuzzy
                  (null ac-candidates))
@@ -1228,7 +1242,7 @@ that have been made before in this function."
         (funcall action))
     candidate))
 
-(defun ac-start (&optional nomessage)
+(defun ac-start (&optional nomessage min-length)
   "Start completion."
   (interactive)
   (if (not auto-complete-mode)
@@ -1240,9 +1254,9 @@ that have been made before in this function."
            (init (not (eq ac-point point))))
       (if (or (null point)
               (and (eq prefix 'ac-prefix-default) ; if not omni-completion
-                   (integerp ac-auto-start)
+                   (integerp min-length)
                    (< (- (point) point)
-                      ac-auto-start)))
+                      min-length)))
           (prog1 nil
             (ac-abort)
             (unless nomessage (message "Nothing to complete")))
@@ -1336,7 +1350,7 @@ that have been made before in this function."
                      ac-completing)
                  (not isearch-mode))
         (setq ac-last-point (point))
-        (ac-start t)
+        (ac-start t (unless ac-completing ac-auto-start))
         (ac-inline-update))
     (error (ac-error var))))
 
@@ -1390,6 +1404,17 @@ that have been made before in this function."
 
 ;;;; Standard sources
 
+(defmacro ac-define-source (name source)
+  "Source definition macro. It defines a complete command also."
+  (declare (indent 1))
+  `(progn
+     (defvar ,(intern (format "ac-source-%s" name))
+       ,source)
+     (defun ,(intern (format "ac-complete-%s" name)) ()
+       (interactive)
+       (auto-complete '(,(intern (format "ac-source-%s" name)))))))
+
+;; Words in buffer source
 (defun ac-candidate-words-in-buffer (limit)
   (let ((i 0)
         candidate
@@ -1414,10 +1439,10 @@ that have been made before in this function."
           (incf i)))
       (nreverse candidates))))
 
-(defvar ac-source-words-in-buffer
-  '((candidates . (ac-candidate-words-in-buffer ac-limit)))
-  "Source for completing words in current buffer.")
+(ac-define-source words-in-buffer
+  '((candidates . (ac-candidate-words-in-buffer ac-limit))))
 
+;; Words in all/same-mode buffer source
 (defvar ac-word-index nil
   "Word index for individual buffer.")
 
@@ -1442,18 +1467,17 @@ that have been made before in this function."
         append (buffer-local-value 'ac-word-index buffer) into candidates
         finally return candidates))
 
-(defvar ac-source-words-in-all-buffer
+(ac-define-source words-in-all-buffer
   '((init . ac-build-word-index)
-    (candidates . ac-word-candidates))
-  "Source for completing words in all buffer.")
+    (candidates . ac-word-candidates)))
 
-(defvar ac-source-words-in-same-mode-buffers
+(ac-define-source words-in-same-mode-buffers
   '((init . ac-build-word-index)
     (candidates . (ac-word-candidates
                    (lambda (buffer)
-                     (derived-mode-p (buffer-local-value 'major-mode buffer))))))
-  "Source for completing words in all of same mode buffers.")
+                     (derived-mode-p (buffer-local-value 'major-mode buffer)))))))
 
+;; Lisp symbols source
 (defvar ac-symbols-cache nil)
 (ac-clear-variable-after-save 'ac-symbols-cache)
 
@@ -1463,20 +1487,20 @@ that have been made before in this function."
   (or (ignore-errors (documentation symbol t))
       (ignore-errors (documentation-property symbol 'variable-documentation t))))
 
-(defvar ac-source-symbols
+(ac-define-source symbols
   '((init . (or ac-symbols-cache
                 (setq ac-symbols-cache
                       (loop for x being the symbols collect (symbol-name x)))))
     (candidates . ac-symbols-cache)
     (document . ac-symbol-documentation)
     (symbol . "s")
-    (cache))
-  "Source for Emacs lisp symbols.")
+    (cache)))
 
+;; Lisp functions source
 (defvar ac-functions-cache nil)
 (ac-clear-variable-after-save 'ac-functions-cache)
 
-(defvar ac-source-functions
+(ac-define-source functions
   '((init . (or ac-functions-cache
                 (setq ac-functions-cache
                       (loop for x being the symbols
@@ -1488,10 +1512,11 @@ that have been made before in this function."
     (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
     (cache)))
 
+;; Lisp variables source
 (defvar ac-variables-cache nil)
 (ac-clear-variable-after-save 'ac-variables-cache)
 
-(defvar ac-source-variables
+(ac-define-source variables
   '((init . (or ac-variables-cache
                 (setq ac-variables-cache
                       (loop for x being the symbols
@@ -1502,17 +1527,18 @@ that have been made before in this function."
     (symbol . "v")
     (cache)))
 
-(defvar ac-source-abbrev
+;; Abbrev source
+(ac-define-source abbrev
   '((candidates . (mapcar 'popup-x-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
     (action . expand-abbrev)
-    (cache))
-  "Source for abbrev.")
+    (cache)))
 
-(defvar ac-source-files-in-current-dir
+;; Files in current directory source
+(ac-define-source files-in-current-dir
   '((candidates . (directory-files default-directory))
-    (cache))
-  "Source for listing files in current directory.")
+    (cache)))
 
+;; Filename source
 (defvar ac-filename-cache nil)
 
 (defun ac-filename-candidate ()
@@ -1529,13 +1555,69 @@ that have been made before in this function."
                         (concat path "/")
                       path)))))
 
-(defvar ac-source-filename
+(ac-define-source filename
   '((init . (setq ac-filename-cache))
     (candidates . ac-filename-candidate)
     (prefix . valid-file)
     (action . ac-start)
-    (limit . nil))
-  "Source for completing file name.")
+    (limit . nil)))
+
+;; Dictionary source
+(defcustom ac-user-dictionary nil
+  "User dictionary"
+  :type '(repeat string)
+  :group 'auto-complete)
+
+(defcustom ac-user-dictionary-files nil
+  "User dictionary files."
+  :type '(repeat string)
+  :group 'auto-complete)
+
+(defcustom ac-dictionary-dir-name "dict"
+  "Dictionary directory name."
+  :type 'string
+  :group 'auto-complete)
+
+(defvar ac-dictionary nil)
+(defvar ac-dictionary-cache (make-hash-table :test 'equal))
+
+(defun ac-clear-dictionary-cache ()
+  (interactive)
+  (clrhash ac-dictionary-cache))
+
+(defun ac-read-file-dictionary (filename)
+  (let ((cache (gethash filename ac-dictionary-cache 'none)))
+    (if (and cache (not (eq cache 'none)))
+        cache
+      (let (result)
+        (ignore-errors
+          (with-temp-buffer
+            (insert-file-contents filename)
+            (setq result (split-string (buffer-string) "\n"))))
+        (puthash filename result ac-dictionary-cache)
+        result))))
+
+(defun ac-buffer-dictionary ()
+  (apply 'append
+         (mapcar 'ac-read-file-dictionary
+                 (mapcar (lambda (name)
+                           (format "%s/%s/%s"
+                                   (ac-root-directory)
+                                   ac-dictionary-dir-name
+                                   name))
+                         (list major-mode
+                               (ignore-errors
+                                 (file-name-extension (buffer-file-name))))))))
+
+(defun ac-dictionary-candidates ()
+  (apply 'append `(,ac-user-dictionary
+                   ,(ac-buffer-dictionary)
+                   ,@(mapcar 'ac-read-file-dictionary
+                             ac-user-dictionary-files))))
+
+(ac-define-source dictionary
+  '((candidates . ac-dictionary-candidates)
+    (symbol . "d")))
 
 (provide 'auto-complete)
 ;;; auto-complete.el ends here
