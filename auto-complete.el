@@ -1,4 +1,4 @@
-;;; auto-complete.el --- Auto completion
+;;; auto-complete.el --- Auto Completion for GNU Emacs
 
 ;; Copyright (C) 2008, 2009, 2010  Tomohiro Matsuyama
 
@@ -232,7 +232,7 @@
   :type 'string
   :group 'auto-complete)
 
-(defcustom ac-use-comphist nil
+(defcustom ac-use-comphist t
   "Non-nil means use intelligent completion history."
   :type 'boolean
   :group 'auto-complete)
@@ -691,7 +691,9 @@ You can not use it in source definition like (prefix . `NAME')."
 (defun ac-source-available-p (source)
   (setq source (ac-source-entity source))
   (loop for feature in (assoc-default 'depends source)
-        unless (require feature nil t) return nil
+        if (eq (get feature 'available) 'no) return nil ; use cache
+        unless (require feature nil t)
+        do (put feature 'available 'no) and return nil
         finally return t))
 
 (defun ac-compile-sources (sources)
@@ -715,7 +717,7 @@ You can not use it in source definition like (prefix . `NAME')."
             (cond
              ((eq (cdr match) 'substring)
               (setcdr match 'ac-match-substring)))))
-        collect source))
+        and collect source))
 
 (defun ac-compiled-sources ()
   (or ac-compiled-sources
@@ -954,7 +956,7 @@ You can not use it in source definition like (prefix . `NAME')."
         finally return
         (progn
           (delete-dups candidates)
-          (if ac-use-comphist
+          (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
                          (n (car pair))
@@ -1002,12 +1004,18 @@ You can not use it in source definition like (prefix . `NAME')."
   "Cleanup auto completion."
   (if ac-cursor-color
       (set-cursor-color ac-cursor-color))
-  (when (and ac-selected-candidate ac-comphist)
-    (ac-comphist-add ac-comphist
-                     ac-selected-candidate
-                     (if ac-last-point
-                         (- ac-last-point ac-point)
-                       (length ac-prefix))))
+  (when (and ac-use-comphist ac-comphist)
+    (when (and (null ac-selected-candidate)
+               (member ac-prefix ac-candidates))
+      ;; Assume candidate is selected by just typing
+      (setq ac-selected-candidate ac-prefix)
+      (setq ac-last-point ac-point))
+    (when ac-selected-candidate
+      (ac-comphist-add ac-comphist
+                       ac-selected-candidate
+                       (if ac-last-point
+                           (- ac-last-point ac-point)
+                         (length ac-prefix)))))
   (ac-remove-quick-help)
   (ac-remove-prefix-overlay)
   (ac-inline-delete)
@@ -1538,11 +1546,13 @@ that have been made before in this function."
   (or (ignore-errors (documentation symbol t))
       (ignore-errors (documentation-property symbol 'variable-documentation t))))
 
+(defun ac-symbol-candidates ()
+  (or ac-symbols-cache
+      (setq ac-symbols-cache
+            (loop for x being the symbols collect (symbol-name x)))))
+
 (ac-define-source symbols
-  '((init . (or ac-symbols-cache
-                (setq ac-symbols-cache
-                      (loop for x being the symbols collect (symbol-name x)))))
-    (candidates . ac-symbols-cache)
+  '((candidates . ac-symbol-candidates)
     (document . ac-symbol-documentation)
     (symbol . "s")
     (cache)))
@@ -1551,13 +1561,15 @@ that have been made before in this function."
 (defvar ac-functions-cache nil)
 (ac-clear-variable-every-minute 'ac-functions-cache)
 
+(defun ac-function-candidates ()
+  (or ac-functions-cache
+      (setq ac-functions-cache
+            (loop for x being the symbols
+                  if (fboundp x)
+                  collect (symbol-name x)))))
+
 (ac-define-source functions
-  '((init . (or ac-functions-cache
-                (setq ac-functions-cache
-                      (loop for x being the symbols
-                            if (fboundp x)
-                            collect (symbol-name x)))))
-    (candidates . ac-functions-cache)
+  '((candidates . ac-function-candidates)
     (document . ac-symbol-documentation)
     (symbol . "f")
     (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
@@ -1567,13 +1579,15 @@ that have been made before in this function."
 (defvar ac-variables-cache nil)
 (ac-clear-variable-every-minute 'ac-variables-cache)
 
+(defun ac-variable-candidates ()
+  (or ac-variables-cache
+      (setq ac-variables-cache
+            (loop for x being the symbols
+                  if (boundp x)
+                  collect (symbol-name x)))))
+
 (ac-define-source variables
-  '((init . (or ac-variables-cache
-                (setq ac-variables-cache
-                      (loop for x being the symbols
-                            if (boundp x)
-                            collect (symbol-name x)))))
-    (candidates . ac-variables-cache)
+  '((candidates . ac-variable-candidates)
     (document . ac-symbol-documentation)
     (symbol . "v")
     (cache)))
@@ -1582,17 +1596,19 @@ that have been made before in this function."
 (defvar ac-emacs-lisp-features nil)
 (ac-clear-variable-every-minute 'ac-emacs-lisp-features)
 
+(defun ac-emacs-lisp-feature-candidates ()
+  (or ac-emacs-lisp-features
+      (let ((suffix (concat (regexp-opt (find-library-suffixes) t) "\\'")))
+        (setq ac-emacs-lisp-features
+              (append (mapcar 'prin1-to-string features)
+                      (loop for dir in load-path
+                            if (file-directory-p dir)
+                            append (loop for file in (directory-files dir)
+                                         if (string-match suffix file)
+                                         collect (substring file 0 (match-beginning 0)))))))))
+
 (ac-define-source features
-  '((init . (unless ac-emacs-lisp-features
-              (let ((suffix (concat (regexp-opt (find-library-suffixes) t) "\\'")))
-                (setq ac-emacs-lisp-features
-                      (append (mapcar 'prin1-to-string features)
-                              (loop for dir in load-path
-                                    if (file-directory-p dir)
-                                    append (loop for file in (directory-files dir)
-                                                 if (string-match suffix file)
-                                                 collect (substring file 0 (match-beginning 0)))))))))
-    (candidates . ac-emacs-lisp-features)
+  '((candidates . ac-emacs-lisp-feature-candidates)
     (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")))
 
 (defvaralias 'ac-source-emacs-lisp-features 'ac-source-features)

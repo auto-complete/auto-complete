@@ -6,13 +6,14 @@ byte-compile:
 
 clean:
 	rm -f *.elc
+	rm -f doc/*.html
 	rm -rf ${PACKAGE}
 	rm -f ${PACKAGE}.zip ${PACKAGE}.tar.bz2 *.elc
 
-package:
+package: clean
 	rm -rf ${PACKAGE}
 	mkdir ${PACKAGE}
-	cp *.el Makefile README TEST TODO ${PACKAGE}
+	cp -r *.el Makefile README TEST TODO doc ${PACKAGE}
 
 install: byte-compile
 	for f in *.el *.elc; do cp -f $$f ${DIR}/; done

@@ -95,7 +95,11 @@ This is faster than prin1-to-string in many cases."
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
 
 (defun popup-current-physical-column ()
-  (car (posn-col-row (posn-at-point))))
+  ;; Optimized
+  (if (save-excursion
+        (re-search-backward "\t" (line-beginning-position) t))
+      (car (posn-col-row (posn-at-point)))
+    (current-column)))
 
 (defun popup-last-line-of-buffer-p ()
   (save-excursion (end-of-line) (/= (forward-line) 0)))
