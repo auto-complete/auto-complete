@@ -608,17 +608,21 @@ See also `popup-item-propertize'."
                                   pattern)))
     (read-event prompt pattern)))
 
-(defun popup-isearch-update (popup pattern)
+(defun popup-isearch-update (popup pattern &optional callback)
   (setf (popup-cursor popup) 0
         (popup-scroll-top popup) 0
         (popup-pattern popup) pattern)
-  (popup-set-filtered-list popup (popup-isearch-filter-list pattern (popup-original-list popup)))
+  (let ((list (popup-isearch-filter-list pattern (popup-original-list popup))))
+    (popup-set-filtered-list popup list)
+    (if callback
+        (funcall callback list)))
   (popup-draw popup))
 
 (defun* popup-isearch (popup
                        &key
                        (cursor-color popup-isearch-cursor-color)
-                       (keymap popup-isearch-keymap))
+                       (keymap popup-isearch-keymap)
+                       callback)
   (let ((list (popup-original-list popup))
         (pattern (or (popup-pattern popup) ""))
         (old-cursor-color (frame-parameter (selected-frame) 'cursor-color))
@@ -642,8 +646,8 @@ See also `popup-item-propertize'."
                      (t
                       (push event unread-command-events)
                       (return t)))
-                    (popup-isearch-update popup pattern)))
-          (popup-isearch-update popup ""))
+                    (popup-isearch-update popup pattern callback)))
+          (popup-isearch-update popup "" callback))
       (if old-cursor-color
           (set-cursor-color old-cursor-color)))))
 
