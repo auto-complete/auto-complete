@@ -1,0 +1,45 @@
+Title: Auto Complete Mode
+CSS: style.css
+
+Auto Complete Mode
+==================
+
+*The most intelligent auto-completion extension for [GNU Emacs][]*
+
+\[[Japanese](index.ja.txt)]
+
+* * * *
+
+{toc}
+
+* * * *
+
+Screenshots
+-----------
+
+![](ac.png "Auto Completion") ![](ac-fuzzy.png "Fuzzy Completion") ![](ac-isearch.png "Increamental Search")
+
+Downloads
+---------
+
+Current stable version is v1.2. Here are download links.
+
+* [auto-complete-1.2.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
+* [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
+
+If you want to use or develop development version, please checkout from a repository.
+
+<http://github.com/m2ym/auto-complete>
+
+User Manual
+-----------
+
+[Auto Complete Mode User Manual](manual.txt)
+
+License
+-------
+
+This software is distributed under the term of [GPLv3][].
+
+[GNU Emacs]: http://www.gnu.org/software/emacs/
+[GPLv3]: http://gplv3.fsf.org/

@@ -1,0 +1,12 @@
+Title: Auto Complete Mode User Manual
+Numbering: yes
+CSS: style.css
+
+Auto Complete Mode User Manual
+==============================
+
+[Index](index.txt)
+
+\[[Japanese](manual.ja.txt)]
+
+Not yet available.

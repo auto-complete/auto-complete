@@ -1,0 +1,31 @@
+body {
+    margin: 1em;
+}
+
+h1 {
+    text-shadow: 5px 5px 5px #ccc;
+}
+
+h1, h2, h3 {
+    margin-top: 1em;
+}
+
+pre {
+    margin: 0.5em 2em;
+    padding: 0.5em;
+    background-color: #eee;
+    border: 1px solid #ddd;
+}
+
+table {
+    margin-left: 1em;
+    background-color: lightgray;
+}
+
+td, th {
+    padding: 0.3em;
+}
+
+td {
+    background-color: white;
+}

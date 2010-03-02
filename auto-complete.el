@@ -33,140 +33,11 @@
 ;;     +-----------------+
 ;;
 ;; You can complete by typing and selecting menu.
+;;
+;; Entire documents are located in doc/ directory.
+;; Take a look for information.
+;;
 ;; Enjoy!
-
-;;; Qualification:
-;;
-;; This extension can work properly on GNU Emacs 22 or higher.
-
-;;; Installation:
-;;
-;; To use this extension, compile necessary elisp files and locate them to your load-path directory.
-;;
-;;     $ emacs -L . -batch -f batch-byte-compile *.el
-;;     $ cp *.el *.elc ~/.emacs.d/
-;;
-;; And write following code into your .emacs.
-;;
-;;     (require 'auto-complete)
-;;     (require 'auto-complete-config)
-;;     (global-auto-complete-mode t)
-
-;;; Sample configuration:
-;;
-;; Here is my configuration. It is useful for many people.
-;;
-;;     (setq-default ac-sources '(ac-source-words-in-same-mode-buffers))
-;;     (add-hook 'emacs-lisp-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-symbols)))
-;;     (add-hook 'auto-complete-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-filename)))
-;;     (global-auto-complete-mode t)
-;;     (set-face-background 'ac-candidate-face "lightgray")
-;;     (set-face-underline 'ac-candidate-face "darkgray")
-;;     (set-face-background 'ac-selection-face "steelblue")
-;;     (define-key ac-completing-map "\M-n" 'ac-next)
-;;     (define-key ac-completing-map "\M-p" 'ac-previous)
-;;     (setq ac-auto-start 2)
-;;     (setq ac-dwim t)
-;;     (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-
-;;; Tips:
-;;
-;; Use C-n/C-p to select candidates
-;; --------------------------------
-;;
-;; Add following code to your .emacs.
-;; 
-;;     (define-key ac-completing-map "\C-n" 'ac-next)
-;;     (define-key ac-completing-map "\C-p" 'ac-previous)
-;;
-;;
-;; Don't start completion automatically
-;; ------------------------------------
-;;
-;; Add following code to your .emacs.
-;;
-;;     (setq ac-auto-start nil)
-;;     (global-set-key "\M-/" 'auto-complete)
-;;
-;; or
-;;
-;;     ;; start completion when entered 3 characters
-;;     (setq ac-auto-start 3)
-;;
-;;
-;; Use trigger key
-;; ---------------
-;;
-;; You can use common key as auto-complete trigger.
-;; Add following code to your .emacs.
-;;
-;;     (ac-set-trigger-key "TAB")
-;;
-;; Now you can use TAB as auto-complete trigger.
-;; It is enabled only when
-;; a. After insertion/deletion command
-;; b. With prefix (C-u TAB)
-;;
-;;
-;; Use M-TAB for completion
-;; ------------------------
-;;
-;; Add following code to your .emacs.
-;;
-;;     (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-;;
-;;
-;; Stop completion
-;; ---------------
-;;
-;; Add following code to your .emacs.
-;;
-;;     (define-key ac-completing-map "\M-/" 'ac-stop)
-;;
-;; Now you can stop completion by pressing M-/.
-;;
-;;
-;; Completion by TAB
-;; -----------------
-;;
-;; Add following code to your .emacs.
-;;
-;;     (define-key ac-completing-map "\t" 'ac-complete)
-;;     (define-key ac-completing-map "\r" nil)
-;;
-;;
-;; Do What I Mean mode
-;; -------------------
-;;
-;; If DWIM (Do What I Mean) mode is enabled,
-;; the following features is available:
-;;
-;; a. TAB (ac-expand) behave as completion (ac-complete)
-;;    when only one candidate is left
-;; b. TAB (ac-expand) behave as completion (ac-complete)
-;;    after you select candidate
-;; c. Disapear automatically when you
-;;    complete a candidate.
-;;
-;; DWIM mode is enabled by default.
-;; You can enable this feature by
-;; setting `ac-dwim' to t.
-;;
-;;     (setq ac-dwim t)
-;;
-;;
-;; Change default sources
-;; ----------------------
-;;
-;;     (setq-default ac-sources '(ac-source-abbrev ac-source-words-in-buffer))
-;;
-;;
-;; Change sources for particular mode
-;; ----------------------------------
-;;
-;;     (add-hook 'emacs-lisp-mode-hook
-;;                 (lambda ()
-;;                   (setq ac-sources '(ac-source-words-in-buffer ac-source-symbols))))
 
 ;;; Code:
 
@@ -178,18 +49,6 @@
 (require 'popup)
 
 ;;;; Global stuff
-
-(defun ac-root-directory ()
-  (or ac-root-directory
-      (when (require 'find-func nil t)
-        (let ((name (if (fboundp 'find-library-name)
-                        (find-library-name "auto-complete"))))
-          (if name
-              (setq ac-root-directory
-                    (or (file-name-directory name)
-                        (if (boundp 'user-emacs-directory)
-                            user-emacs-directory
-                          "~/.emacs.d/"))))))))
 
 (defun ac-error (&optional var)
   "Report an error and disable `auto-complete-mode'."
@@ -207,11 +66,6 @@
   :group 'convenience
   :prefix "ac-")
 
-(defcustom ac-root-directory nil
-  "Auto complete installed directory."
-  :type 'string
-  :group 'auto-complete)
-
 (defcustom ac-delay 0.1
   "Delay to completions will be available."
   :type 'float
@@ -219,7 +73,9 @@
 
 (defcustom ac-auto-show-menu t
   "Non-nil means completion menu will be automatically shown."
-  :type 'boolean
+  :type '(choice (const :tag "Yes" t)
+                 (const :tag "Never" nil)
+                 (float :tag "Timer"))
   :group 'auto-complete)
 
 (defcustom ac-use-fuzzy t
@@ -243,7 +99,10 @@
   :group 'auto-complete)
 
 (defcustom ac-comphist-file
-  (expand-file-name (concat (ac-root-directory) "/ac-comphist.dat"))
+  (expand-file-name (concat (if (boundp 'user-emacs-directory)
+                                user-emacs-directory
+                              "~/.emacs.d/")
+                            "/ac-comphist.dat"))
   "Completion history file name."
   :type 'string
   :group 'auto-complete)
@@ -1117,15 +976,19 @@ that have been made before in this function."
     t))
 
 (defun ac-update-greedy (&optional force)
-  (while (when (and (ac-update force) (null ac-candidates))
-           (add-to-list 'ac-ignoring-prefix-def ac-current-prefix-def)
-           (ac-start :min-prefix nil
-                     :show-menu t
-                     :force-init t)
-           ac-current-prefix-def)))
+  (let (result)
+    (while (when (and (setq result (ac-update force))
+                      (null ac-candidates))
+             (add-to-list 'ac-ignoring-prefix-def ac-current-prefix-def)
+             (ac-start :min-prefix nil
+                       :show-menu t
+                       :force-init t)
+             ac-current-prefix-def))
+    result))
 
 (defun ac-set-show-menu-timer ()
-  (when (and (floatp ac-auto-show-menu) (null ac-show-menu-timer))
+  (when (and (or (integerp ac-auto-show-menu) (floatp ac-auto-show-menu))
+             (null ac-show-menu-timer))
     (setq ac-show-menu-timer (run-with-idle-timer ac-auto-show-menu ac-auto-show-menu 'ac-show-menu))))
 
 (defun ac-cancel-show-menu-timer ()
@@ -1660,9 +1523,9 @@ that have been made before in this function."
   :type '(repeat string)
   :group 'auto-complete)
 
-(defcustom ac-dictionary-dir-name "dict"
-  "Dictionary directory name."
-  :type 'string
+(defcustom ac-dictionary-directories nil
+  "Dictionary directories."
+  :type '(repeat string)
   :group 'auto-complete)
 
 (defvar ac-dictionary nil)
@@ -1688,11 +1551,11 @@ that have been made before in this function."
   (apply 'append
          (mapcar 'ac-read-file-dictionary
                  (mapcar (lambda (name)
-                           (format "%s/%s/%s"
-                                   (ac-root-directory)
-                                   ac-dictionary-dir-name
-                                   name))
-                         (list major-mode
+                           (loop for dir in ac-dictionary-directories
+                                 for file = (concat dir "/" name)
+                                 if (file-exists-p file)
+                                 return file))
+                         (list (symbol-name major-mode)
                                (ignore-errors
                                  (file-name-extension (buffer-file-name))))))))
 
