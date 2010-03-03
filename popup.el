@@ -51,16 +51,19 @@ This is faster than prin1-to-string in many cases."
 
 (defun popup-substring-by-width (string width)
   "Return cons of substring and remaining string by `WIDTH'."
-  (loop with w = 0
+  (loop with len = (length string)
+        with w = 0
         for l from 0
         for c in (append string nil)
         while (<= (incf w (char-width c)) width)
         finally return
-        (if (< l (length string))
+        (if (< l len)
             (cons (substring string 0 l) (substring string l))
           (list string))))
 
 (defun popup-fill-string (string &optional width max-width)
+  (if (eq width 0)
+      (error "Can't fill string with 0 width"))
   (let (lines)
     (setq lines (split-string string "\n"))
     (unless width
@@ -95,11 +98,7 @@ This is faster than prin1-to-string in many cases."
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
 
 (defun popup-current-physical-column ()
-  ;; Optimized
-  (if (save-excursion
-        (re-search-backward "\t" (line-beginning-position) t))
-      (car (posn-col-row (posn-at-point)))
-    (current-column)))
+  (car (posn-col-row (posn-at-point))))
 
 (defun popup-last-line-of-buffer-p ()
   (save-excursion (end-of-line) (/= (forward-line) 0)))
@@ -336,13 +335,15 @@ See also `popup-item-propertize'."
               ;; Cut out overflow
               (let ((d (1+ (- popup-width (- window-width column)))))
                 (decf popup-width d)
-                (decf width d))))
-        (when (and (null parent)
-                   (< (decf column margin-left) 0))
+                (decf width d)))
+            (decf column margin-left))
+        (decf column margin-left))
+      (when (and (null parent)
+                 (< column 0))
           ;; Cancel margin left
-          (setq column 0)
-          (decf popup-width margin-left)
-          (setq margin-left-cancel t)))
+        (setq column 0)
+        (decf popup-width margin-left)
+        (setq margin-left-cancel t))
       
       (dotimes (i height)
         (let (overlay begin w (dangle t) (prefix "") (postfix ""))
@@ -703,15 +704,15 @@ See also `popup-item-propertize'."
                           :face 'popup-tip-face
                           :parent parent
                           :parent-offset parent-offset))
-  
-  (when (and (not (eq width (popup-width tip))) ; truncated
-             (not truncate))
-    ;; Refill once again to lines be fitted to popup width
-    (setq width (popup-width tip))
-    (setq lines (cdr (popup-fill-string string width width))))
 
   (unwind-protect
-      (progn
+      (when (> (popup-width tip) 0)                   ; not to be corrupted
+        (when (and (not (eq width (popup-width tip))) ; truncated
+                   (not truncate))
+          ;; Refill once again to lines be fitted to popup width
+          (setq width (popup-width tip))
+          (setq lines (cdr (popup-fill-string string width width))))
+
         (popup-set-list tip lines)
         (popup-draw tip)
         (if nowait
