@@ -26,6 +26,8 @@ Auto Complete Mode（通称、`auto-complete.el`, `auto-complete-mode`）は[GNU
 
 本マニュアルはインストール方法から基本的な使い方・設定方法、また拡張方法までを網羅しています。不明な点があれば開発者まで連絡をください。
 
+なお、Auto Complete Modeは[GPLv3][]のもとでライセンスされています。また、このドキュメントは[GFDL][]のもとでライセンスされています。
+
 インストール
 ------------
 
@@ -499,14 +501,354 @@ Tips
 
     (add-hook 'c++-mode (lambda () (add-to-list 'ac-sources 'ac-source-semantic)))
 
+
+
 設定項目
 --------
 
-Not yet available.
+それぞれの設定項目は`.emacs`で変更するか`M-x customize-group RET auto-complete RET`で変更可能です。
+
+### `ac-delay` ###
+
+補完可能になるまでの遅延時間（秒）を実数で指定します。小さいほど瞬時に反応しますが、パフォーマンスの低下につながります。
+
+### `ac-auto-show-menu` ###
+
+補完時に自動的に補完メニューを表示するかどうかです。`t`の場合は常に自動的に表示します。`nil`の場合は絶対に表示されません。実数を指定すると表示までの遅延時間を秒数で指定できます。
+
+### `ac-use-fuzzy` ###
+
+[曖昧マッチによる補完](#曖昧マッチによる補完)を利用するかどうかです。
+
+### `ac-fuzzy-cursor-color` ###
+
+[曖昧マッチによる補完](#曖昧マッチによる補完)時にカーソルの指定した色に変更します。`nil`の場合は変更しません。利用できる色は`M-x list-colors-display`で確認できます。
+
+### `ac-use-comphist` ###
+
+[補完推測機能](#補完推測機能)を利用するかどうかです。`nil`にすると利用しませんが、パフォーマンスが向上する可能性があります。
+
+### `ac-comphist-threshold` ###
+
+低いスコアの補完候補を排除する閾値をパーセンテージで指定します。スコアの全体を100%とします。
+
+### `ac-comphist-file` ###
+
+[補完推測機能](#補完推測機能)のデータを永続化するファイルを指定します。
+
+### `ac-use-quick-help` ###
+
+クイックヘルプを利用するかどうかです。
+
+### `ac-menu-height` ###
+
+補完メニューの行数を整数で指定します。
+
+### `ac-quick-help-height` ###
+
+クイックヘルプの行数を整数で指定します。
+
+### `ac-candidate-limit` ###
+
+補完候補数を制限します。整数が指定されている場合は、その値を表示する補完候補数の上限にします。`nil`の場合は無制限です。
+
+### `ac-modes` ###
+
+`global-auto-complete-mode`が有効な時に`auto-complete-mode`が自動的に有効になるモードをシンボルのリストで指定します。
+
+### `ac-compatible-packages-regexp` ###
+
+自動補完を開始するコマンドのパッケージを正規表現で指定します。
+
+### `ac-trigger-commands` ###
+
+自動補完を開始するコマンドをシンボルのリストで指定します。`self-insert-command`がデフォルトですが、まれに文字の挿入を独自のコマンドに設定しているモードがあるので、その対応のための設定項目です。
+
+### `ac-trigger-commands-on-completing` ###
+
+[`ac-trigger-commands`](#ac-trigger-commands)と同様ですが、補完中に使用される点が異なります。
+
+### `ac-trigger-key` ###
+
+[トリガーキー](#トリガーキー)を指定します。
+
+### `ac-auto-start` ###
+
+補完が自動的に開始されるかどうかを指定します。`t`の場合は常に自動的に開始されます。`nil`の場合は絶対に自動的に開始されません。整数の場合は、補完対象文字列の長さがその値以上になるまで自動的に開始されません。
+
+### `ac-ignore-case` ###
+
+補完時に大文字・小文字を区別するかどうかです。`t`の場合は常に無視します。`nil`の場合は無視しません。シンボルで`smart`が指定された場合は、補完対象文字列に大文字が含まれる場合のみ区別します。
+
+### `ac-dwim` ###
+
+"Do What I Mean"機能です。`t`の場合は次の挙動になります。
+
+* 補完選択時にTABがRETの挙動に変化する
+* 補完候補が一つしかないときにTABをするとRETの挙動になる
+
+### `ac-completion-face` ###
+
+インライン補完のためのフェイスです。
+
+### `ac-candidate-face` ###
+
+補完候補の背景のためのフェイスです。
+
+### `ac-selection-face` ###
+
+選択された補完候補のフェイスです。
+
+### `global-auto-complete-mode` ###
+
+グローバルに`auto-complete-mode`を利用するかどうかです。
+
+### `ac-user-dictionary` ###
+
+[辞書による補完](#辞書による補完)のための辞書を文字列のリストで指定します。
+
+### `ac-user-dictionary-files` ###
+
+[辞書による補完](#辞書による補完)のための辞書ファイルを文字列のリストで指定します。
+
+### `ac-dictionary-directories` ###
+
+[辞書による補完](#辞書による補完)のための辞書ファイルディレクトリを文字列のリストで指定します。
+
+### `ac-sources` ###
+
+使用する[情報源](#情報源)をリストで指定します。これはバッファローカル変数です。
+
+### `ac-completing-map` ###
+
+補完中に使用するキーマップです。
+
+### `ac-mode-map` ###
+
+`auto-complete-mode`が有効なバッファで使用するキーマップです。
 
 拡張方法
 --------
 
-Not yet available.
+`auto-complete-mode`を拡張するとはつまり[情報源](#情報源)を定義することです。この節では情報源の定義の仕方を説明します。
+
+### 雛形 ###
+
+情報源はおおまかに言って次のような形をとります。
+
+    (defvar ac-source-mysource1
+      '((prop . value)
+        ...))
+
+見てわかる通り情報源とは単なる連想リストでしかないのです。あらかじめ定義されたプロパティ名と正しい値のペアを連想リストとして組合せるだけで情報源が定義できてしまうのです。
+
+### 簡単な例 ###
+
+情報源で一番重要なプロパティは`candidates`プロパティです。このプロパティに関数あるいは式、変数を与えることで補完候補の生成を行います。プロパティの評価結果は文字列のリストであるべきです。例として補完候補としてFoo, Bar, Bazを生成する情報源を定義してみましょう。
+
+    (defvar ac-source-mysource1
+      '((candidates . (list "Foo" "Bar" "Baz"))))
+
+次にこの情報源を`ac-sources`に設定して実際に補完してみましょう。
+
+    (setq ac-sources '(ac-source-mysource1))
+
+Bと入力してBar, Bazが補完候補として現われれば成功です。上記の例では`candidates`プロパティに`(list ...)`という式を指定しました。ここで指定した式はバイトコンパイルされないので、よほど簡単なものでないかぎり式で指定するのはパフォーマンスの悪化をもたらします。代替策・正攻法としては関数を利用するのがよいでしょう。
+
+    (defun mysource1-candidates ()
+      '("Foo" "Bar" "Baz"))
+    
+    (defvar ac-source-mysource1
+      '((candidates . mysource1-candidates)))
+
+`candidates`プロパティに指定した関数は引数なしで補完が更新される度に呼び出されます。その他の方法として変数を直接指定することもできます。
+
+### 初期化 ###
+
+補完が開始されたときに一度だけ初期化処理を行いたいということがあります。そのためには`init`プロパティを利用します。`candidates`プロパティ同様、引数なしの関数あるいは式を指定します。次に簡単な例を示します。
+
+    (defvar mysource2-cache nil)
+    
+    (defun mysource2-init ()
+      (setq mysource2-cache '("Huge" "Processing" "Is" "Done" "Here")))
+    
+    (defvar ac-source-mysource2
+      '((init . mysource2-init)
+        (candidates . mysource2-cache)))
+
+この例では`mysource2-init`関数で大規模な処理を行い、`mysource2-cache`変数にその結果を保存しています。そして`candidates`プロパティにその変数を指定することで、補完が更新される度に大規模な処理が行われるのを防いでいます。この例の他にも次のような用途が考えられます。
+
+* `require`する
+* バッファを開いておく
+
+### キャッシュ ###
+
+`auto-complete-mode`ではキャッシュの戦略が重要になります。その方法として、前節で触れた`init`プロパティによるものと、この節で説明する`cache`プロパティによるものが基本となります。情報源の定義に`cache`プロパティを設定しておくと、初回の`candidates`プロパティの結果が内部的にキャッシュされ、それ以降は`candidates`プロパティを評価する代わりに、そのキャッシュを利用するにようになります。
+
+前節の例を`cache`プロパティを利用して書き直してみます。
+
+    (defun mysource2-candidates ()
+      '("Huge" "Processing" "Is" "Done" "Here"))
+    
+    (defvar ac-source-mysource2
+      '((candidates . mysource2-candidates)
+        (cache)))
+
+`candidates`プロパティに大規模な処理が必要な関数が指定されていますが、初回のみ実行されるのでパフォーマンスの問題は軽減されます。
+
+#### キャッシュの寿命 ####
+
+`init`プロパティや`cache`プロパティの大きいスコープでキャッシュを保持することがあります。例えば滅多に変更のない関数名のリストなどがそうです。その場合にパフォーマンスを犠牲にすることなく、適度にキャッシュをクリアするにはどうすればよいのでしょうか。`auto-complete-mode`はキャッシュの寿命を管理する機構を持っており、ユーザーはそこにキャッシュ用の変数を登録しておくことにより、適当なイベントごとにキャッシュがクリアされます。
+
+バッファが保存されるたびにキャッシュをクリアするには`ac-clear-variable-after-save`で変数を登録します。簡単な例を示します。
+
+    (defvar mysource3-cache nil)
+    
+    (ac-clear-variable-after-save 'mysource3-cache)
+    
+    (defun mysource3-candidates ()
+      (or mysource3-cache
+          (setq mysource3-cache (list (format "Time %s" (current-time-string))))))
+    
+    (defvar ac-source-mysource3
+      '((candidates . mysource3-candidates)))
+
+これを`ac-sources`に設定してTimeで補完を行ってください。すると補完候補に補完時の時間が表示されると思います。二度目以降も同じ時間が表示されるのは`mysource3-candidates`は可能な限りキャッシュを返すようになっているからです。それでは一度そのバッファを保存して、再びTimeで補完を行ってください。今度は新しい時間に更新されたと思います。この情報源のキモは`ac-clear-variable-after-save`でキャッシュ用変数を登録しているところにあります。標準の情報源である`ac-source-words-in-same-mode-buffer`などもこの機能を利用しています。
+
+さらに定期的にキャッシュをクリアすることも可能です。そのためには`ac-clear-variable-every-minute`で変数を登録します。使い方は`ac-clear-variable-after-save`と同じですが、一分ごとに定期的にキャッシュがクリアされる点が異なります。標準の情報源である`ac-source-functions`などがこの機能を利用しています。
+
+### アクション ###
+
+[RETによる補完](#RETによる補完)の場合、`action`プロパティで指定された関数あるいは式が評価されます。標準情報源では`ac-source-abbrev`や`ac-source-yasnippet`が利用しています。
+
+### オムニ補完 ###
+
+オムニ補完とは現在編集中のコンテキストを考慮して行う補完のことです。スラッシュを検出して行うファイル名補完や、ドットを検出して行うC/C++のメンバー補完は、このオムニ補完であると言えます。情報源をオムニ補完に対応させるには`prefix`プロパティを使います。`prefix`プロパティは補完対象文字列の開始位置をポイントで返さなければなりません。`nil`を返した場合は、その情報源が現在のコンテキストでは無効であると解釈します。
+
+例として`To: `の後にメールアドレスを補完する情報源を考えてみましょう。まず、これまでの知識からメールアドレスを補完する情報源を定義します。
+
+    (defvar ac-source-to-mailaddr
+      '((candidates . (list "foo1@example.com"
+                            "foo2@example.com"
+                            "foo3@example.com"))))
+    
+    (setq ac-sources '(ac-source-to-mailaddr))
+
+ここまでは簡単です。次に`prefix`プロパティを使って`To: `の後にのみ補完が開始されるようにします。`prefix`プロパティには次の三つが指定できます。
+
+* 正規表現
+* 関数
+* 式
+
+正規表現を指定した場合、その正規表現を使って`re-search-backward`を行い[^1]、マッチしたグループ1あるいはグループ0の先頭位置を補完対象文字列の開始位置とします。もう少し複雑な制御が必要な場合は関数あるいは式を指定します。ここで評価された開始位置は[`ac-point`](#ac-point)に格納されます。先の例では次の正規表現で事足ります。
+
+    ^To: \(.*\)
+
+グループ1をキャプチャしているのは`To: `を補完対象文字列に含めないためです。これを`prefix`プロパティに設定した最終的な情報源は次のようになります。
+
+    (defvar ac-source-to-mailaddr
+      '((candidates . (list "foo1@example.com"
+                            "foo2@example.com"
+                            "foo3@example.com"))
+        (prefix . "^To: \\(.*\\)")))
+
+試しに`To: `と入力してみましょう。メールアドレスが補完できるようになったら成功です。
+
+
+[^1]: 厳密にはその正規表現の末尾にカーソルを意味する\=を付与したもので`re-search-backward`されます
+
+### `ac-define-source` ###
+
+これまでは`defvar`で情報源を定義してきましたが、`ac-define-source`というユーティリティマクロを使って定義することも可能です。
+
+    (ac-define-source mysource3
+      '((candidates . (list "Foo" "Bar" "Baz"))))
+
+このマクロは次のように展開されます。
+
+    (defvar ac-source-mysource3
+      '((candidates . (list "Foo" "Bar" "Baz"))))
+    
+    (defun ac-complete-mysource3 ()
+      (interactive)
+      (auto-complete '(ac-source-mysource3)))
+
+`defvar`は従来通り定義され、続いてその情報源のみで補完を行うコマンドが定義されます。`auto-complete`は引数なしで呼び出された場合は`ac-sources`を情報源として使い、引数ありで呼び出された場合はその値を情報源として使います。`defvar`か`ac-define-source`かどちらを使うかは微妙ですが、後方互換性を保持するなら`defvar`のほうが無難でしょう。ちなみに標準情報源は全て`ac-define-source`で定義されています。つまり`ac-complete-filename`などを他のキーに割り当てて個別に利用することができます。
+
+### 情報源プロパティ一覧 ###
+
+#### `init` ####
+
+補完開始時に一度だけ指定された関数あるいは式を評価します。
+
+#### `candidates` ####
+
+補完更新時に指定された関数あるいは式、変数を評価します。評価結果は文字列のリストであるべきです。[`cache`](#cache)プロパティが有効な場合は、その補完では二度目以降評価されません。
+
+#### `prefix` ####
+
+指定された正規表現、関数あるいは式を評価して、オムニ補完のための補完対象文字列の開始位置を取得します。`nil`を返した場合はその情報源は無視されます。正規表現が指定された場合、グループ1の開始位置あるいはグループ2の開始位置が評価値として使われます。
+
+#### `action` ####
+
+[RETによる補完](#RETによる補完)時に実行する[アクション](#アクション)を関数あるいは式で指定します。
+
+#### `limit` ####
+
+補完候補の上限数を設定します。`ac-candidate-limit`を部分的に上書きします。
+
+#### `symbol` ####
+
+補完候補の意味を現わす記号を一文字の文字列で指定します。指定する記号は任意ですが、基本的に以下の慣習に従うべきです。
+
+| 記号 | 意味           |
+|------|----------------|
+| s    | シンボル       |
+| f    | 関数・メソッド |
+| v    | 変数           |
+| a    | 略語           |
+| d    | 辞書           |
+
+#### `cache` ####
+
+[キャッシュ](#キャッシュ)を利用します。
+
+#### `require` ####
+
+整数あるいは`nil`を指定します。整数が指定された場合、その値が補完対象文字列の長さより大きい場合は、その情報源は無視されます。`nil`の場合は常に有効になります。
+
+#### `candidate-face` ####
+
+補完候補のフェイスを指定します。[`ac-candidate-face`](#ac-candidate-face)を部分的に上書きします。
+
+#### `selection-face` ####
+
+選択された補完候補のフェイスを指定します。[`ac-selection-face`](#ac-selection-face)を部分的に上書きします。
+
+### 変数一覧 ###
+
+情報源でよく利用する変数を一覧します。
+
+#### `ac-buffer` ####
+
+補完が開始されたバッファです。
+
+#### `ac-point` ####
+
+補完対象文字列の開始位置です。
+
+#### `ac-prefix` ####
+
+補完対象文字列です。
+
+#### `ac-limit` ####
+
+現在の情報源の候補上限数です。[`ac-candidate-limit`](#ac-candidate-limit)や[`limit`プロパティ](#limit)で制御されます。
+
+#### `ac-candidates` ####
+
+補完候補のリストです。
 
 [GNU Emacs]: http://www.gnu.org/software/emacs/
+[GPLv3]: http://gplv3.fsf.org/
+[GFDL]: http://www.gnu.org/copyleft/fdl.html
