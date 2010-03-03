@@ -1479,7 +1479,8 @@ that have been made before in this function."
                                          collect (substring file 0 (match-beginning 0)))))))))
 
 (ac-define-source features
-  '((candidates . ac-emacs-lisp-feature-candidates)
+  '((depends find-func)
+    (candidates . ac-emacs-lisp-feature-candidates)
     (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")))
 
 (defvaralias 'ac-source-emacs-lisp-features 'ac-source-features)
