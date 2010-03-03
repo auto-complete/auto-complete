@@ -188,6 +188,11 @@ If you specify `nil', never be started automatically."
                  (integer :tag "Require"))
   :group 'auto-complete)
 
+(defcustom ac-ignores nil
+  "List of string to ignore completion."
+  :type '(repeat string)
+  :group 'auto-complete)
+
 (defcustom ac-ignore-case 'smart
   "Non-nil means auto-complete ignores case.
 If this value is `smart', auto-complete ignores case only when
@@ -1162,12 +1167,15 @@ that have been made before in this function."
            (prefix-def (nth 0 info))
            (point (nth 1 info))
            (sources (nth 2 info))
+           prefix
            (init (or force-init (not (eq ac-point point)))))
       (if (or (null point)
               (and (eq prefix-def 'ac-prefix-default) ; if not omni-completion
                    (integerp min-prefix)
                    (< (- (point) point)
-                      min-prefix)))
+                      min-prefix))
+              (member (setq prefix (buffer-substring-no-properties point (point)))
+                      ac-ignores))
           (prog1 nil
             (ac-abort))
         (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)
@@ -1175,7 +1183,7 @@ that have been made before in this function."
               ac-current-sources sources
               ac-buffer (current-buffer)
               ac-point point
-              ac-prefix (buffer-substring-no-properties point (point))
+              ac-prefix prefix
               ac-limit ac-candidate-limit
               ac-triggered t
               ac-current-prefix-def prefix-def)
