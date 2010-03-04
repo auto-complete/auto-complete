@@ -37,15 +37,21 @@
 
 (defvar ac-imenu-index nil)
 
-(defun ac-imenu-candidate ()
-  (let ((i 0)
-        (stack ac-imenu-index)
-        candidates
-        node)
-    (while (and stack
-                (< i ac-limit))
-      (setq node (pop stack))
-      (when (consp node)
+(ac-clear-variable-every-minute 'ac-imenu-index)
+
+(defun ac-imenu-candidates ()
+  (loop with i = 0
+        with stack = (progn
+                       (unless (local-variable-p 'ac-imenu-index)
+                         (make-local-variable 'ac-imenu-index))
+                       (or ac-imenu-index
+                           (setq ac-imenu-index (ignore-errors (imenu--make-index-alist)))))
+        with result
+        while (and stack (or (not (integerp ac-limit))
+                             (< i ac-limit)))
+        for node = (pop stack)
+        if (consp node)
+        do
         (let ((car (car node))
               (cdr (cdr node)))
           (if (consp cdr)
@@ -54,14 +60,16 @@
                     cdr)
             (when (and (stringp car)
                        (string-match (concat "^" (regexp-quote ac-prefix)) car))
-              (push car candidates)
-              (setq i (1+ i)))))))
-    (nreverse candidates)))
+              ;; Remove extra characters
+              (if (string-match "^.*\\(()\\|=\\|<>\\)$" car)
+                  (setq car (substring car 0 (match-beginning 1))))
+              (push car result)
+              (incf i))))
+        finally return (nreverse result)))
 
 (ac-define-source imenu
   '((depends imenu)
-    (init . (setq ac-imenu-index (ignore-errors (imenu--make-index-alist))))
-    (candidates . ac-imenu-candidate)))
+    (candidates . ac-imenu-candidates)))
 
 ;; gtags
 

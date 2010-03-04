@@ -230,6 +230,8 @@ See also `popup-item-propertize'."
                           symbol
                           margin-right))
          (start 0)
+         (prefix (overlay-get overlay 'prefix))
+         (postfix (overlay-get overlay 'postfix))
          end)
     ;; Overlap face properties
     (if (get-text-property start 'face content)
@@ -240,14 +242,15 @@ See also `popup-item-propertize'."
     (if start
         (put-text-property start (length content) 'face face content))
     (unless (overlay-get overlay 'dangle)
-      (overlay-put overlay 'display (substring content 0 1))
-      (setq content (concat (substring content 1))))
+      (overlay-put overlay 'display (concat prefix (substring content 0 1)))
+      (setq prefix nil
+            content (concat (substring content 1))))
     (overlay-put overlay
                  'after-string
-                 (concat (overlay-get overlay 'prefix)
+                 (concat prefix
                          content
                          scroll-bar-char
-                         (overlay-get overlay 'postfix)))))
+                         postfix))))
 
 (defun popup-create-line-string (popup item)
   (let* ((string (car (popup-substring-by-width (popup-x-to-string item)
@@ -365,7 +368,7 @@ See also `popup-item-propertize'."
                                            0)
                                          (- column current-column))
                                       ? )))
-          
+
           (setq begin (point))
           (setq w (+ popup-width (length prefix)))
           (while (and (not (eolp)) (> w 0))
