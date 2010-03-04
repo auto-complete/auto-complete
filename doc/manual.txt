@@ -162,53 +162,51 @@ To stop completion, use `C-g` simply.
 Advanced Usage
 --------------
 
-前節に引き続いて、もう少し高度な使い方を説明します。とはいってもあくまでユーザーの視点での話なので、`auto-complete-mode`を意のままに操りたいという方は、次節以降を読み進めるとよいでしょう。
+### `auto-complete` command ###
 
-### `auto-complete`コマンド ###
-
-基本的に`auto-complete-mode`は自動的に補完を開始するという前提がありますが、その限りではない場合もあります。例えば、文字は入力しないけど補完はしたいという場合や、設定によって自動的に補完が開始されないようにしている場合などです。そのような時に利用するのが`auto-complete`というコマンドで、普通は何らかのキーに割り当てて利用します。例えば従来の`M-TAB`による補完を、`auto-complete-mode`が提供するより高度な補完に切り替えるには次のコードを評価します。
+Basically there is assumption that `auto-complete-mode` will be started automatically, but there is also exception. For example, that is a case that an user wants to complete without inserting any character or a case not to start `auto-complete-mode` automatically by settings. A command called `auto-complete` is useful in such cases, which is used with key binding in general. The following code changes a default completion command to more advanced feature that `auto-complete-mode` provides.
 
     (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
 
-さて、`auto-complete`コマンドに関してですが、これは通常の自動的な補完とは若干異なる挙動になっています。
+So, as of `auto-complete` command, it is a little different from an original automatic completion.
 
-* 補完候補が一つしかない場合
+* Case that only one candidate remains
 
-  補完メニューを表示しないで、そのまま補完を実行します。
+  Complete immediately withou showing completion menu.
 
-* 補完候補が一つもない場合
+* Case that no candidates remains
 
-  曖昧マッチによる補完を試みます。詳しくは[曖昧マッチによる補完](#曖昧マッチによる補完)を参照してください。
+  Attempt to complete with fuzzy matching. See [Completion by Fuzzy Matching](#Completion by Fuzzy Matching) for more details.
 
-* その他の場合
+* Otherwise
 
-  その他の場合、補完メニューを表示して補完を開始します。その後の操作は自動的に補完が開始された場合と同じになります。
+  Otherwise start completion with showing completion menu.
 
-### 曖昧マッチによる補完 ###
+### Completion by Fuzzy Matching ###
 
-`auto-complete`コマンドで補完候補が一つもない場合や`ac-fuzzy-complete`コマンドが実行された場合、通常の確実なマッチではなく曖昧なマッチによって補完を試みます。曖昧マッチのパラメータはあらかじめ最適化されているのでユーザーが変更する必要はありませんが、内部を知りたい場合は`fuzzy.el`を参照してください。曖昧マッチによる補完を利用すれば、タイポも補完の一環として修正することができます。例えば適当なバッファでmessaegと入力して`M-x auto-complete`あるいは`M-x ac-fuzzy-complete`してください。曖昧マッチに成功したらカーソルの色が赤色に変化し、messaegではなくmessageであると解釈して補完を継続することができます。このようなケースにすぐさま対処するという意味でも`auto-complete`コマンドを何らかのキーに割り当てておくのは決して悪いことではありません。
+In a case that there is no candidates by `auto-complete` command or a case that `ac-fuzzy-complete` command is executed, `auto-complete-mode` attempts to complete with fuzzy matching instead of usual exact matching. Parameters of fuzzy matching has already been optimized for use, so users don't need to change them. However if you want to know the internals, see `fuzzy.el`. Using completion by fuzzy matching, typo will be fixed as a series of completion. For instance, input "messaeg" in a buffer, and then do `M-x auto-complete` or `M-x ac-fuzzy-complete`. The cursor color will be changed to red if completion has been successful, and then you can continue to complete with regarding of "messaeg" as "message". It is not bad idea to bind `auto-complete` command to some key in a meaning of handling such cases.
 
-![曖昧マッチ](ac-fuzzy.png)
+![Fuzzy matching](ac-fuzzy.png)
 
-### 補完候補の絞り込み ###
+### Filtering Completion Candidates ###
 
-補完中に`C-s`を押すことで絞り込みを開始できます。絞り込みが開始されるとカーソルの色が青色に変化します。その後に続いて絞り込む文字列を入力していきます。絞り込みはインクリメンタルに更新されるので直感的に理解できると思います。絞り込みの最中でもTABによる補完や候補選択を行うことができます。その際、カーソルの色が元に戻りますが、これは絞り込みが終了したことを意味しています。再度`C-s`を押したときは、前回の絞り込み文字列が復元されます。絞り込み文字列を削除するには`DEL`または`C-h`を押してください。それ以外の一般的な編集操作はここでは利用できません。
+You can start filtering by `C-s`. The cursor color will be changed to blue. Then input characters to filter. It is possible to do completion by TAB or select candidates, which changes the cursor color to original so that telling filtering completion candidates has done. The filtering string will be restored when `C-s` again. To delete the filter string, press `DEL` or `C-h`. Other general operations is not allowed there.
 
-![絞り込み](ac-isearch.png)
+![Filtering](ac-isearch.png)
 
-### トリガーキー ###
+### Trigger Key ###
 
-`auto-complete`コマンドをどのキーに割り当てるかは結構難しい問題です。補完という操作は頻繁に行うため、できるだけ押しやすいキーに割り当てるべきです。しかし押しやすいキーはすでに他のコマンドに割り当てられているというのはEmacsでは非常によくあることなのです。そういうケースに対処するため`auto-complete-mode`はトリガーキーと呼ばれる機能を提供しています。トリガーキーを利用すれば、任意のキーを必要なときに一時的にのっとって`auto-complete`コマンドに割り当てることができます。例えばTABをトリガーキーに設定するには次のようになります。
+It is difficult what key `auto-complete` command is bound to. It should be bound to a key which is easy to press as much as possible because completion operation is often happened. However, it is a major problem that there is no empty key to press easily. `auto-complete-mode` provides a feature called *Trigger Key* that handles such the problem. Using trigger key, you can use an arbitrary key temporarily if necessary. The following code uses `TAB` as trigger key.
 
     (ac-set-trigger-key "TAB")
 
-トリガーキーは文字入力の直後に有効になります。それ以外の場合は通常のコマンドが実行されます（TABならインデント）。通常、トリガーキーは`ac-auto-start`を`nil`にして利用します。
+Trigger key will be enabled after inserting characters. Otherwise it is dealed as an usual command (TAB will be indent). Generally, trigger key is used with `auto-auto-start` bing `nil`.
 
     (setq ac-auto-start nil)
 
-`ac-auto-start`に関しては[自動的に補完しない](#自動的に補完しない)あるいは[`ac-auto-start`](#ac-auto-start)を参照してください。
+As of `ac-auto-start`, see [Not to complete automatically](#Not to complete automatically) or [`ac-auto-start`](#ac-auto-start) for more details.
 
-### 補完推測機能 ###
+### Candidate Suggestion ###
 
 `auto-complete-mode`はユーザーの補完行動を逐一解析して、可能な限り補完のオーバーヘッドを削減しようとします。具体的には、例えば何度か`foobar`が補完されれば、次回以降は`foobar`が補完候補の上位に配置され、一介あるいは数回以内のTABで補完できる環境を作ります。内部的には`comphist`と呼ばれる機構を使っており、`ac-use-comphist`が`t`の場合にこの機能が有効になります。デフォルトでは有効になっています。収集された行動データは`user-emacs-directory`あるいは`~/.emacs.d`に`ac-comphist.dat`というファイル名で永続化され、次回以降も再利用されます。
 
@@ -221,30 +219,30 @@ Advanced Usage
 
 ユーザーはこの機能をできるだけ活用するために、よく入力する単語はできるだけ前の位置で補完するように心がけてください。また、できるだけ行動は一貫してください。補完位置が毎回変わるようではうまく学習できないからです。おそらくあまり気にせず使っていれば、自動的にそのような行動になるでしょう。
 
-### 辞書による補完 ###
+### Completion by Dictionary ###
 
-辞書とは単純な文字列のリストのことであり、それぞれユーザー定義辞書、メジャーモード辞書、拡張子辞書の3つがあります。なお、辞書による補完を利用するには情報源に`ac-source-dictionary`を設定しておく必要があります（デフォルトでは設定済み）。詳しくは[情報源](#情報源)を参照してください。
+Dictionary is a simple list of string. There is three types of dictionary: user defined dictionary, major mode dictionary, and extension dictionary. You need to add `ac-source-dictionary` to `ac-sources` (default). See [Source](#Source) for more details.
 
-#### ユーザー定義辞書 ####
+#### User Defined Dictionary ####
 
-ユーザー定義辞書は`ac-user-dictionary`に設定された文字列リストおよび`ac-user-dictionary-files`で指定された辞書ファイルで構築されます。辞書ファイルは改行で区切られた単語の一覧です。ユーザー定義辞書は全てのバッファで共通です。例えば自分のメールアドレスを辞書に登録する場合、次のように`ac-user-dictionary`に単語を追加します。
+User defined dictionary is composed of a list of string specified `ac-user-dictionary` and dictionary files specfiedi by `ac-user-dictionary-files`. Dictionary file is a word list separated with newline. User defined dictionary is shared with all buffers. Here is example adding your mail address to dictionary.
 
     (add-to-list 'ac-user-dictionary "foobar@example.com")
 
-設定は直ちに反映されます。試しに適当なバッファで`foo`と入力してください。`foobar@example.com`が補完候補になると思います。この設定はEmacsを終了したら消去されます。永続化させるためには`.emacs`に記述しておく必要があります。
+Setting will be applied immediately. Try to input "foo" in a buffer. You may see `foobar@example.com` as a completion candidate. This setting will be cleared if Emacs will quit. You need to write the following code to keep setting in next Emacs launching.
 
     (setq ac-user-dictionary '("foobar@example.com" "hogehoge@example.com"))
 
-もっと分かりやすいのは辞書ファイルを利用する方法です。`ac-user-dictionary-files`に指定されているファイルは辞書ファイルとして扱われます。デフォルトで`~/.dict`が辞書ファイルになるので、`~/.dict`を開いて次のように記述してください。
+There is more easy way to add word to dictionary. Files specified by `ac-user-dictionary-files` will be treated as dictionary files. By default, `~/.dict` will be a dictionary file, so edit `~/.dict` like:
 
     foobar@example.com
     hogehoge@example.com
 
-前述したように改行が単語の区切りになります。保存してもすぐには反映されません。コストの高い辞書ファイルの読み込みを抑えるためにキャッシュを使っているからです。キャッシュを消去するには`M-x ac-clear-dictionary-cache`を実行します。後は先ほどと同じように適当なバッファで文字を入力すれば定義した単語を補完できるようになると思います。
+As we said, words are separated with newline. They are not applied immediately, because `auto-complete-mode` uses cache not to load every time from a dictionary file. It may be high cost. To clear cache, do `M-x ac-clear-dictionary-cache`. After that, dictionary files will be load absolutely.
 
-言うまでもないかもしれませんが、`ac-user-dictionary-files`に任意の辞書ファイルを追加することで、違う辞書ファイルを読み込むことも可能です。
+No need to say perhaps, you can use other files as dictionary file by adding to `ac-user-dictionary-files`.
 
-#### メジャーモード辞書・拡張子辞書 ####
+#### Major Mode Dictionary and Extension Dictionary ####
 
 メジャーモードや拡張子ごとに違う辞書を利用することもできます。辞書は`ac-dictionary-directories`に設定されたディレクトリから読み込まれます。`ac-dictionary-directories`は[インストール](#インストール)時に次のように設定しているはずです。
 
@@ -779,79 +777,79 @@ Bと入力してBar, Bazが補完候補として現われれば成功です。�
 
 `defvar`は従来通り定義され、続いてその情報源のみで補完を行うコマンドが定義されます。`auto-complete`は引数なしで呼び出された場合は`ac-sources`を情報源として使い、引数ありで呼び出された場合はその値を情報源として使います。`defvar`か`ac-define-source`かどちらを使うかは微妙ですが、後方互換性を保持するなら`defvar`のほうが無難でしょう。ちなみに標準情報源は全て`ac-define-source`で定義されています。つまり`ac-complete-filename`などを他のキーに割り当てて個別に利用することができます。
 
-### 情報源プロパティ一覧 ###
+### Source Properties ###
 
 #### `init` ####
 
-補完開始時に一度だけ指定された関数あるいは式を評価します。
+Specify a function or an expression that is evaluated only once when completion is started.
 
 #### `candidates` ####
 
-補完更新時に指定された関数あるいは式、変数を評価します。評価結果は文字列のリストであるべきです。[`cache`](#cache)プロパティが有効な場合は、その補完では二度目以降評価されません。
+Specify a function, an expression, or a variable to calculate candidates. Candidates should be a list of string. If [`cache`](#cache) property is enabled, this property will be ignored twice or later.
 
 #### `prefix` ####
 
-指定された正規表現、関数あるいは式を評価して、オムニ補完のための補完対象文字列の開始位置を取得します。`nil`を返した場合はその情報源は無視されます。正規表現が指定された場合、グループ1の開始位置あるいはグループ2の開始位置が評価値として使われます。
+Specify a regexp, a function, or an expression to find a point of completion target string for [omni completion](#Omni Completion). This source will be ignored when `nil` returned. If a regexp is specified, a start point of group 1 or group 2 will be used as a value.
 
 #### `action` ####
 
-[RETによる補完](#RETによる補完)時に実行する[アクション](#アクション)を関数あるいは式で指定します。
+Specify a function or an expression that is executed on [completion by RET](#Completion by RET).
 
 #### `limit` ####
 
-補完候補の上限数を設定します。`ac-candidate-limit`を部分的に上書きします。
+Specify a limit of candidates. It overrides `ac-candidate-limit` partially.
 
 #### `symbol` ####
 
-補完候補の意味を現わす記号を一文字の文字列で指定します。指定する記号は任意ですが、基本的に以下の慣習に従うべきです。
+Specify a symbol of candidate meaning in one character string. The symbol will be any character, but you should follow the rule:
 
-| 記号 | 意味           |
-|------|----------------|
-| s    | シンボル       |
-| f    | 関数・メソッド |
-| v    | 変数           |
-| a    | 略語           |
-| d    | 辞書           |
+| Symbol | Meaning          |
+|--------|------------------|
+| s      | Symbol           |
+| f      | Function, Method |
+| v      | Variable         |
+| a      | Abbreviation     |
+| d      | Dictionary       |
 
 #### `cache` ####
 
-[キャッシュ](#キャッシュ)を利用します。
+Use [cache](#cache).
 
 #### `require` ####
 
-整数あるいは`nil`を指定します。整数が指定された場合、その値が補完対象文字列の長さより大きい場合は、その情報源は無視されます。`nil`の場合は常に有効になります。
+Specify an integer or `nil`. This source will be ignored when the integer value is lager than a lengh of completion target string. `nil` means nothing ignored.
 
 #### `candidate-face` ####
 
-補完候補のフェイスを指定します。[`ac-candidate-face`](#ac-candidate-face)を部分的に上書きします。
+Specify a face of candidate. It overrides [`ac-candidate-face`](#ac-candidate-face) partially.
 
 #### `selection-face` ####
 
-選択された補完候補のフェイスを指定します。[`ac-selection-face`](#ac-selection-face)を部分的に上書きします。
+Specify a face of selection. It overrides [`ac-selection-face`](#ac-selection-face) partially.
 
-### 変数一覧 ###
+### Variables ###
 
-情報源でよく利用する変数を一覧します。
+Here is a ist of often used variables.
 
 #### `ac-buffer` ####
 
-補完が開始されたバッファです。
+A buffer where completion started.
 
 #### `ac-point` ####
 
-補完対象文字列の開始位置です。
+A start point of completion target string.
 
 #### `ac-prefix` ####
 
-補完対象文字列です。
+A string of completion target.
 
 #### `ac-limit` ####
 
-現在の情報源の候補上限数です。[`ac-candidate-limit`](#ac-candidate-limit)や[`limit`プロパティ](#limit)で制御されます。
+A limit of candidates. Its value may be one of [`ac-candidate-limit`](#ac-candidate-limit) and [`limit`](#limit) property.
 
 #### `ac-candidates` ####
 
-補完候補のリストです。
+A list of candidates.
 
 [GNU Emacs]: http://www.gnu.org/software/emacs/
 [GPLv3]: http://gplv3.fsf.org/
