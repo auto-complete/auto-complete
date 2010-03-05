@@ -4,7 +4,7 @@
        (todir (read-file-name "Install to: " "~/.emacs.d/" "~/.emacs.d/"))
        (basedictdir (concat basedir "/dict"))
        (todictdir (concat todir "/ac-dict")))
-  (message "%s" todictdir)
+  (add-to-list 'load-path basedir)
   (make-directory todictdir t)
   (loop for file in (directory-files basedir t "^.*\\.el$")
         do (byte-compile-file file))
