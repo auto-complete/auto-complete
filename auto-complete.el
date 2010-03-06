@@ -207,6 +207,11 @@ a prefix doen't contain any upper case letters."
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-use-overriding-local-map nil
+  "Non-nil means `overriding-local-map' will be used to hack for overriding key events on auto-copletion."
+  :type 'boolean
+  :group 'auto-complete)
+
 (defface ac-completion-face
   '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
@@ -701,19 +706,39 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-put-prefix-overlay ()
   (unless ac-prefix-overlay
-    (setq ac-prefix-overlay (make-overlay ac-point (1+ (point)) nil t t))
-    (overlay-put ac-prefix-overlay 'priority 9999)
-    (overlay-put ac-prefix-overlay 'keymap (make-sparse-keymap))))
+    (let (newline)
+      ;; Insert newline to make sure that cursor always on the overlay
+      (when (and (eq ac-point (point-max))
+                 (eq ac-point (point)))
+        (popup-save-buffer-state
+          (insert "\n"))
+        (setq newline t))
+      (setq ac-prefix-overlay (make-overlay ac-point (1+ (point)) nil t t))
+      (overlay-put ac-prefix-overlay 'priority 9999)
+      (overlay-put ac-prefix-overlay 'keymap (make-sparse-keymap))
+      (overlay-put ac-prefix-overlay 'newline newline))))
 
 (defun ac-remove-prefix-overlay ()
   (when ac-prefix-overlay
+    (when (overlay-get ac-prefix-overlay 'newline)
+      ;; Remove inserted newline
+      (popup-save-buffer-state
+        (goto-char (point-max))
+        (if (eq (char-before) ?\n)
+            (delete-char -1))))
     (delete-overlay ac-prefix-overlay)))
 
 (defun ac-activate-completing-map ()
+  (when (and ac-use-overriding-local-map
+             (null overriding-terminal-local-map))
+    (setq overriding-terminal-local-map ac-completing-map))
   (when ac-prefix-overlay
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) ac-completing-map)))
 
 (defun ac-deactivate-completing-map ()
+  (when (and ac-use-overriding-local-map
+             (eq overriding-terminal-local-map ac-completing-map))
+    (setq overriding-terminal-local-map nil))
   (when ac-prefix-overlay
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
 
@@ -886,8 +911,9 @@ You can not use it in source definition like (prefix . `NAME')."
                        (if ac-last-point
                            (- ac-last-point ac-point)
                          (length ac-prefix)))))
-  (ac-remove-quick-help)
+  (ac-deactivate-completing-map)
   (ac-remove-prefix-overlay)
+  (ac-remove-quick-help)
   (ac-inline-delete)
   (ac-menu-delete)
   (ac-cancel-timer)
@@ -973,6 +999,7 @@ that have been made before in this function."
              (or ac-triggered
                  force)
              (not isearch-mode))
+    (ac-put-prefix-overlay)
     (setq ac-candidates (ac-candidates))
     (let ((preferred-width (popup-preferred-width ac-candidates)))
       ;; Reposition if needed
