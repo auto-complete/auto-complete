@@ -622,13 +622,18 @@ You can not use it in source definition like (prefix . `NAME')."
     (let ((overlay (ac-inline-overlay))
           (width 0)
           (string-width (string-width string))
+          (length 0)
           (original-string string))
       ;; Calculate string space to show completion
       (goto-char point)
-      (while (and (not (eolp))
-                  (< width string-width))
-        (incf width (char-width (char-after)))
-        (forward-char))
+      (let (c)
+        (while (and (not (eolp))
+                    (< width string-width)
+                    (setq c (char-after))
+                    (not (eq c ?\t)))   ; special case for tab
+        (incf width (char-width c))
+        (incf length)
+        (forward-char)))
 
       ;; Show completion
       (goto-char point)
@@ -637,7 +642,8 @@ You can not use it in source definition like (prefix . `NAME')."
         (set-marker (ac-inline-marker) point)
         (let ((buffer-undo-list t))
           (insert " "))
-        (setq width 1))
+        (setq width 1
+              length 1))
        ((<= width string-width)
         ;; No space to show
         ;; Do nothing
@@ -648,9 +654,9 @@ You can not use it in source definition like (prefix . `NAME')."
       (setq string (propertize string 'face 'ac-completion-face))
       (if overlay
           (progn
-            (move-overlay overlay point (+ point width))
+            (move-overlay overlay point (+ point length))
             (overlay-put overlay 'invisible nil))
-        (setq overlay (make-overlay point (+ point width)))
+        (setq overlay (make-overlay point (+ point length)))
         (setf (nth 1 ac-inline)  overlay)
         (overlay-put overlay 'priority 9999)
         ;; Help prefix-overlay in some cases
