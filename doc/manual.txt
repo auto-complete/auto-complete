@@ -208,16 +208,14 @@ As of `ac-auto-start`, see [Not to complete automatically](#Not to complete auto
 
 ### Candidate Suggestion ###
 
-`auto-complete-mode`はユーザーの補完行動を逐一解析して、可能な限り補完のオーバーヘッドを削減しようとします。具体的には、例えば何度か`foobar`が補完されれば、次回以降は`foobar`が補完候補の上位に配置され、一介あるいは数回以内のTABで補完できる環境を作ります。内部的には`comphist`と呼ばれる機構を使っており、`ac-use-comphist`が`t`の場合にこの機能が有効になります。デフォルトでは有効になっています。収集された行動データは`user-emacs-directory`あるいは`~/.emacs.d`に`ac-comphist.dat`というファイル名で永続化され、次回以降も再利用されます。
+`auto-complete-mode` analyzes completion operations one by one and reduces overheads of completion as much as possible. For example, having a candidate "foobar" been completed few times, `auto-complete-mode` arranges it to top of the candidates next time and make a situation that allows users to complete the word with one time TAB or few times TAB. It is called `comphist` internally, and you can use it by setting `ac-use-comphist` to `t`. It is enabled by default. Collection operations data will be stored in `user-emacs-directory` or `~/.emacs.d/` with a name `ac-comphist.dat`.
 
-優れた補完推測を実現するため、次の二つのデータを収集します。
+`auto-complete-mode` collects two types of data to accomplish accurate completion suggestion.
 
-* その補完候補が補完された回数
-* その補完候補が補完された位置
+* Count of completion
+* Position of completion
 
-簡単に言えば、単純に補完回数を数えるのではなく、補完位置ごとに補完回数を数えていき、その補完候補のスコアは補完されている位置との比較でうまく重み付けされます。例えばfと入力して`find-file`を補完するという行動を何度か繰り返せば、fを入力した段階で`find-file`が上位に配置されます。ただ、続けてfind-と入力したときに`find-file`が先ほどと同じスコアになるかといえば、そういうわけではなく、先ほどと位置として4離れているわけですから、それだけ重み付けが軽くなります。逆にfind-の後に`find-library`が補完されやすい場合は、そちらの補完候補のスコアのほうが上位に来る可能性が高くなるので、結果的にfの時点では`find-file`が上位に、find-の時点では`find-library`が上位に来るといった、ユーザーの行動を学習したかのような推測が可能になるわけです。
-
-ユーザーはこの機能をできるだけ活用するために、よく入力する単語はできるだけ前の位置で補完するように心がけてください。また、できるだけ行動は一貫してください。補完位置が毎回変わるようではうまく学習できないからです。おそらくあまり気にせず使っていれば、自動的にそのような行動になるでしょう。
+Simply saying, it collects not only a completion count but also a position of completion. A completion candidate will be scored with the count and the point. If you complete `find-file` with a word f few times, in next time `find-file` will be arranged to top of candidates. However it is too simple. Actually `find-file` with `find-` will not have the same score, because a distance between `f` and `find-` will reduce a weight of scoring. It means that if you often complete `find-library` after `find-`, `find-library` will get high score than `find-file` at that position. So `auto-complete-mode` can guess `find-file` will be top after `f` and `find-library` will be top after `find-` as it seems to learn from users' operations.
 
 ### Completion by Dictionary ###
 
@@ -244,32 +242,32 @@ No need to say perhaps, you can use other files as dictionary file by adding to 
 
 #### Major Mode Dictionary and Extension Dictionary ####
 
-メジャーモードや拡張子ごとに違う辞書を利用することもできます。辞書は`ac-dictionary-directories`に設定されたディレクトリから読み込まれます。`ac-dictionary-directories`は[インストール](#インストール)時に次のように設定しているはずです。
+You can use other dictionaries for every major-modes and extensions. A dictionary will loaded from a directory specified with `ac-dictionary-directories`. `ac-dictionary-directories` may be the following setting if you followed [installation](#Installation) instructions.
 
     (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
 
-このディレクトリにはc++-modeのようなメジャーモードのための辞書ファイルやtxtのような拡張子のための辞書ファイルが格納されています。例えば`a.cpp`というバッファで辞書による補完を利用する場合、上記の設定を前提にすれば、`~/.emacs.d/ac-dict/c++-mode`と`~/.emacs.d/ac-dict/cpp`から辞書が読み込まれます。ユーザーはこれらの辞書ファイルを変更することができますし、また新しく追加することもできます。さらに、同様の構成のディレクトリを作成して`ac-dictionary-directories`に追加することで、辞書ファイルを追加することも可能です。この際、`ac-dictionary-directories`の先頭にあるディレクトリが優先されることに気をつけてください。
+A dictionary named `c++-mode` for specific major-mode and a dictionary named `txt` for specific extension will be stored in the directory. For instance, you complete in a buffer named `a.cpp` with dictionary completion, following the setting above, `~/.emacs.d/ac-dict/c++-mode` and `~/.emacs.d/ac-dict/cpp` will be loaded as dictionary file. You can edit the dictionary files and make a new one. In addition, you can add a new dictionary file to a directory that has same configuration.
 
-ユーザー定義辞書と同様、辞書の追加・編集後は`M-x ac-clear-dictionary-cache`でキャッシュを消去してください。
+As same as user defined dictionary, after editing and adding dictonary, you should do `M-x ac-clear-dictionary-cache` to apply changes.
 
-情報源
+Source
 ------
 
-`auto-complete-mode`の拡張性を保証しているのがこの情報源という概念です。*情報源*とは簡単に言えば、下記する事柄をひとまとめに記述したものと言えます。
+*Source* is a concept that insures a extensibility of `auto-complete-mode`. Simply saying, source is a description about:
 
-* どのような補完候補を生成するか
-* どのように補完するか
-* どのように表示するか
+* How to generate completion candidates
+* How to complete
+* How to show
 
-Emacs Lispについて若干の知識があれば誰でも簡単に情報源を定義することができます。情報源の定義に関しては[拡張方法](#拡張方法)を参照してください。ここでは情報源の利用方法と標準添付されている情報源について説明します。
+Anybody who know about Emacs Lisp a little can define a source easily. See [Extend](#Extend) for how to define a source. Here we can explain how to use builtin sources.
 
-情報源の名前は`ac-source-`で始まる慣習となっています。そのため`apropos`を使ってどのような情報源が定義されているか調べることができます（`M-x apropos RET ^ac-source-`)。`ac-source-filename`や`ac-source-dictionary`などが見付かると思いますが、これらが情報源と呼ばれる実体になっています。
+Usually a name of source starts with `ac-source-`. So you can list up sources with `apropos` (`M-x apropos RET ^ac-source-`). You may see `ac-source-filename` and `ac-source-dictionary` which are entities of sources.
 
-### 情報源を利用する ###
+### Using Source ###
 
-`.emacs`に`(ac-config-default)`を記述している場合、デフォルトで最適な設定が使われるので、おそらく情報源の設定を変更するケースはまれだと思いますが、一応簡単に触れておきます。情報源は`ac-sources`という変数にリストとして設定されます。インストール直後に\*scracth*で`ac-sources`を評価すると次のような結果になると思います。
+If you wrote `(ac-config-default)` in your `.emacs`, it is rare to change a source setting because it is already optimized to use. Here is a short explanation about source however. Sources will be used by setting `ac-sources` to a list of sources. You can see the setting by evaluating `ac-sources` in \*scratch\* buffer:
 
-    ;; 整形済み
+    ;; Formatted
     (ac-source-filename
      ac-source-functions
      ac-source-yasnippet
@@ -280,9 +278,9 @@ Emacs Lispについて若干の知識があれば誰でも簡単に情報源を�
      ac-source-words-in-same-mode-buffers
      ac-source-dictionary)
 
-見てのとおり、\*scratch\*バッファの`ac-sources`には6つの情報源が設定されていることがわかります。それぞれの説明は後述しますが、大体の意味は推測できるでしょう。大事なことなので記憶しておいてほしいのですが、`ac-sources`はバッファーローカル変数になっており、バッファごとに独立した設定を許可しています。つまりあるバッファで`ac-sources`を変更しても、他のバッファには影響がないことになります。
+As you see, `ac-sources` in \*scratch\* buffer has six sources. We explain each source for detail, you can guess meanings of sources. It is worth to remember that `ac-sources` is a buffer local variable, which means each `ac-sources` for buffers will be different.
 
-例を示します。今、\*scratch\*バッファにいると考えてください。上記のように、このバッファには多くの情報源が設定されています。多機能すぎると感じるユーザーもいるでしょう。そこで、もう少し機能を制限するために`ac-sources`の変更を考えます。変更方法は簡単で、次のようなコードを\*scratch\*バッファあるいは`M-:`で評価するだけです。
+Here is an example. Think you are at \*scratch\* buffer. As we saied, this buffer has many sources. Some people think it is too many. So try to change `ac-sources` to reduce functionalities. It is easy to chage. Just evaluate the following code in \*scratch\* buffer or with `M-:`:
 
     (setq ac-sources '(ac-source-symbols ac-source-words-in-same-mode-buffers))
 
@@ -315,71 +313,71 @@ Emacs Lispについて若干の知識があれば誰でも簡単に情報源を�
 
 ### 標準情報源 ###
 
-`auto-complete.el`および`auto-complete-config.el`に定義されている情報源の一覧です。
+Here are defined sources in `auto-complete.el` and `auto-complete-config.el`.
 
 #### `ac-source-abbrev` ####
 
-Emacsの略語機能のための情報源です。略語機能に関しては`info emacs Abbrevs`を参照してください。
+A source for Emacs abbreviation function. See `info emacs Abbrevs` about abbreviation function.
 
 #### `ac-source-dictionary` ####
 
-辞書のための情報源です。辞書に関しては[辞書による補完](#辞書による補完)を参照してください。
+A source for dictionary. See [completion by dictionary](#Completion by Dictionary) about dictionary.
 
 #### `ac-source-eclim` ####
 
-[Emacs-eclim](http://github.com/senny/emacs-eclim)のための情報源です。
+A source for [Emacs-eclim](http://github.com/senny/emacs-eclim).
 
 #### `ac-source-features` ####
 
-`(require '`で有効なfeatureを補完するための情報源です。
+A source for completing features which are available with `(require '`.
 
 #### `ac-source-filename` ####
 
-ファイル名を補完するための情報源です。`/`を入力した時点で補完が開始されます。
+A source for completing file name. Completion will be started after inserting `/`.
 
 #### `ac-source-files-in-current-dir` ####
 
-カレントディレクトリのファイルを補完するための情報源です。`eshell`などで便利かもしれません。
+A source for completing files in a current directory. It may be useful with `eshell`.
 
 #### `ac-source-functions` ####
 
-Emacs Lispの関数を補完するための情報源です。`(`の直後で有効です。
+A source for completing Emacs Lisp functions. It is available only after `(`.
 
 #### `ac-source-gtags` ####
 
-[Global](http://www.tamacom.com/global.html)のタグを補完するための情報源です。
+A source for completing tags of [Global](http://www.tamacom.com/global.html).
 
 #### `ac-source-imenu` ####
 
-`imenu`ノードを補完するための情報源です。詳しくは`info emacs imenu`を参照してください。
+A source for completing `imenu` nodes. See `info emacs imenu` for details.
 
 #### `ac-source-semantic` ####
 
-[Semantic](http://cedet.sourceforge.net/semantic.shtml)のための情報源です。C/C++でメンバー名補完として利用できます。
+A source for [Semantic](http://cedet.sourceforge.net/semantic.shtml). It can be used for completing member name for C/C++.
 
 #### `ac-source-symbols` ####
 
-Emacs Lispのシンボルを補完するための情報源です。
+A source for completing Emacs Lisp symbols.
 
 #### `ac-source-variables` ####
 
-Emacs Lispの変数を補完するための情報源です。
+A source for completing Emacs Lisp symbols.
 
 #### `ac-source-words-in-all-buffer` ####
 
-全てのバッファの単語を補完するための情報源です。[`ac-source-words-in-same-mode-buffers`](#ac-source-words-in-same-mode-buffers)と違って、メジャーモードを考慮しません。
+A source for completing words in all buffer. Unlikely [`ac-source-words-in-same-mode-buffers`](#ac-source-words-in-same-mode-buffers), it doesn't regard major-mode.
 
 #### `ac-source-words-in-buffer` ####
 
-現在のバッファの単語を補完するための情報源です。
+A source for completing words in a current buffer.
 
 #### `ac-source-words-in-same-mode-buffers` ####
 
-現在のバッファと同じメジャーモードの全てのバッファの単語を補完するための情報源です。例えば`a.cpp`と`b.cpp`では単語が共有されますが、`a.pl`と`b.cpp`ではメジャーモードが異なるので単語が共有されません。通常は[`ac-source-words-in-all-buffer`](#ac-source-words-in-all-buffer)よりこちらのほうが使い勝手がよいでしょう。
+A source for completing words which are collected over buffers whom major-mode is same to of a current buffer. For example, words will shared among `a.cpp` and `b.cpp`, but not shared among `a.pl` and `b.cpp` because ther are different major-mode buffers. Usually this source is more useful than [`ac-source-words-in-all-buffer`](#ac-source-words-in-all-buffer).
 
 #### `ac-source-yasnippet` ####
 
-[Yasnippet](http://code.google.com/p/yasnippet/)のスニペットを補完・展開するための情報源です。
+A source for [Yasnippet](http://code.google.com/p/yasnippet/) to complete and expand snippets.
 
 Tips
 ----
