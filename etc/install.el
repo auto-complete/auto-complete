@@ -22,10 +22,9 @@ Add the following code to your .emacs:
                               (not (member (concat (expand-file-name todir) "/") load-path)))
                          (format "(add-to-list 'load-path \"%s\")\n" todir)
                        "")
+                     "(require 'auto-complete-config)\n"
                      (format "(add-to-list 'ac-dictionary-directories \"%s\")\n" todictdir)
-                     "(require 'auto-complete-config)
-(ac-config-default)
-")))
+                     "(ac-config-default)\n")))
     (if noninteractive
         (princ-list msg)
       (switch-to-buffer "*Installation Result*")
