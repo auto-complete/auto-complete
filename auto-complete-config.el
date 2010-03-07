@@ -142,16 +142,16 @@
 
 ;; semantic
 
-(defun ac-semantic-candidate (prefix)
+(defun ac-semantic-candidates (prefix)
   (mapcar 'semantic-tag-name
           (ignore-errors
-            (or (or (semantic-analyze-possible-completions
-                     (semantic-analyze-current-context)))
-                (senator-find-tag-for-completion (regexp-quote prefix))))))
+            (or (semantic-analyze-possible-completions
+                 (semantic-analyze-current-context))
+                (senator-find-tag-for-completion prefix)))))
 
 (ac-define-source semantic
   '((depends semantic-ia)
-    (candidates . (lambda () (all-completions ac-prefix (ac-semantic-candidate ac-prefix))))
+    (candidates . (ac-semantic-candidates ac-prefix))
     (prefix . c-dot)))
 
 ;; eclim
@@ -232,7 +232,7 @@
   (setq ac-sources (append '(ac-source-functions ac-source-yasnippet ac-source-variables ac-source-symbols ac-source-features) ac-sources)))
 
 (defun ac-cc-mode-setup ()
-  (setq ac-sources (append '(ac-source-semantic ac-source-yasnippet ac-source-imenu ac-source-gtags) ac-sources)))
+  (setq ac-sources (append '(ac-source-yasnippet ac-source-gtags) ac-sources)))
 
 (defun ac-ruby-mode-setup ()
   (make-local-variable 'ac-ignores)
