@@ -857,6 +857,13 @@ Bと入力してBar, Bazが補完候補として現われれば成功です。�
 
 補完候補のリストです。
 
+トラブルシューティング
+----------------------
+
+### 補完メニューの表示が崩れる ###
+
+Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftでレンダリングすると、文字幅の計算に問題があるのか補完メニューの表示が崩れます。[VLゴシック](http://dicey.org/vlgothic/)などではXftでレンダリングしても正しく表示されることを確認しています。Xftを使わなければIPAフォントも正しくレンダリングされます。
+
 [GNU Emacs]: http://www.gnu.org/software/emacs/
 [GPLv3]: http://gplv3.fsf.org/
 [GFDL]: http://www.gnu.org/copyleft/fdl.html

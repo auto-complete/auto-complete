@@ -4,7 +4,7 @@
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: lisp
-;; Version: 0.2a
+;; Version: 0.3
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ This is faster than prin1-to-string in many cases."
 
 (defun popup-substring-by-width (string width)
   "Return cons of substring and remaining string by `WIDTH'."
+  ;; Expand tabs with 4 spaces
+  (setq string (replace-regexp-in-string "\t" "    " string))
   (loop with len = (length string)
         with w = 0
         for l from 0
@@ -93,7 +95,8 @@ This is faster than prin1-to-string in many cases."
   
 (defun popup-preferred-width (list)
   "Return preferred width of popup to show `LIST' beautifully."
-  (loop for item in list
+  (loop with tab-width = 4
+        for item in list
         maximize (string-width (popup-x-to-string item)) into width
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
 

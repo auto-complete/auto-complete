@@ -1,4 +1,4 @@
-Title: Auto Complete Mode
+Title: Auto Complete Mode - GNU Emacsのための最も賢い自動補完機能
 CSS: style.css
 
 Auto Complete Mode
