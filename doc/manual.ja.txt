@@ -472,6 +472,17 @@ Tips
 
 デフォルトは`smart`です。
 
+### 特定の単語を入力したら補完を自動的に中止する ###
+
+`ac-ignores`に自動的に補完を中止する単語を設定します。例えばRubyでendと入力した後に自動的に補完を中止するには以下のようにします。
+
+    (add-hook 'ruby-mode-hook
+              (lambda ()
+                (make-local-variable 'ac-ignores)
+                (add-to-list 'ac-ignores "end")))
+
+`ac-ignores`はバッファローカル変数ではないので、バッファ特有の設定にする場合は`make-local-variable`で適宜バッファローカルにする必要があります。
+
 ### 色を変更する ###
 
 色の設定はそれぞれ次のようになっています。
@@ -500,8 +511,6 @@ Tips
 例えばC++のバッファでは特定の情報源を利用したいということがあるでしょう。その場合は`add-hook`でフックを登録して、適宜`ac-sources`を変更するにようします。
 
     (add-hook 'c++-mode (lambda () (add-to-list 'ac-sources 'ac-source-semantic)))
-
-
 
 設定項目
 --------
@@ -862,7 +871,12 @@ Bと入力してBar, Bazが補完候補として現われれば成功です。�
 
 ### 補完メニューの表示が崩れる ###
 
-Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftでレンダリングすると、文字幅の計算に問題があるのか補完メニューの表示が崩れます。[VLゴシック](http://dicey.org/vlgothic/)などではXftでレンダリングしても正しく表示されることを確認しています。Xftを使わなければIPAフォントも正しくレンダリングされます。
+Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftでレンダリングすると、補完メニューの表示が崩れる問題を確認しています。[VLゴシック](http://dicey.org/vlgothic/)などではXftでレンダリングしても正しく表示されるようなので、そちらをお使いください。また、Xftを使わなければIPAフォントも正しくレンダリングできます。
+
+現在のところ完全な対応策は見つかっていませんが、`set-face-font`で補完メニューのフォントサイズを適切なサイズに変更することで対応できる可能性があります。例えばNTEmacsでは日本語を含む補完メニューを表示すると補完メニューの表示が崩れることがあります。これは以下のようにフォントサイズを調整することで対応することができます。
+
+    (set-face-font 'ac-candidate-face "MS Gothic 11")
+    (set-face-font 'ac-selection-face "MS Gothic 11")
 
 [GNU Emacs]: http://www.gnu.org/software/emacs/
 [GPLv3]: http://gplv3.fsf.org/

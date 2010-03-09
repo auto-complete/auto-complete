@@ -112,7 +112,7 @@
   :type 'boolean
   :group 'auto-complete)
 
-(defcustom ac-quick-help-delay 1.0
+(defcustom ac-quick-help-delay 1.5
   "Delay to show quick help."
   :type 'float
   :group 'auto-complete)
@@ -891,7 +891,7 @@ You can not use it in source definition like (prefix . `NAME')."
   "Force to redraw candidate menu with current `ac-candidates'."
   (let ((cursor (popup-cursor ac-menu))
         (scroll-top (popup-scroll-top ac-menu)))
-    (popup-delete ac-menu)
+    (ac-menu-delete)
     (ac-menu-create ac-point (popup-preferred-width ac-candidates) (popup-height ac-menu))
     (ac-update-candidates cursor scroll-top)))
 
@@ -1008,6 +1008,7 @@ that have been made before in this function."
                 (<= (popup-width ac-menu) (- preferred-width 10))
                 (and (> (popup-direction ac-menu) 0)
                      (ac-menu-at-wrapper-line-p)))
+        (ac-inline-hide) ; Hide overlay to calculate correct column
         (ac-menu-delete)
         (ac-menu-create ac-point preferred-width ac-menu-height)))
     (ac-update-candidates 0 0)
@@ -1059,7 +1060,7 @@ that have been made before in this function."
           (popup-menu-show-help ac-menu nil
                                 :point ac-point
                                 :height ac-quick-help-height
-                                :scroll-bar t
+                                ;:scroll-bar t
                                 :nowait t))))
 
 (defun ac-remove-quick-help ()

@@ -1,10 +1,10 @@
-- complete ignore list
+- help buffer
+- complete ignore list (doc)
 - etags, ctags
 - emacswiki
 - test facility
 - support composed chars
 - minibuffer completion
-- documentation
 - performance issue (cache issue)
 - asynchronous processing
 - kanji henkan support
