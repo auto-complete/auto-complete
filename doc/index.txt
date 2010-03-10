@@ -22,14 +22,15 @@ Screenshots
 Downloads
 ---------
 
-Current stable version is v1.2. Here are download links.
+Current stable version is v1.2. Here are download links (not yet available, sorry).
 
 * [auto-complete-1.2.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
 * [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
 
 If you want to use or develop development version, please checkout from a repository.
 
-<http://github.com/m2ym/auto-complete>
+* <http://cx4a.org/repo/auto-complete.git>
+* <http://github.com/m2ym/auto-complete> (Mirror)
 
 User Manual
 -----------

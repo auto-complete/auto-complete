@@ -743,16 +743,43 @@ See also `popup-item-propertize'."
   "Face for popup menu selection."
   :group 'popup)
 
-(defun popup-menu-show-help (menu &optional item &rest args)
+(defun popup-menu-document (menu &optional item)
+  (or item (setq item (popup-selected-item menu)))
+  (let ((doc (popup-item-document item)))
+    (if (functionp doc)
+        (setq doc (funcall doc (popup-item-value-or-self item))))
+    doc))
+
+(defun popup-menu-show-help (menu &optional item)
+  (let ((doc (popup-menu-document menu item)) event)
+    (when doc
+      (save-window-excursion
+        (with-current-buffer (get-buffer-create " *Popup Help*")
+          (erase-buffer)
+          (insert doc)
+          (goto-char (point-min))
+          (display-buffer (current-buffer)))
+        (block nil
+          (while (setq event (read-event))
+            (setq command )
+            (case (key-binding (vector event))
+              ('scroll-other-window
+               (scroll-other-window))
+              ('scroll-other-window-down
+               (scroll-other-window-down nil))
+              (t
+               (push event unread-command-events)
+               (return)))
+            (clear-this-command-keys)))))))
+
+(defun popup-menu-show-quick-help (menu &optional item &rest args)
   (or item (setq item (popup-selected-item menu)))
   (let* ((point (plist-get args :point))
          (height (or (plist-get args :height) (popup-height menu)))
          (min-height (min height (popup-current-height menu)))
          (around nil)
          (parent-offset (popup-offset menu))
-         (doc (popup-item-document item)))
-    (if (functionp doc)
-        (setq doc (funcall doc (popup-item-value-or-self item))))
+         (doc (popup-menu-document menu item)))
     (when (stringp doc)
       (if (popup-hidden-p menu)
           (setq around t
@@ -776,7 +803,7 @@ See also `popup-item-propertize'."
     (while (popup-live-p menu)
       (setq event (progn (clear-this-command-keys) (read-event prompt nil help-delay)))
       (if (null event)
-          (popup-menu-show-help menu)
+          (popup-menu-show-quick-help menu)
         (setq binding (popup-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
         (cond
          ((eq binding 'popup-close)
@@ -799,6 +826,8 @@ See also `popup-item-propertize'."
           (popup-next menu))
          ((eq binding 'popup-previous)
           (popup-previous menu))
+         ((eq binding 'popup-help)
+          (popup-menu-show-help menu))
          ((eq binding 'popup-isearch)
           (popup-isearch menu))
          (binding
@@ -875,6 +904,9 @@ list of submenu."
     (define-key map [down]      'popup-next)
     (define-key map "\C-p"      'popup-previous)
     (define-key map [up]        'popup-previous)
+
+    (define-key map [f1]        'popup-help)
+    (define-key map (kbd "\C-?") 'popup-help)
 
     (define-key map "\C-s"      'popup-isearch)
     map))

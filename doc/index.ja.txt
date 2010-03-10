@@ -22,14 +22,15 @@ Auto Complete Mode
 ダウンロード
 ------------
 
-現在の安定板はv1.2です。
+現在の安定板はv1.2です（まだダウンロードできません）。
 
 * [auto-complete-1.2.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
 * [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
 
 開発版を利用したい場合は次のリポジトリからチェックアウトしてください。
 
-<http://github.com/m2ym/auto-complete>
+* <http://cx4a.org/repo/auto-complete.git>
+* <http://github.com/m2ym/auto-complete> （ミラー）
 
 ユーザーマニュアル
 ------------------

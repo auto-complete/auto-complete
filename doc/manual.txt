@@ -146,6 +146,12 @@ Selecting candidates is not a complex operation. You can select candidates forwa
 
 There is other ways to select candidates. `M-1` to select candidate 1, `M-2` to select candidate 2, and so on.
 
+### ヘルプ ###
+
+`auto-complete-mode`にはクイックヘルプとバッファヘルプの二つのヘルプ機能が備え付けられています。両者の違いは見せ方だけです。クイックヘルプは補完メニューのすぐ隣に表示するので、視線の移動が最小限で済むというメリットがありますが、表示領域が狭すぎると可読性が低くなるというデメリットがあります。またクイックヘルプは補完メニューを表示してからしばらく待つと自動的に表示されます。クイックヘルプを利用するには[`ac-use-quick-help`](#ac-use-quick-help)を`t`にしておく必要があります。表示までの時間は[`ac-quick-help-delay`](#ac-quick-help-delay)で制御できます。
+
+一方、ユーザーが明示的に命令することで表示されるのがバッファヘルプです。バッファヘルプはその名の通り、別ウィンドウにヘルプ用バッファを表示します。クイックヘルプに比べて視線の移動が大きい分、、可読性に優れています。バッファヘルプを表示するには補完中に`C-?`あるいは`f1`を押します。バッファヘルプ表示後はさらに`C-M-v`あるいは`C-M-S-v`でバッファヘルプの上下スクロールが可能です。それ以外の命令の場合はバッファヘルプを閉じてフォールバックします。
+
 ### Summary ###
 
 Completion will be started by inserting characters. After completion is started, operations in the following table will be enabled temporarily. After completion is finished, these operations will be disable.
@@ -156,6 +162,7 @@ Completion will be started by inserting characters. After completion is started,
 | RET, C-m  | ac-complete | Completion by RET         |
 | down, M-n | ac-next     | Select next candidate     |
 | up, M-p   | ac-previous | Select previous candidate |
+| C-?, f1   | ac-help     | Show buffer help          |
 
 To stop completion, use `C-g` simply.
 
@@ -284,34 +291,34 @@ Here is an example. Think you are at \*scratch\* buffer. As we saied, this buffe
 
     (setq ac-sources '(ac-source-symbols ac-source-words-in-same-mode-buffers))
 
-この例では、`ac-sources`を減らして、シンボル補完と同一メジャーモード間での単語補完のみを有効にしました。さて、これを次のEmacsの起動時にも有効にするにはどうしたらよいのでしょうか。\*scratch\*バッファ作成時に`emacs-lisp-mode-hook`というフックが実行されるので、このフックに適当な関数を追加するのがよいでしょう。
+This example changes `ac-source` setting and enable only symbol complteion and word completion among same major modes. Then, how can we enable this setting in next Emacas launching? We can change settings by adding a hook which is called when \*scratch\* buffer is created.
 
     (defun my-ac-emacs-lisp-mode ()
       (setq ac-sources '(ac-source-symbols ac-source-words-in-same-mode-buffers)))
     
     (add-hook 'emacs-lisp-mode-hook 'my-ac-emacs-lisp-mode)
 
-`.emacs`に`(ac-config-default)`が記述されている場合は、上記の方法では正しく動作しないかもしれません。というのも`(ac-config-default)`内部で同様のことを行っているので、どちらかが設定を上書きしてしまうからです。その場合は`(ac-config-default)`で利用する関数を再定義してしまうのがよいでしょう。`emacs-lisp-mode`の場合は、その関数名は`ac-emacs-lisp-mode-setup`です。詳しくは`auto-complete-config.el`を参照してください。
+If a code `(ac-config-default)` is written in `.emacs`, the code above may not be worked correctly. It is because of `(ac-config-default)` will overwrite the setting. In such case, you can redefine a function which is used in `(ac-config-default)`. The function name is `ac-emacs-lisp-mode-setup` in `emacs-lisp-mode`. See `auto-complete-config.el` for more details.
 
     (defun ac-emacs-lisp-mode-setup ()
       (setq ac-sources '(ac-source-symbols ac-source-words-in-same-mode-buffers)))
 
-さて、これで特定のメジャーモードで情報源を変更する方法が分かったと思います。まとめると次のようになるでしょう。
+So, now you know how to change sources in a specific major mode. Summary is:
 
-1. `ac-sources`を変更する関数を定義する
-2. `add-hook`で適当なモードフックにその関数を登録する（`c++-mode-hook`, `ruby-mode-hook`, `python-mode-hook`など）
+1. Define a function changing `ac-sources`
+2. Register the function to proper mode hoks (`c++-mode-hook`, `ruby-mode-hook`, and `python-mode-hook`, etc)
 
-では、全てのバッファに対して`ac-sources`を設定するにはどうしたらよいのでしょうか。その場合は`setq`ではなく`setq-default`で`ac-sources`を設定します。そうするとバッファローカル変数である`ac-sources`のデフォルト値が設定した値になります。
+By the way, how can we change a setting for all buffers? We use `setq-default` to change `ac-sources` instead of `setq` in such case. Then the default value of `ac-sources` will be changed to the value you specified.
 
     (setq-default ac-sources '(ac-source-words-in-all-buffer))
 
-他にも方法があります。`(ac-config-default)`は`auto-complete-mode`のフックである`auto-complete-mode-hook`に関数を追加することにより、`setq-default`によるデフォルト値の変更に近いことをやっています。その関数は`ac-common-setup`であり、`ac-sources`の先頭に`ac-source-filename`という情報源を追加しています。これにより`auto-complete-mode`が有効な全てのバッファで`ac-source-filename`が情報源の先頭に追加されます。なぜ先頭なのかというと、これにはオムニ補完の仕様が関係しているのですが、とりあえずここでは気にしなくてもいいです。つまるところ、`(ac-config-default)`を使っていて共通して`ac-sources`を変更したい場合は、この`ac-common-setup`関数を再定義することも一つの手段となります。
+There is other ways to do that. `(ac-config-default)`は`auto-complete-mode`のフックである`auto-complete-mode-hook`に関数を追加することにより、`setq-default`によるデフォルト値の変更に近いことをやっています。その関数は`ac-common-setup`であり、`ac-sources`の先頭に`ac-source-filename`という情報源を追加しています。これにより`auto-complete-mode`が有効な全てのバッファで`ac-source-filename`が情報源の先頭に追加されます。なぜ先頭なのかというと、これにはオムニ補完の仕様が関係しているのですが、とりあえずここでは気にしなくてもいいです。つまるところ、`(ac-config-default)`を使っていて共通して`ac-sources`を変更したい場合は、この`ac-common-setup`関数を再定義することも一つの手段となります。
 
     ;; 全てのバッファの`ac-sources`の末尾に辞書情報源を追加
     (defun ac-common-setup ()
       (setq ac-sources (append ac-sources '(ac-source-dictionary))))
 
-### 標準情報源 ###
+### Builtin Sources ###
 
 Here are defined sources in `auto-complete.el` and `auto-complete-config.el`.
 
@@ -546,6 +553,10 @@ Tips
 ### `ac-use-quick-help` ###
 
 クイックヘルプを利用するかどうかです。
+
+### `ac-quick-help-delay` ###
+
+クイックヘルプを表示するまでの時間（秒）を実数で指定します。
 
 ### `ac-menu-height` ###
 

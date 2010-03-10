@@ -1,5 +1,4 @@
 - help buffer
-- complete ignore list (doc)
 - etags, ctags
 - emacswiki
 - test facility

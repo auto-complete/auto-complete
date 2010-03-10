@@ -320,6 +320,9 @@ If there is no common part, this will be nil.")
     (define-key map [down] 'ac-next)
     (define-key map [up] 'ac-previous)
 
+    (define-key map [f1] 'ac-help)
+    (define-key map (kbd "C-?") 'ac-help)
+
     (define-key map [C-down] 'ac-quick-help-scroll-down)
     (define-key map [C-up] 'ac-quick-help-scroll-up)
     (define-key map "\C-\M-n" 'ac-quick-help-scroll-down)
@@ -1042,6 +1045,10 @@ that have been made before in this function."
     (ac-remove-quick-help)
     (ac-update t)))
 
+(defun ac-help ()
+  (interactive)
+  (popup-menu-show-help ac-menu))
+
 (defun ac-set-quick-help-timer ()
   (when (and ac-use-quick-help
              (null ac-quick-help-timer))
@@ -1053,15 +1060,16 @@ that have been made before in this function."
     (setq ac-quick-help-timer nil)))
 
 (defun ac-quick-help (&optional force)
+  (interactive)
   (when (and (or force (null this-command))
              (ac-menu-live-p)
              (null ac-quick-help))
     (setq ac-quick-help
-          (popup-menu-show-help ac-menu nil
-                                :point ac-point
-                                :height ac-quick-help-height
-                                ;:scroll-bar t
-                                :nowait t))))
+          (popup-menu-show-quick-help ac-menu nil
+                                      :point ac-point
+                                      :height ac-quick-help-height
+                                      ;:scroll-bar t
+                                      :nowait t))))
 
 (defun ac-remove-quick-help ()
   (when ac-quick-help
@@ -1073,9 +1081,16 @@ that have been made before in this function."
   `(progn
      (defun ,name ,arglist ,@body)
      (put ',name 'ac-quick-help-command t)))
+        
+(ac-define-quick-help-command ac-quick-help-scroll-down ()
+  (interactive)
+  (when ac-quick-help
+    (popup-scroll-down ac-quick-help)))
 
-(defun ac-make-quick-help-command (command)
-  (put command 'ac-quick-help-command t))
+(ac-define-quick-help-command ac-quick-help-scroll-up ()
+  (interactive)
+  (when ac-quick-help
+    (popup-scroll-up ac-quick-help)))
 
 
 
@@ -1233,16 +1248,6 @@ that have been made before in this function."
   (interactive)
   (setq ac-selected-candidate nil)
   (ac-abort))
-
-(ac-define-quick-help-command ac-quick-help-scroll-down ()
-  (interactive)
-  (when ac-quick-help
-    (popup-scroll-down ac-quick-help)))
-
-(ac-define-quick-help-command ac-quick-help-scroll-up ()
-  (interactive)
-  (when ac-quick-help
-    (popup-scroll-up ac-quick-help)))
 
 (defun ac-trigger-key-command (&optional force)
   (interactive "P")
