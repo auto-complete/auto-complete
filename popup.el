@@ -761,7 +761,7 @@ See also `popup-item-propertize'."
           (display-buffer (current-buffer)))
         (block nil
           (while (setq event (read-event))
-            (setq command )
+            (clear-this-command-keys)
             (case (key-binding (vector event))
               ('scroll-other-window
                (scroll-other-window))
@@ -769,8 +769,7 @@ See also `popup-item-propertize'."
                (scroll-other-window-down nil))
               (t
                (push event unread-command-events)
-               (return)))
-            (clear-this-command-keys)))))))
+               (return)))))))))
 
 (defun popup-menu-show-quick-help (menu &optional item &rest args)
   (or item (setq item (popup-selected-item menu)))
