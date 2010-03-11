@@ -1137,6 +1137,8 @@ that have been made before in this function."
     (unless (ac-menu-live-p)
       (ac-start))
     (let ((ac-match-function 'fuzzy-all-completions))
+      (unless ac-cursor-color
+        (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)))
       (if ac-fuzzy-cursor-color
           (set-cursor-color ac-fuzzy-cursor-color))
       (setq ac-show-menu t)
@@ -1227,8 +1229,9 @@ that have been made before in this function."
                       ac-ignores))
           (prog1 nil
             (ac-abort))
-        (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)
-              ac-show-menu (or ac-show-menu show-menu (if (eq ac-auto-show-menu t) t))
+        (unless ac-cursor-color
+          (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)))
+        (setq ac-show-menu (or ac-show-menu show-menu (if (eq ac-auto-show-menu t) t))
               ac-current-sources sources
               ac-buffer (current-buffer)
               ac-point point
