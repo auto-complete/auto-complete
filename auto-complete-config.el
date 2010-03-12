@@ -162,7 +162,8 @@
 
 (ac-define-source eclim
   '((candidates . ac-eclim-candidates)
-    (prefix . c-dot)))
+    (prefix . c-dot)
+    (requires . 0)))
 
 
 

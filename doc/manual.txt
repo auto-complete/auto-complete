@@ -815,6 +815,10 @@ Specify a function, an expression, or a variable to calculate candidates. Candid
 
 Specify a regexp, a function, or an expression to find a point of completion target string for [omni completion](#Omni Completion). This source will be ignored when `nil` returned. If a regexp is specified, a start point of group 1 or group 2 will be used as a value.
 
+#### `requires` ####
+
+Specify a required number of characters of completion target string. If nothing is specified, `auto-complete-mode` uses [`ac-auto-start`](#ac-auto-start) instead.
+
 #### `action` ####
 
 Specify a function or an expression that is executed on [completion by RET](#Completion by RET).
@@ -878,7 +882,41 @@ A list of candidates.
 トラブルシューティング
 ----------------------
 
+### レスポンスが遅い ###
+
+十分なレスポンス性能を確保するのは`auto-complete-mode`にとって大変重要なことですが、よく知られているように、それは機能性とのトレードオフでもあります。以下にレスポンス性能に関連する設定項目を挙げるので、もし問題があれば参照してください。
+
+#### `ac-auto-start` ####
+
+[`ac-auto-start`](#ac-auto-start)に大きめの数値を設定することで、補完候補の生成コストを軽減するができます。あるいは`nil`に設定することで、本当に必要な時だけ補完を実行することもできます。詳しくは[自動的に補完しない](#自動的に補完しない)を参照してください。
+
+#### `ac-delay` ####
+
+[`ac-delay`](#ac-delay)に大きめの数値を設定することで、補完開始コストを軽減することができます。
+
+#### `ac-auto-show-menu` ####
+
+[`ac-auto-show-menu`](#ac-auto-show-menu)に大きめの数値を設定することで、補完メニューの表示コストを軽減することができます。
+
+#### `ac-use-comphist` ####
+
+[`ac-use-comphist`](#ac-use-comphist)に`nil`を設定して[補完推測機能](#補完推測機能)を無効にすることで、推測のための計算コストを軽減することができます。
+
+#### `ac-candidate-limit` ####
+
+[`ac-candidate-limit`](#ac-candidate-limit)に適切な数値を設定することで、多量の計算を行わないようにすることができます。
+
 ### 補完メニューの表示が崩れる ###
+
+補完メニューの表示が崩れる問題には大きく分けて二つあります。
+
+#### カラム計算の問題 ####
+
+`auto-complete-mode`は補完メニューを正しく表示するのに必須な処理であるカラム計算のコストを軽減するために、正確さをある程度犠牲にした最適化バージョンのカラム計算関数を利用していますが、これが原因で補完メニューの表示が崩れる可能性があります。最適化バージョンを使わないためには次のコードを評価します。
+
+    (setq popup-use-optimized-column-computation nil)
+
+#### フォントの問題 ####
 
 Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftでレンダリングすると、補完メニューの表示が崩れる問題を確認しています。[VLゴシック](http://dicey.org/vlgothic/)などではXftでレンダリングしても正しく表示されるようなので、そちらをお使いください。また、Xftを使わなければIPAフォントも正しくレンダリングできます。
 

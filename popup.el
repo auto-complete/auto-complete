@@ -32,6 +32,10 @@
 
 ;; Utilities
 
+(defvar popup-use-optimized-column-computation t
+  "Use optimized column computation routine.
+If there is a problem, please set it to nil.")
+
 ;; Borrowed from anything.el
 (defmacro popup-aif (test-form then-form &rest else-forms)
   "Anaphoric if. Temporary variable `it' is the result of test-form."
@@ -101,7 +105,16 @@ This is faster than prin1-to-string in many cases."
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
 
 (defun popup-current-physical-column ()
-  (car (posn-col-row (posn-at-point))))
+  (let (column)
+    (when popup-use-optimized-column-computation
+      (let ((c (current-column)))
+        (cond
+         (truncate-lines
+          (setq column c))
+         ((< c (window-width))
+          (setq column c)))))
+    (or column
+        (setq column (car (posn-col-row (posn-at-point)))))))
 
 (defun popup-last-line-of-buffer-p ()
   (save-excursion (end-of-line) (/= (forward-line) 0)))
@@ -785,15 +798,16 @@ See also `popup-item-propertize'."
                 menu nil
                 parent-offset nil)
         (setq point nil))
-      (apply 'popup-tip
-             doc
-             :point point
-             :height height
-             :min-height min-height
-             :around around
-             :parent menu
-             :parent-offset parent-offset
-             args))))
+      (let ((popup-use-optimized-column-computation nil)) ; To avoid wrong positioning
+        (apply 'popup-tip
+               doc
+               :point point
+               :height height
+               :min-height min-height
+               :around around
+               :parent menu
+               :parent-offset parent-offset
+               args)))))
 
 (defun popup-menu-fallback (event default))
 

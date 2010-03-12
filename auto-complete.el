@@ -353,25 +353,7 @@ If there is no common part, this will be nil.")
   "Prefix definitions for common use.")
 
 (defvar ac-sources '(ac-source-words-in-same-mode-buffers)
-  "Sources for completion.
-
-Source takes a form of just function which returns candidates or alist:
-
-init INIT-FUNC
-  INIT-FUNC will be called before creating candidate every time.
-
-candidates CANDIDATE-FUNC
-  CANDIDATE-FUNC will return a list of string as candidates.
-CANDIDATE-FUNC should care about `ac-limit' that is specified at limit for performance.
-
-action ACTION-FUNC
-  ACTION-FUNC will be called when `ac-complete' is called.
-
-limit LIMIT-NUM
-  A limit of candidates.
-
-requires REQUIRES-NUM
-  This source will be included when `ac-prefix' length is larger than REQUIRES-NUM.")
+  "Sources for completion.")
 (make-variable-buffer-local 'ac-sources)
 
 (defvar ac-compiled-sources nil
@@ -582,8 +564,7 @@ You can not use it in source definition like (prefix . `NAME')."
              (real
               (add-attribute 'prefix real))
              ((null prefix)
-              (add-attribute 'prefix 'ac-prefix-default)
-              (add-attribute 'requires 1 t))))
+              (add-attribute 'prefix 'ac-prefix-default))))
           ;; match
           (let ((match (assq 'match source)))
             (cond
@@ -748,12 +729,14 @@ You can not use it in source definition like (prefix . `NAME')."
 (defsubst ac-selected-candidate ()
   (popup-selected-item ac-menu))
 
-(defun ac-prefix (&optional ignore-list)
-  (loop with point
+(defun ac-prefix (requires ignore-list)
+  (loop with current = (point)
+        with point
         with prefix-def
         with sources
         for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
+        for req = (or (assoc-default 'requires source) requires 0)
 
         if (null prefix-def)
         do
@@ -774,6 +757,10 @@ You can not use it in source definition like (prefix . `NAME')."
                                           (or group 0)))))
                          (t
                           (eval prefix))))
+            (if (and point
+                     (integerp req)
+                     (< (- current point) req))
+                (setq point nil))
             (if point
                 (setq prefix-def prefix))))
         
@@ -846,10 +833,6 @@ You can not use it in source definition like (prefix . `NAME')."
         with case-fold-search = completion-ignore-case
         with prefix-len = (length ac-prefix)
         for source in ac-current-sources
-        for function = (assoc-default 'candidates source)
-        for requires = (or (assoc-default 'requires source) 0)
-
-        if (and function (>= prefix-len requires))
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
@@ -865,7 +848,7 @@ You can not use it in source definition like (prefix . `NAME')."
                     (setq ac-common-part (try-completion ac-prefix result))
                     (if cons (setcdr cons cdr))
                     result)
-                (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len ))
+                (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
                 (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
                 candidates)
             (setq ac-common-part (try-completion ac-prefix candidates))
@@ -933,6 +916,8 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-prefix-overlay nil
         ac-selected-candidate nil
         ac-common-part nil
+        ac-triggered nil
+        ac-limit nil
         ac-candidates nil
         ac-candidates-cache nil
         ac-fuzzy-enable nil
@@ -1022,8 +1007,7 @@ that have been made before in this function."
     (while (when (and (setq result (ac-update force))
                       (null ac-candidates))
              (add-to-list 'ac-ignoring-prefix-def ac-current-prefix-def)
-             (ac-start :min-prefix nil
-                       :show-menu t
+             (ac-start :show-menu t
                        :force-init t)
              ac-current-prefix-def))
     result))
@@ -1207,24 +1191,20 @@ that have been made before in this function."
     candidate))
 
 (defun* ac-start (&key
-                  min-prefix
+                  requires
                   show-menu
                   force-init)
   "Start completion."
   (interactive)
   (if (not auto-complete-mode)
       (message "auto-complete-mode is not enabled")
-    (let* ((info (ac-prefix ac-ignoring-prefix-def))
+    (let* ((info (ac-prefix requires ac-ignoring-prefix-def))
            (prefix-def (nth 0 info))
            (point (nth 1 info))
            (sources (nth 2 info))
            prefix
            (init (or force-init (not (eq ac-point point)))))
       (if (or (null point)
-              (and (eq prefix-def 'ac-prefix-default) ; if not omni-completion
-                   (integerp min-prefix)
-                   (< (- (point) point)
-                      min-prefix))
               (member (setq prefix (buffer-substring-no-properties point (point)))
                       ac-ignores))
           (prog1 nil
@@ -1333,7 +1313,7 @@ that have been made before in this function."
                      ac-completing)
                  (not isearch-mode))
         (setq ac-last-point (point))
-        (ac-start :min-prefix (unless ac-completing ac-auto-start))
+        (ac-start :requires (unless ac-completing ac-auto-start))
         (ac-inline-update))
     (error (ac-error var))))
 
@@ -1524,7 +1504,8 @@ that have been made before in this function."
 (ac-define-source features
   '((depends find-func)
     (candidates . ac-emacs-lisp-feature-candidates)
-    (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")))
+    (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")
+    (requires . 0)))
 
 (defvaralias 'ac-source-emacs-lisp-features 'ac-source-features)
 
@@ -1561,6 +1542,7 @@ that have been made before in this function."
   '((init . (setq ac-filename-cache nil))
     (candidates . ac-filename-candidate)
     (prefix . valid-file)
+    (requires . 0)
     (action . ac-start)
     (limit . nil)))
 
