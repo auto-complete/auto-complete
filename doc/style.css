@@ -2,10 +2,6 @@ body {
     margin: 1em;
 }
 
-h1 {
-    text-shadow: 5px 5px 5px #ccc;
-}
-
 h1, h2, h3 {
     margin-top: 1em;
 }

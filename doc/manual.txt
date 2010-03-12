@@ -146,11 +146,11 @@ Selecting candidates is not a complex operation. You can select candidates forwa
 
 There is other ways to select candidates. `M-1` to select candidate 1, `M-2` to select candidate 2, and so on.
 
-### ヘルプ ###
+### Help ###
 
-`auto-complete-mode`にはクイックヘルプとバッファヘルプの二つのヘルプ機能が備え付けられています。両者の違いは見せ方だけです。クイックヘルプは補完メニューのすぐ隣に表示するので、視線の移動が最小限で済むというメリットがありますが、表示領域が狭すぎると可読性が低くなるというデメリットがあります。またクイックヘルプは補完メニューを表示してからしばらく待つと自動的に表示されます。クイックヘルプを利用するには[`ac-use-quick-help`](#ac-use-quick-help)を`t`にしておく必要があります。表示までの時間は[`ac-quick-help-delay`](#ac-quick-help-delay)で制御できます。
+`auto-complete-mode` has two type of help functionalities called *Quick Help* and *Buffer Help*. They are different in a point of displaying. Quick help will appear at the side of completion menu, so you can easily see that, but there is a problem if there is no space to displaying the help. Quick help will be shown automatically. To use quick help, you need to set [`ac-use-quick-help`](#ac-use-quick-help) to `t`. Delay time show quick help is given by [`ac-quick-help-delay`](#ac-quick-help-delay).
 
-一方、ユーザーが明示的に命令することで表示されるのがバッファヘルプです。バッファヘルプはその名の通り、別ウィンドウにヘルプ用バッファを表示します。クイックヘルプに比べて視線の移動が大きい分、、可読性に優れています。バッファヘルプを表示するには補完中に`C-?`あるいは`f1`を押します。バッファヘルプ表示後はさらに`C-M-v`あるいは`C-M-S-v`でバッファヘルプの上下スクロールが可能です。それ以外の命令の場合はバッファヘルプを閉じてフォールバックします。
+On other side, buffer help will not be shown without any instructions from users. Buffer help literally display a help in a buffer of other window. It costs much to see than quick help, but it has more readability. To show buffer help, press `C-?` or `f1`. By pressing `C-M-v` or `C-M-S-v` after showing buffer help, you can scroll forward or backward for help buffer. Other commands will be fallbacked and buffer help will be closed.
 
 ### Summary ###
 
@@ -217,7 +217,7 @@ As of `ac-auto-start`, see [Not to complete automatically](#Not to complete auto
 
 `auto-complete-mode` analyzes completion operations one by one and reduces overheads of completion as much as possible. For example, having a candidate "foobar" been completed few times, `auto-complete-mode` arranges it to top of the candidates next time and make a situation that allows users to complete the word with one time TAB or few times TAB. It is called `comphist` internally, and you can use it by setting `ac-use-comphist` to `t`. It is enabled by default. Collection operations data will be stored in `user-emacs-directory` or `~/.emacs.d/` with a name `ac-comphist.dat`.
 
-`auto-complete-mode` collects two types of data to accomplish accurate completion suggestion.
+`auto-complete-mode` collects two types of data to accomplish accurate candidate suggestion.
 
 * Count of completion
 * Position of completion
@@ -312,9 +312,9 @@ By the way, how can we change a setting for all buffers? We use `setq-default` t
 
     (setq-default ac-sources '(ac-source-words-in-all-buffer))
 
-There is other ways to do that. `(ac-config-default)`は`auto-complete-mode`のフックである`auto-complete-mode-hook`に関数を追加することにより、`setq-default`によるデフォルト値の変更に近いことをやっています。その関数は`ac-common-setup`であり、`ac-sources`の先頭に`ac-source-filename`という情報源を追加しています。これにより`auto-complete-mode`が有効な全てのバッファで`ac-source-filename`が情報源の先頭に追加されます。なぜ先頭なのかというと、これにはオムニ補完の仕様が関係しているのですが、とりあえずここでは気にしなくてもいいです。つまるところ、`(ac-config-default)`を使っていて共通して`ac-sources`を変更したい場合は、この`ac-common-setup`関数を再定義することも一つの手段となります。
+There is other ways to do that. `(ac-config-default)` changes the default vlue of `ac-sources` by registering a hook for `auto-complete-mode`. The registered function is `ac-common-setup` that adds `ac-source-filename` to the first of `ac-sources` by default. So all `auto-complete-mode` enabled buffer will have `ac-source-filename` at the first of `ac-sources`. A reason why adding to the first is relating to [omni completion](#Omni Completion). Anyway you don't care about it here. So if you want to change `ac-sources` of all buffer, you can redefine `ac-common-setup` function to do that.
 
-    ;; 全てのバッファの`ac-sources`の末尾に辞書情報源を追加
+    ;; Add ac-source-dictionary to ac-sources of all buffer
     (defun ac-common-setup ()
       (setq ac-sources (append ac-sources '(ac-source-dictionary))))
 
@@ -389,269 +389,267 @@ A source for [Yasnippet](http://code.google.com/p/yasnippet/) to complete and ex
 Tips
 ----
 
-### 自動的に補完しない ###
+### Not start completion automatically ###
 
-補完メニューが現われたり消えたりすると、編集操作に集中できないというユーザーがいます。私の経験では得てしてEmacsの上級ユーザーなのですが、とにかく`auto-complete-mode`はそのような用途も想定しています。次のように`ac-auto-start`をnilにすることにより自動的に補完されなくなります。
+If you are being annoyed with displaying completion menu, you can disable automatic starting completion by setting `ac-auto-start` to `nil`.
 
     (setq ac-auto-start nil)
 
-この際、`auto-complete`コマンドを何らかのキーに割り当ておくべきです（じゃないと補完できないので）。例えば次のように`ac-mode-map`（`auto-complete-mode`が有効なバッファで利用できるキーマップ）に割り当てたり、
+You need to bind some key to `auto-complete` command (because you need to complete anyway). For example, bind to `ac-mode-map`, which is a key map for `auto-complete-mode` enabled buffer:
 
     (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
 
-あるいはグローバルキーマップに割り当てるのもよいでしょう。
+Or bind to global key map.
 
     (global-set-key "\M-/" 'auto-complete)
 
-また、自動的に補完してもいいけど、もう少し長い単語のときだけ補完を開始するということも可能です。例えば4文字以上の単語のときに補完を開始するには`ac-auto-start`に4を設定します。
+In addition, if you allow to start completion automatically but also want to be silent as much as possible, you can do it by setting `ac-auto-start` to an prefix length integer. For example, if you want to start completion automatically when you has inserted 4 or more characters, just set `ac-auto-start` to 4:
 
     (setq ac-auto-start 4)
 
-`ac-auto-start`を大きめの数値に設定するのはパフォーマンスに良い影響をもたらします。`ac-auto-start`が小さい数値だと、必然的に補完候補数が増えるので、それだけ補完候補の生成にかかるコストが大きくなります。もし`auto-complete-mode`が重いと感じるなら`ac-auto-start`に大きめの数値を設定するか`nil`を設定するとよいでしょう。
+Setting `ac-auto-start` to large number will result in good for performance. Lesser `ac-auto-start`, more high const to produce completion candidates, because there will be so many candidates necessarily. If you feel `auto-complete-mode` is stalling, change `ac-auto-start` to a larger number or `nil`.
 
-`ac-auto-start`に関しては[`ac-auto-start`](#ac-auto-start)を参照してください。
+See [`ac-auto-start`](#ac-auto-start) for more details.
 
-また[トリガーキー](#トリガーキー)を利用も考慮してみてください。
+And consider to use [trigger key](#Trigger Key).
 
-### 補完メニューを自動で表示しない ###
+### Not to show completion menu automatically ###
 
-補完メニューによって集中力が削がれる問題のもう一つの対処としては、補完メニューを表示しないという方法が考えられます。正直なところを言うと、補完メニューを表示しないをデフォルトにしたいのですが、`auto-complete-mode`の補完推測の精度がまだあまり良くないので、現状ではデフォルトで補完メニューを表示するようになっています。補完推測の精度が向上すればインライン補完のみで事足りるので、わざわざ補完メニューを表示する必要はないのです。補完メニューを非表示にするには`ac-auto-show-menu`を`nil`にします。
+There is another approach to solve the annoying problem is that not to show completion menu automatically. Truthfully, we won't show completion menu automatically by default. However a accuracy of candidate suggestion is not good at now, so we show it by default. Getting candidate suggestion more accurate, then there is no need to show completion menu ultimately. Not to show completion menu automatically, set `ac-auto-show-menu` to `nil`.
 
     (setq ac-auto-show-menu nil)
 
-これで補完メニューは自動で表示されなくなりますが、補完候補の選択や絞り込みを行うと補完メニューは表示されます。
+When you select or filter candidates, completion menu will be shown.
 
-あるいは補完メニューの表示を遅延させることにより、補完メニューが必要な時だけ自動で表示させるようにすることも可能です。そのためには`ac-auto-show-menu`に実数で遅延する時間を秒単位で設定します。
+In other way, you can delay showing completion menu by setting `ac-auto-show-menu` to seconds in real number.
 
-    ;; 0.8秒後に自動で表示
+    ;; Show 0.8 second later
     (setq ac-auto-show-menu 0.8)
 
-このインターフェースはデフォルトの完全自動補完と上記した非自動補完のよいところだけを組合せたものと言えます。将来はこれがデフォルトになるかもしれません。
+This interface has both good points of completely automatic completion and completely non-automatic completion. This may be default in the future.
 
-### 補完を中止する ###
+### Stop completion ###
 
-補完の中止は`C-g`で行うことができますが、マクロ定義中などは`C-g`したくないでしょう。そのような場合は`ac-completing-map`に補完を中止するキーを割り当てるとよいでしょう。
+You can stop completion by pressin `C-g`. However you won't press `C-g` while defining a macro. In such case, it is a good idea to bind some key to `ac-completing-map`.
 
     (define-key ac-completing-map "\M-/" 'ac-stop)
 
-これで補完中でも`M-/`で中止することができます。
+Now you can stop completion by pressing `M-/`.
 
-### TABで補完を完了する ###
+### Finish completion by TAB ###
 
-上記したようにTABには様々な挙動が定義されています。`auto-complete-mode`を正しく使いこなすにはTABとRETによる補完を使いわけなければなりませんが、RETはそのまま改行でTABで補完完了するといった単純な操作方法も十分考えられます。。そのような場合は次のように設定します。
+As we described above, there is many behaviors in TAB. You need to use TAB and RET properly, but there is a simple interface that bind RET to original and TAB to finish completion:
 
     (define-key ac-completing-map "\t" 'ac-complete)
     (define-key ac-completing-map "\r" nil)
 
-### クイックヘルプを利用しない ###
+### Not to use quick help ###
 
-補完中に1秒ほど待ったときに出てくるツールチップヘルプをクイックヘルプと呼んでいますが、これを利用したくない場合は次のように設定します。
+A tooltip help that is shown when completing is called quick help. You can disable it if you don't want to use it:
 
     (setq ac-use-quick-help nil)
 
-### 補完メニューの高さを変更する ###
+### Change a height of completion menu ###
 
-`ac-menu-height`に行数を設定します。
+Set `ac-menu-height` to number of lines.
 
-    ;; 20行分表示
+    ;; 20 lines
     (setq ac-menu-height 20)
 
-### 特定のモードで自動で`auto-complete-mode`を有効にする ###
+### Enable `auto-complete-mode` automatically for specific modes ###
 
-`ac-modes`に設定されていないモードでは自動で`auto-complete-mode`が有効になりません。適宜設定してください。
+`auto-complete-mode` won't be enabled automatically for modes that are not in `ac-modes`. So you need to set if necessary:
 
     (add-to-list 'ac-modes 'brandnew-mode)
 
-### 大文字・小文字を区別したい/したくない ###
+### Ignore case ###
 
-大文字・小文字の区別方法を設定するには`ac-ignore-case`に次のように設定します。
+There is three ways to distinguish upper case and lower cass.
 
-    ;; 大文字・小文字を区別しない
+    ;; Just ignore case
     (setq ac-ignore-case t)
-    ;; 補完対象に大文字が含まれる場合のみ区別する
+    ;; Ignore case if completion target string doesn't include upper characters
     (setq ac-ignore-case 'smart)
-    ;; 大文字・小文字を区別する
+    ;; Distinguish case
     (setq ac-ignore-case nil)
 
-デフォルトは`smart`です。
+Default is `smart`.
 
-### 特定の単語を入力したら補完を自動的に中止する ###
+### Stop completion automatically after inserting specific words ###
 
-`ac-ignores`に自動的に補完を中止する単語を設定します。例えばRubyでendと入力した後に自動的に補完を中止するには以下のようにします。
+Set `ac-ignores` to words that stops completion automatically. In ruby, some people want to stop completion automatically after inserting "end":
 
     (add-hook 'ruby-mode-hook
               (lambda ()
                 (make-local-variable 'ac-ignores)
                 (add-to-list 'ac-ignores "end")))
 
-`ac-ignores`はバッファローカル変数ではないので、バッファ特有の設定にする場合は`make-local-variable`で適宜バッファローカルにする必要があります。
+Note that `ac-ignores` is not a buffer local variable, so you need to make it buffer local with `make-local-variable` if it is buffer specific setting.
 
-### 色を変更する ###
+### Change colors ###
 
-色の設定はそれぞれ次のようになっています。
+Colors settings are following:
 
-| フェイス名           | 説明                   |
-|----------------------|------------------------|
-| `ac-completion-face` | インライン補完の文字色 |
-| `ac-candidate-face`  | 補完メニューの背景色   |
-| `ac-selection-face`  | 補完メニューの選択色   |
+| Face                 | Description                          |
+|----------------------|--------------------------------------|
+| `ac-completion-face` | Foregound color of inline completion |
+| `ac-candidate-face`  | Color of completion menu             |
+| `ac-selection-face`  | Selection color of completion menu   |
 
-フェイスの背景色を変更するには`set-face-background`、前景色を変更するには`set-face-foreground`、下線の設定には`set-face-underline`を使います。
+To change face background color, use `set-face-background`. To change face foreground color, use `set-face-foreground`. To set underline, use `set-face-underline`.
 
-    ;; 設定例
+    ;; Examples
     (set-face-background 'ac-candidate-face "lightgray")
     (set-face-underline 'ac-candidate-face "darkgray")
     (set-face-background 'ac-selection-face "steelblue")
 
-### デフォルトの情報源を変更する ###
+### Change default sources ###
 
-情報源について分からない場合は最初に[情報源](#情報源)を参照してください。デフォルトの情報源（全てのバッファに共通）を変更するには`setq-default`を使います。
+Read [source](#source) first if you don't familier with sources. To change default of sources, use `setq-default`:
 
     (setq-default ac-sources '(ac-source-words-in-all-buffer))
 
-### 特定のメジャーモードで情報源を変更する ###
+### Change sources for specific major modes ###
 
-例えばC++のバッファでは特定の情報源を利用したいということがあるでしょう。その場合は`add-hook`でフックを登録して、適宜`ac-sources`を変更するにようします。
+For example, you may want to use specific sources for C++ buffers. To do that, register a hook by `add-hook` and change `ac-sources` properly:
 
     (add-hook 'c++-mode (lambda () (add-to-list 'ac-sources 'ac-source-semantic)))
 
+Configuration
+-------------
 
-
-設定項目
---------
-
-それぞれの設定項目は`.emacs`で変更するか`M-x customize-group RET auto-complete RET`で変更可能です。
+Any configuration item will be setted in `.emacs` or with `M-x customize-group RET auto-complete RET`.
 
 ### `ac-delay` ###
 
-補完可能になるまでの遅延時間（秒）を実数で指定します。小さいほど瞬時に反応しますが、パフォーマンスの低下につながります。
+Delay time to start completion in real number seconds. It is a trade off of responsibility and performance.
 
 ### `ac-auto-show-menu` ###
 
-補完時に自動的に補完メニューを表示するかどうかです。`t`の場合は常に自動的に表示します。`nil`の場合は絶対に表示されません。実数を指定すると表示までの遅延時間を秒数で指定できます。
+Show completion menu automatically if `t` specified. `t` means always automatically showing completion menu. `nil` means never showing completion menu. Real number means delay time in seconds.
 
 ### `ac-use-fuzzy` ###
 
-[曖昧マッチによる補完](#曖昧マッチによる補完)を利用するかどうかです。
+Whether or not to use [fuzzy matching](#Fuzzy Matching).
 
 ### `ac-fuzzy-cursor-color` ###
 
-[曖昧マッチによる補完](#曖昧マッチによる補完)時にカーソルの指定した色に変更します。`nil`の場合は変更しません。利用できる色は`M-x list-colors-display`で確認できます。
+Change cursor color to specified color when [fuzzy matching](#Fuzzy Mathinc) is started. `nil` means never chagend. Available colors can be seen with `M-x list-colors-display`.
 
 ### `ac-use-comphist` ###
 
-[補完推測機能](#補完推測機能)を利用するかどうかです。`nil`にすると利用しませんが、パフォーマンスが向上する可能性があります。
+Whether or not to use [candidate suggestion](#Candidate Suggestion). `nil` means never using it and get performance better maybe.
 
 ### `ac-comphist-threshold` ###
 
-低いスコアの補完候補を排除する閾値をパーセンテージで指定します。スコアの全体を100%とします。
+Specify a percentage of limiting lower scored candidates. 100% for whole scores.
 
 ### `ac-comphist-file` ###
 
-[補完推測機能](#補完推測機能)のデータを永続化するファイルを指定します。
+Specify a file stores data of [candidate suggestion](#Candidate Suggestion).
 
 ### `ac-use-quick-help` ###
 
-クイックヘルプを利用するかどうかです。
+Whether or not to use quick help.
 
 ### `ac-quick-help-delay` ###
 
-クイックヘルプを表示するまでの時間（秒）を実数で指定します。
+Delay time to show quick help in real number seconds.
 
 ### `ac-menu-height` ###
 
-補完メニューの行数を整数で指定します。
+Specify an integer of lines of completion menu.
 
 ### `ac-quick-help-height` ###
 
-クイックヘルプの行数を整数で指定します。
+Specify an integer of lines of quick help.
 
 ### `ac-candidate-limit` ###
 
-補完候補数を制限します。整数が指定されている場合は、その値を表示する補完候補数の上限にします。`nil`の場合は無制限です。
+Limit a number of candidates. Specifying an integer, the value will be a limit of candidates. `nil` means no limit.
 
 ### `ac-modes` ###
 
-`global-auto-complete-mode`が有効な時に`auto-complete-mode`が自動的に有効になるモードをシンボルのリストで指定します。
+Specify major modes as a list of symbols that will be enabled automatically if `global-auto-complete-mode` is enabled.
 
 ### `ac-compatible-packages-regexp` ###
 
-自動補完を開始するコマンドのパッケージを正規表現で指定します。
+Specify a regexp that identifies starting completion or not for that package.
 
 ### `ac-trigger-commands` ###
 
-自動補完を開始するコマンドをシンボルのリストで指定します。`self-insert-command`がデフォルトですが、まれに文字の挿入を独自のコマンドに設定しているモードがあるので、その対応のための設定項目です。
+Specify commands as a list of symbols that starts completion automatically. `self-insert-command` is one of default.
 
 ### `ac-trigger-commands-on-completing` ###
 
-[`ac-trigger-commands`](#ac-trigger-commands)と同様ですが、補完中に使用される点が異なります。
+Same as [`ac-trigger-commands`](#ac-trigger-commands) expect this will be used on completing.
 
 ### `ac-trigger-key` ###
 
-[トリガーキー](#トリガーキー)を指定します。
+Specify a [trigger key](#Trigger Key).
 
 ### `ac-auto-start` ###
 
-補完が自動的に開始されるかどうかを指定します。`t`の場合は常に自動的に開始されます。`nil`の場合は絶対に自動的に開始されません。整数の場合は、補完対象文字列の長さがその値以上になるまで自動的に開始されません。
+Specify how completion will be started. `t` means always starting completion automatically. `nil` means never started automatically. An integer means completion will not be started until the value is more than a length of the completion target string.
 
 ### `ac-ignores` ###
 
-補完しない文字列を文字列のリストで指定します。
+Specify a list of strings that stops completion.
 
 ### `ac-ignore-case` ###
 
-補完時に大文字・小文字を区別するかどうかです。`t`の場合は常に無視します。`nil`の場合は無視しません。シンボルで`smart`が指定された場合は、補完対象文字列に大文字が含まれる場合のみ区別します。
+Specify how distinguish case. `t` means always ignoring case. `nil` means never ignoring case. `smart` in symbol means ignoring case only when the completion target string doesn't include upper characters.
 
 ### `ac-dwim` ###
 
-"Do What I Mean"機能です。`t`の場合は次の挙動になります。
+"Do What I Mean" function. `t` means:
 
-* 補完選択時にTABがRETの挙動に変化する
-* 補完候補が一つしかないときにTABをするとRETの挙動になる
+* After selecting candidates, TAB will behave as RET
+* TAB will behave as RET only on candidate remains
 
 ### `ac-use-overriding-local-map` ###
 
-補完の選択などの補完中のキー入力が効かない場合に利用します。内部的には`overriding-local-map`を使いますが、効果が強力すぎて他の拡張と干渉することがあるので、極力利用しないでください。
+Use only when operations is not affected. Internally it uses `overriding-local-map`, which is too powerful to use with keeping orthogonality. So don't use as much as possible.
 
 ### `ac-completion-face` ###
 
-インライン補完のためのフェイスです。
+Face of inline completion.
 
 ### `ac-candidate-face` ###
 
-補完候補の背景のためのフェイスです。
+Face of completion menu background.
 
 ### `ac-selection-face` ###
 
-選択された補完候補のフェイスです。
+Face of completion menu selection.
 
 ### `global-auto-complete-mode` ###
 
-グローバルに`auto-complete-mode`を利用するかどうかです。
+Whether or not to use `auto-complete-mode` globally. It is `t` in general.
 
 ### `ac-user-dictionary` ###
 
-[辞書による補完](#辞書による補完)のための辞書を文字列のリストで指定します。
+Specify a dictionary as a list of string for [completion by dictionary](#Completion by Dictionary).
 
 ### `ac-user-dictionary-files` ###
 
-[辞書による補完](#辞書による補完)のための辞書ファイルを文字列のリストで指定します。
+Specify a dictionary files as a list of string for [completion by dictionary](#Completion by Dictionary).
 
 ### `ac-dictionary-directories` ###
 
-[辞書による補完](#辞書による補完)のための辞書ファイルディレクトリを文字列のリストで指定します。
+Specify a dictionary directories as a list of string for [completion by dictionary](#Completion by Dictionary).
 
 ### `ac-sources` ###
 
-使用する[情報源](#情報源)をリストで指定します。これはバッファローカル変数です。
+Specify sources as a list of [source](#Source). This is a buffer local variable.
 
 ### `ac-completing-map` ###
 
-補完中に使用するキーマップです。
+Key map on completing.
 
 ### `ac-mode-map` ###
 
-`auto-complete-mode`が有効なバッファで使用するキーマップです。
+Key map for `auto-complete-mode` enabled buffers.
 
 拡張方法
 --------
@@ -879,8 +877,8 @@ A limit of candidates. Its value may be one of [`ac-candidate-limit`](#ac-candid
 
 A list of candidates.
 
-トラブルシューティング
-----------------------
+Trouble Shooting
+----------------
 
 ### レスポンスが遅い ###
 
@@ -906,9 +904,9 @@ A list of candidates.
 
 [`ac-candidate-limit`](#ac-candidate-limit)に適切な数値を設定することで、多量の計算を行わないようにすることができます。
 
-### 補完メニューの表示が崩れる ###
+### Completion menu is disrupted ###
 
-補完メニューの表示が崩れる問題には大きく分けて二つあります。
+There is two major cases.
 
 #### カラム計算の問題 ####
 
@@ -916,11 +914,11 @@ A list of candidates.
 
     (setq popup-use-optimized-column-computation nil)
 
-#### フォントの問題 ####
+#### Font case ####
 
-Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftでレンダリングすると、補完メニューの表示が崩れる問題を確認しています。[VLゴシック](http://dicey.org/vlgothic/)などではXftでレンダリングしても正しく表示されるようなので、そちらをお使いください。また、Xftを使わなければIPAフォントも正しくレンダリングできます。
+There is a problem when render [IPA font](http://ossipedia.ipa.go.jp/ipafont/) with Xft in Ubuntu 9.10. Use [VL gothic](http://dicey.org/vlgothic/), which renders more suitably. Or disable Xft, then it can render correctly.
 
-現在のところ完全な対応策は見つかっていませんが、`set-face-font`で補完メニューのフォントサイズを適切なサイズに変更することで対応できる可能性があります。例えばNTEmacsでは日本語を含む補完メニューを表示すると補完メニューの表示が崩れることがあります。これは以下のようにフォントサイズを調整することで対応することができます。
+We don't good answers now, but you may shot the troubles by changing font size with `set-face-font`. For instance, completion menu may be distrupted when displaying the menu including Japanese in NTEmacs. In such case, it is worth to try to evaluate the following code to fix it:
 
     (set-face-font 'ac-candidate-face "MS Gothic 11")
     (set-face-font 'ac-selection-face "MS Gothic 11")
