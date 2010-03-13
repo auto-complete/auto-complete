@@ -109,7 +109,9 @@ This is faster than prin1-to-string in many cases."
     (when popup-use-optimized-column-computation
       (let ((c (current-column)))
         (cond
-         (truncate-lines
+         ((> (window-hscroll) 0))
+         ((or (and (not (one-window-p)) truncate-partial-width-windows)
+              truncate-lines)
           (setq column c))
          ((< c (window-width))
           (setq column c)))))
