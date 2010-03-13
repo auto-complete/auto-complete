@@ -1259,19 +1259,23 @@ that have been made before in this function."
 (defvar ac-clear-variables-after-save nil)
 (defvar ac-clear-variables-every-minute nil)
 
-(defun ac-clear-variable-after-save (variable)
-  (add-to-list 'ac-clear-variables-after-save variable))
+(defun ac-clear-variable-after-save (variable &optional pred)
+  (add-to-list 'ac-clear-variables-after-save (cons variable pred)))
 
 (defun ac-clear-variables-after-save ()
-  (dolist (variable ac-clear-variables-after-save)
-    (set variable nil)))
+  (dolist (pair ac-clear-variables-after-save)
+    (if (or (null (cdr pair))
+            (funcall (cdr pair)))
+        (set (car pair) nil))))
 
-(defun ac-clear-variable-every-minute (variable)
-  (add-to-list 'ac-clear-variables-every-minute variable))
+(defun ac-clear-variable-every-minute (variable &optional pred)
+  (add-to-list 'ac-clear-variables-every-minute (cons variable pred)))
 
 (defun ac-clear-variables-every-minute ()
-  (dolist (variable ac-clear-variables-every-minute)
-    (set variable nil)))
+  (dolist (pair ac-clear-variables-every-minute)
+    (if (or (null (cdr pair))
+            (funcall (cdr pair)))
+        (set (car pair) nil))))
 
 
 
@@ -1367,14 +1371,18 @@ that have been made before in this function."
        (auto-complete '(,(intern (format "ac-source-%s" name)))))))
 
 ;; Words in buffer source
-(defun ac-candidate-words-in-buffer (limit)
+(defvar ac-word-index nil)
+
+(defun ac-candidate-words-in-buffer (&optional point prefix limit)
+  (or point (setq point (point-min)))
+  (or prefix (setq prefix ""))
   (let ((i 0)
         candidate
         candidates
-        (regexp (concat "\\_<" (regexp-quote ac-prefix) "\\(\\sw\\|\\s_\\)+\\_>")))
+        (regexp (concat "\\_<" (regexp-quote prefix) "\\(\\sw\\|\\s_\\)+\\_>")))
     (save-excursion
       ;; Search backward
-      (goto-char ac-point)
+      (goto-char point)
       (while (and (or (not (integerp limit)) (< i limit))
                   (re-search-backward regexp nil t))
         (setq candidate (match-string-no-properties 0))
@@ -1382,7 +1390,7 @@ that have been made before in this function."
           (push candidate candidates)
           (incf i)))
       ;; Search backward
-      (goto-char (+ ac-point (length ac-prefix)))
+      (goto-char (+ point (length prefix)))
       (while (and (or (not (integerp limit)) (< i limit))
                   (re-search-forward regexp nil t))
         (setq candidate (match-string-no-properties 0))
@@ -1391,40 +1399,57 @@ that have been made before in this function."
           (incf i)))
       (nreverse candidates))))
 
-(ac-define-source words-in-buffer
-  '((candidates . (ac-candidate-words-in-buffer ac-limit))))
+(defun ac-incremental-update-word-index ()
+  (unless (local-variable-p 'ac-word-index)
+    (make-local-variable 'ac-word-index))
+  (if (null ac-word-index)
+      (setq ac-word-index (cons nil nil)))
+  ;; Mark incomplete
+  (if (car ac-word-index)
+      (setcar ac-word-index nil))
+  (let ((index (cdr ac-word-index))
+        (words (ac-candidate-words-in-buffer ac-point ac-prefix (or (and (integerp ac-limit) ac-limit) 10))))
+    (dolist (word words)
+      (unless (member word index)
+        (push word index)
+        (setcdr ac-word-index index)))))
 
-;; Words in all/same-mode buffer source
-(defvar ac-word-index nil
-  "Word index for individual buffer.")
+(defun ac-update-word-index-1 ()
+  (unless (local-variable-p 'ac-word-index)
+    (make-local-variable 'ac-word-index))
+  (when (and (not (car ac-word-index))
+             (< (buffer-size) 1048576))
+    ;; Complete index
+    (setq ac-word-index (cons t (ac-candidate-words-in-buffer)))))
 
-(ac-clear-variable-after-save 'ac-word-index)
-
-(defun ac-build-word-index ()
+(defun ac-update-word-index ()
   (dolist (buffer (buffer-list))
-    (with-current-buffer buffer
-      (unless (local-variable-p 'ac-word-index)
-        (make-local-variable 'ac-word-index))
-      (when (and (null ac-word-index)
-                 (< (buffer-size) 102400))
-        (let ((ac-prefix "")
-              (ac-point (point-min)))
-          (setq ac-word-index (ac-candidate-words-in-buffer nil)))))))
+    (when (or ac-fuzzy-enable
+              (not (eq buffer (current-buffer))))
+      (with-current-buffer buffer
+        (ac-update-word-index-1)))))
 
 (defun ac-word-candidates (&optional buffer-pred)
-  (loop initially (setq candidates (ac-candidate-words-in-buffer nil))
+  (loop initially (unless ac-fuzzy-enable (ac-incremental-update-word-index))
         for buffer in (buffer-list)
         if (and (or (not (integerp ac-limit)) (< (length candidates) ac-limit))
                 (if buffer-pred (funcall buffer-pred buffer) t))
-        append (buffer-local-value 'ac-word-index buffer) into candidates
+        append (funcall ac-match-function
+                        ac-prefix
+                        (and (local-variable-p 'ac-word-index buffer)
+                             (cdr (buffer-local-value 'ac-word-index buffer))))
+        into candidates
         finally return candidates))
 
+(ac-define-source words-in-buffer
+  '((candidates . ac-word-candidates)))
+
 (ac-define-source words-in-all-buffer
-  '((init . ac-build-word-index)
+  '((init . ac-update-word-index)
     (candidates . ac-word-candidates)))
 
 (ac-define-source words-in-same-mode-buffers
-  '((init . ac-build-word-index)
+  '((init . ac-update-word-index)
     (candidates . (ac-word-candidates
                    (lambda (buffer)
                      (derived-mode-p (buffer-local-value 'major-mode buffer)))))))
