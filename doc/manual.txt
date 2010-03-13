@@ -415,7 +415,7 @@ And consider to use [trigger key](#Trigger_Key).
 
 ### Not to show completion menu automatically ###
 
-There is another approach to solve the annoying problem is that not to show completion menu automatically. Truthfully, we won't show completion menu automatically by default. However a accuracy of candidate suggestion is not good at now, so we show it by default. Getting candidate suggestion more accurate, then there is no need to show completion menu ultimately. Not to show completion menu automatically, set `ac-auto-show-menu` to `nil`.
+There is another approach to solve the annoying problem is that not to show completion menu automatically. Not to show completion menu automatically, set [`ac-auto-show-menu`](#) to `nil`.
 
     (setq ac-auto-show-menu nil)
 
