@@ -37,7 +37,7 @@
 
 (defvar ac-imenu-index nil)
 
-(ac-clear-variable-every-minute 'ac-imenu-index)
+(ac-clear-variable-every-10-minutes 'ac-imenu-index)
 
 (defun ac-imenu-candidates ()
   (loop with i = 0

@@ -1007,8 +1007,7 @@ that have been made before in this function."
     (while (when (and (setq result (ac-update force))
                       (null ac-candidates))
              (add-to-list 'ac-ignoring-prefix-def ac-current-prefix-def)
-             (ac-start :show-menu t
-                       :force-init t)
+             (ac-start :force-init t)
              ac-current-prefix-def))
     result))
 
@@ -1101,6 +1100,7 @@ that have been made before in this function."
   (let ((live (ac-menu-live-p)))
     (ac-abort)
     (let ((ac-sources (or sources ac-sources)))
+      (setq ac-show-menu t)
       (ac-start))
     (when (ac-update-greedy t)
       ;; TODO Not to cause inline completion to be disrupted.
@@ -1192,7 +1192,6 @@ that have been made before in this function."
 
 (defun* ac-start (&key
                   requires
-                  show-menu
                   force-init)
   "Start completion."
   (interactive)
@@ -1211,7 +1210,7 @@ that have been made before in this function."
             (ac-abort))
         (unless ac-cursor-color
           (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)))
-        (setq ac-show-menu (or ac-show-menu show-menu (if (eq ac-auto-show-menu t) t))
+        (setq ac-show-menu (or ac-show-menu (if (eq ac-auto-show-menu t) t))
               ac-current-sources sources
               ac-buffer (current-buffer)
               ac-point point
@@ -1257,6 +1256,7 @@ that have been made before in this function."
 (defvar ac-clear-variables-every-minute-timer nil)
 (defvar ac-clear-variables-after-save nil)
 (defvar ac-clear-variables-every-minute nil)
+(defvar ac-minutes-counter 0)
 
 (defun ac-clear-variable-after-save (variable &optional pred)
   (add-to-list 'ac-clear-variables-after-save (cons variable pred)))
@@ -1267,13 +1267,19 @@ that have been made before in this function."
             (funcall (cdr pair)))
         (set (car pair) nil))))
 
-(defun ac-clear-variable-every-minute (variable &optional pred)
-  (add-to-list 'ac-clear-variables-every-minute (cons variable pred)))
+(defun ac-clear-variable-every-minutes (variable minutes)
+  (add-to-list 'ac-clear-variables-every-minute (cons variable minutes)))
+
+(defun ac-clear-variable-every-minute (variable)
+  (ac-clear-variable-every-minutes variable 1))
+
+(defun ac-clear-variable-every-10-minutes (variable)
+  (ac-clear-variable-every-minutes variable 10))
 
 (defun ac-clear-variables-every-minute ()
+  (incf ac-minutes-counter)
   (dolist (pair ac-clear-variables-every-minute)
-    (if (or (null (cdr pair))
-            (funcall (cdr pair)))
+    (if (eq (% ac-minutes-counter (cdr pair)) 0)
         (set (car pair) nil))))
 
 
@@ -1455,7 +1461,7 @@ that have been made before in this function."
 
 ;; Lisp symbols source
 (defvar ac-symbols-cache nil)
-(ac-clear-variable-every-minute 'ac-symbols-cache)
+(ac-clear-variable-every-10-minutes 'ac-symbols-cache)
 
 (defun ac-symbol-documentation (symbol)
   (if (stringp symbol)
@@ -1476,7 +1482,7 @@ that have been made before in this function."
 
 ;; Lisp functions source
 (defvar ac-functions-cache nil)
-(ac-clear-variable-every-minute 'ac-functions-cache)
+(ac-clear-variable-every-10-minutes 'ac-functions-cache)
 
 (defun ac-function-candidates ()
   (or ac-functions-cache
@@ -1494,7 +1500,7 @@ that have been made before in this function."
 
 ;; Lisp variables source
 (defvar ac-variables-cache nil)
-(ac-clear-variable-every-minute 'ac-variables-cache)
+(ac-clear-variable-every-10-minutes 'ac-variables-cache)
 
 (defun ac-variable-candidates ()
   (or ac-variables-cache
@@ -1511,7 +1517,7 @@ that have been made before in this function."
 
 ;; Lisp features source
 (defvar ac-emacs-lisp-features nil)
-(ac-clear-variable-every-minute 'ac-emacs-lisp-features)
+(ac-clear-variable-every-10-minutes 'ac-emacs-lisp-features)
 
 (defun ac-emacs-lisp-feature-candidates ()
   (or ac-emacs-lisp-features
