@@ -69,7 +69,8 @@
 
 (ac-define-source imenu
   '((depends imenu)
-    (candidates . ac-imenu-candidates)))
+    (candidates . ac-imenu-candidates)
+    (symbol . "s")))
 
 ;; gtags
 
@@ -91,7 +92,8 @@
   '((candidates . ac-gtags-candidate)
     (candidate-face . ac-gtags-candidate-face)
     (selection-face . ac-gtags-selection-face)
-    (requires . 3)))
+    (requires . 3)
+    (symbol . "s")))
 
 ;; yasnippet
 
@@ -152,7 +154,9 @@
 (ac-define-source semantic
   '((depends semantic-ia)
     (candidates . (ac-semantic-candidates ac-prefix))
-    (prefix . c-dot)))
+    (prefix . c-dot)
+    (requires . 0)
+    (symbol . "f")))
 
 ;; eclim
 
@@ -163,7 +167,8 @@
 (ac-define-source eclim
   '((candidates . ac-eclim-candidates)
     (prefix . c-dot)
-    (requires . 0)))
+    (requires . 0)
+    (symbol . "f")))
 
 
 

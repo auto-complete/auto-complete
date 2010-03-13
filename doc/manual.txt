@@ -834,6 +834,7 @@ Specify a symbol of candidate meaning in one character string. The symbol will b
 | s      | Symbol           |
 | f      | Function, Method |
 | v      | Variable         |
+| c      | Constant         |
 | a      | Abbreviation     |
 | d      | Dictionary       |
 
