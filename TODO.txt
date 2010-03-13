@@ -1,4 +1,3 @@
-- help buffer
 - etags, ctags
 - emacswiki
 - test facility

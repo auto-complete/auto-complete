@@ -107,7 +107,7 @@ First, in a meaning, `auto-complete-mode` has no "usage". Because `auto-complete
 
 ### Input Characters ###
 
-Inputting characters is basic. Any completion will never be shown without any character. So when completion will be started, in other others, what character causes completion to be started? It is good question but it is difficult to answer here. In simple words, completion will be started when just charcter is inserted. See [`ac-trigger-commands`](#ac-trigger-commands) for more details.
+Inputting characters is basic. Any completion will never be shown without any character. So when completion will be started, in other others, what character causes completion to be started? It is good question but it is difficult to answer here. In simple words, completion will be started when just charcter is inserted. See [`ac-trigger-commands`](#) for more details.
 
 ![Inputting Characters](ac.png)
 
@@ -142,13 +142,13 @@ It is necessary to type TAB a few times for completion by TAB. Completion by RET
 
 Following `auto-complete-mode` phyilosophy, it is not recommended to select candidates. Because, it means it has been failed to guess completion, and also it requires for users to do candidate selection which is a high cost operation. We think there is so many cases that requires to do candidate selection, because completion by TAB will help candidate selection somehow and in recent version, a statistic method contributes to make a candidate suggestion more accurate. However, actually, this is such cases. So we also think it is not bad idea to remember how to select candidates.
 
-Selecting candidates is not a complex operation. You can select candidates forward or backward by cursor key or `M-p` and `M-n`. According to setting, a behavior of completion by TAB will be changed as a behavior of completion by RET. See [`ac-dwim`](#ac-dwim) for more details.
+Selecting candidates is not a complex operation. You can select candidates forward or backward by cursor key or `M-p` and `M-n`. According to setting, a behavior of completion by TAB will be changed as a behavior of completion by RET. See [`ac-dwim`](#) for more details.
 
 There is other ways to select candidates. `M-1` to select candidate 1, `M-2` to select candidate 2, and so on.
 
 ### Help ###
 
-`auto-complete-mode` has two type of help functionalities called *Quick Help* and *Buffer Help*. They are different in a point of displaying. Quick help will appear at the side of completion menu, so you can easily see that, but there is a problem if there is no space to displaying the help. Quick help will be shown automatically. To use quick help, you need to set [`ac-use-quick-help`](#ac-use-quick-help) to `t`. Delay time show quick help is given by [`ac-quick-help-delay`](#ac-quick-help-delay).
+`auto-complete-mode` has two type of help functionalities called *Quick Help* and *Buffer Help*. They are different in a point of displaying. Quick help will appear at the side of completion menu, so you can easily see that, but there is a problem if there is no space to displaying the help. Quick help will be shown automatically. To use quick help, you need to set [`ac-use-quick-help`](#) to `t`. Delay time show quick help is given by [`ac-quick-help-delay`](#).
 
 On other side, buffer help will not be shown without any instructions from users. Buffer help literally display a help in a buffer of other window. It costs much to see than quick help, but it has more readability. To show buffer help, press `C-?` or `f1`. By pressing `C-M-v` or `C-M-S-v` after showing buffer help, you can scroll forward or backward for help buffer. Other commands will be fallbacked and buffer help will be closed.
 
@@ -183,7 +183,7 @@ So, as of `auto-complete` command, it is a little different from an original aut
 
 * Case that no candidates remains
 
-  Attempt to complete with fuzzy matching. See [Completion by Fuzzy Matching](#Completion by Fuzzy Matching) for more details.
+  Attempt to complete with fuzzy matching. See [Completion by Fuzzy Matching](#) for more details.
 
 * Otherwise
 
@@ -211,7 +211,7 @@ Trigger key will be enabled after inserting characters. Otherwise it is dealed a
 
     (setq ac-auto-start nil)
 
-As of `ac-auto-start`, see [Not to complete automatically](#Not to complete automatically) or [`ac-auto-start`](#ac-auto-start) for more details.
+As of `ac-auto-start`, see [Not to complete automatically](#) or [`ac-auto-start`](#) for more details.
 
 ### Candidate Suggestion ###
 
@@ -226,7 +226,7 @@ Simply saying, it collects not only a completion count but also a position of co
 
 ### Completion by Dictionary ###
 
-Dictionary is a simple list of string. There is three types of dictionary: user defined dictionary, major mode dictionary, and extension dictionary. You need to add `ac-source-dictionary` to `ac-sources` (default). See [Source](#Source) for more details.
+Dictionary is a simple list of string. There is three types of dictionary: user defined dictionary, major mode dictionary, and extension dictionary. You need to add `ac-source-dictionary` to `ac-sources` (default). See [source](#Source) for more details.
 
 #### User Defined Dictionary ####
 
@@ -266,7 +266,7 @@ Source
 * How to complete
 * How to show
 
-Anybody who know about Emacs Lisp a little can define a source easily. See [Extend](#Extend) for how to define a source. Here we can explain how to use builtin sources.
+Anybody who know about Emacs Lisp a little can define a source easily. See [extend](#Extend) for how to define a source. Here we can explain how to use builtin sources.
 
 Usually a name of source starts with `ac-source-`. So you can list up sources with `apropos` (`M-x apropos RET ^ac-source-`). You may see `ac-source-filename` and `ac-source-dictionary` which are entities of sources.
 
@@ -312,7 +312,7 @@ By the way, how can we change a setting for all buffers? We use `setq-default` t
 
     (setq-default ac-sources '(ac-source-words-in-all-buffer))
 
-There is other ways to do that. `(ac-config-default)` changes the default vlue of `ac-sources` by registering a hook for `auto-complete-mode`. The registered function is `ac-common-setup` that adds `ac-source-filename` to the first of `ac-sources` by default. So all `auto-complete-mode` enabled buffer will have `ac-source-filename` at the first of `ac-sources`. A reason why adding to the first is relating to [omni completion](#Omni Completion). Anyway you don't care about it here. So if you want to change `ac-sources` of all buffer, you can redefine `ac-common-setup` function to do that.
+There is other ways to do that. `(ac-config-default)` changes the default vlue of `ac-sources` by registering a hook for `auto-complete-mode`. The registered function is `ac-common-setup` that adds `ac-source-filename` to the first of `ac-sources` by default. So all `auto-complete-mode` enabled buffer will have `ac-source-filename` at the first of `ac-sources`. A reason why adding to the first is relating to [omni completion](#Omni_Completion). Anyway you don't care about it here. So if you want to change `ac-sources` of all buffer, you can redefine `ac-common-setup` function to do that.
 
     ;; Add ac-source-dictionary to ac-sources of all buffer
     (defun ac-common-setup ()
@@ -328,7 +328,7 @@ A source for Emacs abbreviation function. See `info emacs Abbrevs` about abbrevi
 
 #### `ac-source-dictionary` ####
 
-A source for dictionary. See [completion by dictionary](#Completion by Dictionary) about dictionary.
+A source for dictionary. See [completion by dictionary](#Completion_by_Dictionary) about dictionary.
 
 #### `ac-source-eclim` ####
 
@@ -372,7 +372,7 @@ A source for completing Emacs Lisp symbols.
 
 #### `ac-source-words-in-all-buffer` ####
 
-A source for completing words in all buffer. Unlikely [`ac-source-words-in-same-mode-buffers`](#ac-source-words-in-same-mode-buffers), it doesn't regard major-mode.
+A source for completing words in all buffer. Unlikely [`ac-source-words-in-same-mode-buffers`](#), it doesn't regard major-mode.
 
 #### `ac-source-words-in-buffer` ####
 
@@ -380,7 +380,7 @@ A source for completing words in a current buffer.
 
 #### `ac-source-words-in-same-mode-buffers` ####
 
-A source for completing words which are collected over buffers whom major-mode is same to of a current buffer. For example, words will shared among `a.cpp` and `b.cpp`, but not shared among `a.pl` and `b.cpp` because ther are different major-mode buffers. Usually this source is more useful than [`ac-source-words-in-all-buffer`](#ac-source-words-in-all-buffer).
+A source for completing words which are collected over buffers whom major-mode is same to of a current buffer. For example, words will shared among `a.cpp` and `b.cpp`, but not shared among `a.pl` and `b.cpp` because ther are different major-mode buffers. Usually this source is more useful than [`ac-source-words-in-all-buffer`](#).
 
 #### `ac-source-yasnippet` ####
 
@@ -409,9 +409,9 @@ In addition, if you allow to start completion automatically but also want to be 
 
 Setting `ac-auto-start` to large number will result in good for performance. Lesser `ac-auto-start`, more high const to produce completion candidates, because there will be so many candidates necessarily. If you feel `auto-complete-mode` is stalling, change `ac-auto-start` to a larger number or `nil`.
 
-See [`ac-auto-start`](#ac-auto-start) for more details.
+See [`ac-auto-start`](#) for more details.
 
-And consider to use [trigger key](#Trigger Key).
+And consider to use [trigger key](#Trigger_Key).
 
 ### Not to show completion menu automatically ###
 
@@ -505,7 +505,7 @@ To change face background color, use `set-face-background`. To change face foreg
 
 ### Change default sources ###
 
-Read [source](#source) first if you don't familier with sources. To change default of sources, use `setq-default`:
+Read [source](#Source) first if you don't familier with sources. To change default of sources, use `setq-default`:
 
     (setq-default ac-sources '(ac-source-words-in-all-buffer))
 
@@ -530,15 +530,15 @@ Show completion menu automatically if `t` specified. `t` means always automatica
 
 ### `ac-use-fuzzy` ###
 
-Whether or not to use [fuzzy matching](#Fuzzy Matching).
+Whether or not to use [fuzzy matching](#Completion_by_Fuzzy_Matching).
 
 ### `ac-fuzzy-cursor-color` ###
 
-Change cursor color to specified color when [fuzzy matching](#Fuzzy Mathinc) is started. `nil` means never chagend. Available colors can be seen with `M-x list-colors-display`.
+Change cursor color to specified color when [fuzzy matching](#Completion_by_Fuzzy_Matching) is started. `nil` means never chagend. Available colors can be seen with `M-x list-colors-display`.
 
 ### `ac-use-comphist` ###
 
-Whether or not to use [candidate suggestion](#Candidate Suggestion). `nil` means never using it and get performance better maybe.
+Whether or not to use [candidate suggestion](#Candidate_Suggestion). `nil` means never using it and get performance better maybe.
 
 ### `ac-comphist-threshold` ###
 
@@ -546,7 +546,7 @@ Specify a percentage of limiting lower scored candidates. 100% for whole scores.
 
 ### `ac-comphist-file` ###
 
-Specify a file stores data of [candidate suggestion](#Candidate Suggestion).
+Specify a file stores data of [candidate suggestion](#Candidate_Suggestion).
 
 ### `ac-use-quick-help` ###
 
@@ -582,11 +582,11 @@ Specify commands as a list of symbols that starts completion automatically. `sel
 
 ### `ac-trigger-commands-on-completing` ###
 
-Same as [`ac-trigger-commands`](#ac-trigger-commands) expect this will be used on completing.
+Same as [`ac-trigger-commands`](#) expect this will be used on completing.
 
 ### `ac-trigger-key` ###
 
-Specify a [trigger key](#Trigger Key).
+Specify a [trigger key](#Trigger_Key).
 
 ### `ac-auto-start` ###
 
@@ -629,15 +629,15 @@ Whether or not to use `auto-complete-mode` globally. It is `t` in general.
 
 ### `ac-user-dictionary` ###
 
-Specify a dictionary as a list of string for [completion by dictionary](#Completion by Dictionary).
+Specify a dictionary as a list of string for [completion by dictionary](#Completion_by_Dictionary).
 
 ### `ac-user-dictionary-files` ###
 
-Specify a dictionary files as a list of string for [completion by dictionary](#Completion by Dictionary).
+Specify a dictionary files as a list of string for [completion by dictionary](#Completion_by_Dictionary).
 
 ### `ac-dictionary-directories` ###
 
-Specify a dictionary directories as a list of string for [completion by dictionary](#Completion by Dictionary).
+Specify a dictionary directories as a list of string for [completion by dictionary](#Completion_by_Dictionary).
 
 ### `ac-sources` ###
 
@@ -654,7 +654,7 @@ Key map for `auto-complete-mode` enabled buffers.
 拡張方法
 --------
 
-`auto-complete-mode`を拡張するとはつまり[情報源](#情報源)を定義することです。この節では情報源の定義の仕方を説明します。
+`auto-complete-mode`を拡張するとはつまり[情報源](#)を定義することです。この節では情報源の定義の仕方を説明します。
 
 ### 雛形 ###
 
@@ -743,7 +743,7 @@ Bと入力してBar, Bazが補完候補として現われれば成功です。�
 
 ### アクション ###
 
-[RETによる補完](#RETによる補完)の場合、`action`プロパティで指定された関数あるいは式が評価されます。標準情報源では`ac-source-abbrev`や`ac-source-yasnippet`が利用しています。
+[RETによる補完](#)の場合、`action`プロパティで指定された関数あるいは式が評価されます。標準情報源では`ac-source-abbrev`や`ac-source-yasnippet`が利用しています。
 
 ### オムニ補完 ###
 
@@ -764,7 +764,7 @@ Bと入力してBar, Bazが補完候補として現われれば成功です。�
 * 関数
 * 式
 
-正規表現を指定した場合、その正規表現を使って`re-search-backward`を行い[^1]、マッチしたグループ1あるいはグループ0の先頭位置を補完対象文字列の開始位置とします。もう少し複雑な制御が必要な場合は関数あるいは式を指定します。ここで評価された開始位置は[`ac-point`](#ac-point)に格納されます。先の例では次の正規表現で事足ります。
+正規表現を指定した場合、その正規表現を使って`re-search-backward`を行い[^1]、マッチしたグループ1あるいはグループ0の先頭位置を補完対象文字列の開始位置とします。もう少し複雑な制御が必要な場合は関数あるいは式を指定します。ここで評価された開始位置は[`ac-point`](#)に格納されます。先の例では次の正規表現で事足ります。
 
     ^To: \(.*\)
 
@@ -807,19 +807,19 @@ Specify a function or an expression that is evaluated only once when completion 
 
 #### `candidates` ####
 
-Specify a function, an expression, or a variable to calculate candidates. Candidates should be a list of string. If [`cache`](#cache) property is enabled, this property will be ignored twice or later.
+Specify a function, an expression, or a variable to calculate candidates. Candidates should be a list of string. If [`cache`](#) property is enabled, this property will be ignored twice or later.
 
 #### `prefix` ####
 
-Specify a regexp, a function, or an expression to find a point of completion target string for [omni completion](#Omni Completion). This source will be ignored when `nil` returned. If a regexp is specified, a start point of group 1 or group 2 will be used as a value.
+Specify a regexp, a function, or an expression to find a point of completion target string for [omni completion](#Omni_Completion). This source will be ignored when `nil` returned. If a regexp is specified, a start point of group 1 or group 2 will be used as a value.
 
 #### `requires` ####
 
-Specify a required number of characters of completion target string. If nothing is specified, `auto-complete-mode` uses [`ac-auto-start`](#ac-auto-start) instead.
+Specify a required number of characters of completion target string. If nothing is specified, `auto-complete-mode` uses [`ac-auto-start`](#) instead.
 
 #### `action` ####
 
-Specify a function or an expression that is executed on [completion by RET](#Completion by RET).
+Specify a function or an expression that is executed on [completion by RET](#Completion_by_RET).
 
 #### `limit` ####
 
@@ -839,7 +839,7 @@ Specify a symbol of candidate meaning in one character string. The symbol will b
 
 #### `cache` ####
 
-Use [cache](#cache).
+Use [cache](#).
 
 #### `require` ####
 
@@ -847,11 +847,11 @@ Specify an integer or `nil`. This source will be ignored when the integer value 
 
 #### `candidate-face` ####
 
-Specify a face of candidate. It overrides [`ac-candidate-face`](#ac-candidate-face) partially.
+Specify a face of candidate. It overrides [`ac-candidate-face`](#) partially.
 
 #### `selection-face` ####
 
-Specify a face of selection. It overrides [`ac-selection-face`](#ac-selection-face) partially.
+Specify a face of selection. It overrides [`ac-selection-face`](#) partially.
 
 ### Variables ###
 
@@ -871,7 +871,7 @@ A string of completion target.
 
 #### `ac-limit` ####
 
-A limit of candidates. Its value may be one of [`ac-candidate-limit`](#ac-candidate-limit) and [`limit`](#limit) property.
+A limit of candidates. Its value may be one of [`ac-candidate-limit`](#) and [`limit`](#) property.
 
 #### `ac-candidates` ####
 
@@ -884,25 +884,25 @@ Trouble Shooting
 
 十分なレスポンス性能を確保するのは`auto-complete-mode`にとって大変重要なことですが、よく知られているように、それは機能性とのトレードオフでもあります。以下にレスポンス性能に関連する設定項目を挙げるので、もし問題があれば参照してください。
 
-#### `ac-auto-start` ####
+#### `ac-auto-start` #### {#trouble_ac-auto-start}
 
-[`ac-auto-start`](#ac-auto-start)に大きめの数値を設定することで、補完候補の生成コストを軽減するができます。あるいは`nil`に設定することで、本当に必要な時だけ補完を実行することもできます。詳しくは[自動的に補完しない](#自動的に補完しない)を参照してください。
+[`ac-auto-start`](#)に大きめの数値を設定することで、補完候補の生成コストを軽減するができます。あるいは`nil`に設定することで、本当に必要な時だけ補完を実行することもできます。詳しくは[自動的に補完しない](#)を参照してください。
 
-#### `ac-delay` ####
+#### `ac-delay` #### {#trouble_ac-delay}
 
-[`ac-delay`](#ac-delay)に大きめの数値を設定することで、補完開始コストを軽減することができます。
+[`ac-delay`](#)に大きめの数値を設定することで、補完開始コストを軽減することができます。
 
-#### `ac-auto-show-menu` ####
+#### `ac-auto-show-menu` #### {#trouble_ac-auto-show-menu}
 
-[`ac-auto-show-menu`](#ac-auto-show-menu)に大きめの数値を設定することで、補完メニューの表示コストを軽減することができます。
+[`ac-auto-show-menu`](#)に大きめの数値を設定することで、補完メニューの表示コストを軽減することができます。
 
-#### `ac-use-comphist` ####
+#### `ac-use-comphist` #### {#trouble_ac-use-comphist}
 
-[`ac-use-comphist`](#ac-use-comphist)に`nil`を設定して[補完推測機能](#補完推測機能)を無効にすることで、推測のための計算コストを軽減することができます。
+[`ac-use-comphist`](#)に`nil`を設定して[補完推測機能](#)を無効にすることで、推測のための計算コストを軽減することができます。
 
-#### `ac-candidate-limit` ####
+#### `ac-candidate-limit` #### {#trouble_ac-candidate-limit}
 
-[`ac-candidate-limit`](#ac-candidate-limit)に適切な数値を設定することで、多量の計算を行わないようにすることができます。
+[`ac-candidate-limit`](#)に適切な数値を設定することで、多量の計算を行わないようにすることができます。
 
 ### Completion menu is disrupted ###
 
