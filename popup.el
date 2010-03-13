@@ -105,18 +105,14 @@ This is faster than prin1-to-string in many cases."
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
 
 (defun popup-current-physical-column ()
-  (let (column)
-    (when popup-use-optimized-column-computation
-      (let ((c (current-column)))
-        (cond
-         ((> (window-hscroll) 0))
-         ((or (and (not (one-window-p)) truncate-partial-width-windows)
-              truncate-lines)
-          (setq column c))
-         ((< c (window-width))
-          (setq column c)))))
-    (or column
-        (setq column (car (posn-col-row (posn-at-point)))))))
+  (or (when (and popup-use-optimized-column-computation
+                 (eq (window-hscroll) 0))
+        (let ((current-column (current-column)))
+          (if (or (truncated-partial-width-window-p)
+                  truncate-lines
+                  (< current-column (window-width)))
+              current-column)))
+      (car (posn-col-row (posn-at-point)))))
 
 (defun popup-last-line-of-buffer-p ()
   (save-excursion (end-of-line) (/= (forward-line) 0)))

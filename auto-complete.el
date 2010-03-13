@@ -736,7 +736,7 @@ You can not use it in source definition like (prefix . `NAME')."
         with sources
         for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
-        for req = (or (assoc-default 'requires source) requires 0)
+        for req = (or (assoc-default 'requires source) requires 1)
 
         if (null prefix-def)
         do
