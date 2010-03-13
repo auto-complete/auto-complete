@@ -875,7 +875,7 @@ Bと入力してBar, Bazが補完候補として現われれば成功です。�
 
 #### `ac-limit` ####
 
-現在の情報源の候補上限数です。[`ac-candidate-limit`](#)や[`limit`プロパティ](#)で制御されます。
+現在の情報源の候補上限数です。[`ac-candidate-limit`](#)や[`limit`](#)プロパティで制御されます。
 
 #### `ac-candidates` ####
 
