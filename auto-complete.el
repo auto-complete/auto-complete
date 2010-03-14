@@ -727,7 +727,8 @@ You can not use it in source definition like (prefix . `NAME')."
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
 
 (defsubst ac-selected-candidate ()
-  (popup-selected-item ac-menu))
+  (if ac-menu
+      (popup-selected-item ac-menu)))
 
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)

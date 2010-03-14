@@ -771,8 +771,7 @@ See also `popup-item-propertize'."
           (goto-char (point-min))
           (display-buffer (current-buffer)))
         (block nil
-          (while (setq event (read-event))
-            (clear-this-command-keys)
+          (while (setq event (progn (clear-this-command-keys) (read-event)))
             (case (key-binding (vector event))
               ('scroll-other-window
                (scroll-other-window))

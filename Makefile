@@ -13,7 +13,7 @@ clean:
 package: clean
 	rm -rf ${PACKAGE}
 	mkdir ${PACKAGE}
-	cp -r *.el Makefile README TEST TODO doc ${PACKAGE}
+	cp -r *.el Makefile README.txt TODO.txt doc etc dict ${PACKAGE}
 
 tar.bz2: package
 	tar cjf ${PACKAGE}.tar.bz2 ${PACKAGE}
