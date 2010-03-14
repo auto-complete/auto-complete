@@ -15,7 +15,7 @@ v1.0からv1.2の主な変更点は次のようになります。詳しくは[�
 
 * [曖昧マッチによる補完](manual.ja.txt#.E6.9B.96.E6.98.A7.E3.83.9E.E3.83.83.E3.83.81.E3.81.AB.E3.82.88.E3.82.8B.E8.A3.9C.E5.AE.8C)
 * [辞書による補完](manual.ja.txt#.E8.BE.9E.E6.9B.B8.E3.81.AB.E3.82.88.E3.82.8B.E8.A3.9C.E5.AE.8C)
-* [補完候補の絞り込み](manual.ja.txt#.E8.A3.9C.E5.AE.8C.E5.80.99.E8.A3.9C.E3.81.AE.E9.81.B8.E6.8A.9E)
+* [補完候補の絞り込み](manual.ja.txt#.E8.A3.9C.E5.AE.8C.E5.80.99.E8.A3.9C.E3.81.AE.E7.B5.9E.E3.82.8A.E8.BE.BC.E3.81.BF)
 * [補完推測機能](manual.ja.txt#.E8.A3.9C.E5.AE.8C.E6.8E.A8.E6.B8.AC.E6.A9.9F.E8.83.BD)
 * [トリガーキー](manual.ja.txt#.E3.83.88.E3.83.AA.E3.82.AC.E3.83.BC.E3.82.AD.E3.83.BC)
 * [ヘルプ](manual.ja.txt#.E3.83.98.E3.83.AB.E3.83.97)
