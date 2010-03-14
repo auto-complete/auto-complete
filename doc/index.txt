@@ -30,6 +30,8 @@ Downloads
 
 ### Latest Stable ###
 
+[Changes v1.2](changes-v1.2.txt)
+
 * [auto-complete-1.2.tar.bz2](/pub/auto-complete/auto-complete-1.2.tar.bz2)
 * [auto-complete-1.2.tar.zip](/pub/auto-complete/auto-complete-1.2.zip)
 

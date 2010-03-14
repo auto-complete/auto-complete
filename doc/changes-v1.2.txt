@@ -1,0 +1,54 @@
+Title: Auto Complete Mode - Changes v1.2
+CSS: style.css
+
+Auto Complete Mode Changes v1.2
+===============================
+
+[Index](index.txt)
+
+\[[Japanese](changes-v1.2.ja.txt)]
+
+Major changes in v1.2 since v1.0. See also [documentation](manual.txt).
+
+New Features
+------------
+
+* [Completion by Fuzzy Matching](manual.txt#Completion_by_Fuzzy_Matching)
+* [Completion by Dictionary](manual.txt#Completion_by_Fuzzy_Dictionary)
+* [Incremental Filtering](manual.txt#Filtering_Completion_Candidates)
+* [Intelligent Candidate Suggestion](manual.txt#Candidate_Suggestion)
+* [Trigger Key](manual.txt#Trigger_Key)
+* [Help](manual.txt#Help)
+
+New Commands
+------------
+
+* [`auto-complete`](manual.txt#auto-complete_command)
+
+New Options
+-----------
+
+* [`ac-delay`](manual.txt#ac-delay)
+* [`ac-auto-show-menu`](manual.txt#ac-auto-show-menu)
+* [`ac-use-fuzzy`](manual.txt#ac-use-fuzzy)
+* [`ac-use-comphist`](manual.txt#ac-use-comphist)
+* [`ac-ignores`](manual.txt#ac-ignores)
+* [`ac-ignore-case`](manual.txt#ac-ignore-case)
+* [`ac-mode-map`](manual.txt#ac-mode-map)
+
+New Sources
+-----------
+
+* [`ac-source-dictionary`](manual.txt#ac-source-dictionary)
+
+Changed Behaviors
+-----------------
+
+* Completion is now delayed to start ([`ac-delay`](manual.txt#ac-delay))
+* Completion menu is now delayed to show ([`ac-auto-show-menu`](manual.txt#ac-auto-show-menu))
+
+Others
+------
+
+* Fix many bugs
+* Improve performance

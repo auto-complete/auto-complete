@@ -30,6 +30,8 @@ Auto Complete Mode
 
 ### 最新安定板 ###
 
+[v1.2の変更点](changes-v1.2.ja.txt)
+
 * [auto-complete-1.2.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
 * [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.zip)
 
