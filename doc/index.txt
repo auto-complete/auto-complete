@@ -31,7 +31,7 @@ Downloads
 ### Latest Stable ###
 
 * [auto-complete-1.2.tar.bz2](/pub/auto-complete/auto-complete-1.2.tar.bz2)
-* [auto-complete-1.2.tar.zip](/pub/auto-complete/auto-complete-1.2.tar.zip)
+* [auto-complete-1.2.tar.zip](/pub/auto-complete/auto-complete-1.2.zip)
 
 User Manual
 -----------

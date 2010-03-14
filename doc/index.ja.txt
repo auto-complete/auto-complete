@@ -31,7 +31,7 @@ Auto Complete Mode
 ### 最新安定板 ###
 
 * [auto-complete-1.2.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
-* [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
+* [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.zip)
 
 ユーザーマニュアル
 ------------------
