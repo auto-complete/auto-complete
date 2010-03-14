@@ -19,23 +19,32 @@ Screenshots
 
 ![](ac.png "Auto Completion") ![](ac-fuzzy.png "Fuzzy Completion") ![](ac-isearch.png "Increamental Search")
 
+Demo
+----
+
+* [YouTube](http://www.youtube.com/watch?v=rGVVnDxwJYE)
+* [Ogg Theora with video tag](demo.txt)
+
 Downloads
 ---------
 
-Current stable version is v1.2. Here are download links (not yet available, sorry).
+### Latest Stable ###
 
-* [auto-complete-1.2.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
-* [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
-
-If you want to use or develop development version, please checkout from a repository.
-
-* <http://cx4a.org/repo/auto-complete.git>
-* <http://github.com/m2ym/auto-complete> (Mirror)
+* [auto-complete-1.2.tar.bz2](/pub/auto-complete/auto-complete-1.2.tar.bz2)
+* [auto-complete-1.2.tar.zip](/pub/auto-complete/auto-complete-1.2.tar.zip)
 
 User Manual
 -----------
 
 [Auto Complete Mode User Manual](manual.txt)
+
+Source code
+-----------
+
+Git repositories are available:
+
+* <http://cx4a.org/repo/auto-complete.git>
+* <http://github.com/m2ym/auto-complete> (GitHub mirror)
 
 License
 -------

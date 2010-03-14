@@ -1,0 +1,11 @@
+Title: Auto Complete Mode - Demo
+CSS: style.css
+
+Auto Complete Mode Demo
+=======================
+
+[Index](index.txt)
+
+[YouTube mirror](http://www.youtube.com/watch?v=rGVVnDxwJYE)
+
+<video src="ac-demo.ogv" controls="true" width="720" height="672" />
