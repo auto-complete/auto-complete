@@ -14,7 +14,7 @@ New Features
 ------------
 
 * [Completion by Fuzzy Matching](manual.txt#Completion_by_Fuzzy_Matching)
-* [Completion by Dictionary](manual.txt#Completion_by_Fuzzy_Dictionary)
+* [Completion by Dictionary](manual.txt#Completion_by_Dictionary)
 * [Incremental Filtering](manual.txt#Filtering_Completion_Candidates)
 * [Intelligent Candidate Suggestion](manual.txt#Candidate_Suggestion)
 * [Trigger Key](manual.txt#Trigger_Key)
