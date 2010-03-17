@@ -105,7 +105,7 @@ This is faster than prin1-to-string in many cases."
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
 
 ;; truncated-partial-width-window-p is not defined in Emacs 22
-(defun ac-truncated-partial-width-window-p (&optional window)
+(defun popup-truncated-partial-width-window-p (&optional window)
   (unless window
     (setq window (selected-window)))
   (unless (window-full-width-p window)
@@ -119,7 +119,7 @@ This is faster than prin1-to-string in many cases."
   (or (when (and popup-use-optimized-column-computation
                  (eq (window-hscroll) 0))
         (let ((current-column (current-column)))
-          (if (or (ac-truncated-partial-width-window-p)
+          (if (or (popup-truncated-partial-width-window-p)
                   truncate-lines
                   (< current-column (window-width)))
               current-column)))
