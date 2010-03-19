@@ -519,6 +519,27 @@ Tips
 
     (add-hook 'c++-mode (lambda () (add-to-list 'ac-sources 'ac-source-semantic)))
 
+### 特定の情報源で補完する ###
+
+特定の情報源で補完することも可能です。例えばファイル名補完を行いたい場合は`M-x ac-complete-filename`とします。あるいはC/C++のメンバー名補完を行いたい場合は`M-x ac-complete-semantic`とします。普通は次のようにこれらのコマンドをキーバインドします。
+
+    ;; C++モードにもC-c .でメンバー名補完
+    (add-hook 'c++-mode-hook
+              (lambda ()
+                (local-set-key (kbd "C-c .") 'ac-complete-semantic)))
+    ;; C-c /でファイル名補完
+    (global-set-key (kbd "C-c /") 'ac-complete-filename)
+
+一般的に、このようなコマンドは自動的に定義されます。例えば`ac-source-foobar`という情報源を定義しているとすれば、`ac-complete-foobar`というコマンドも同時に自動的に定義されるのです。利用可能なコマンドは[標準情報源](#)を参照してください。
+
+一つの補完コマンドで複数の情報源を使うには次のように別途定義する必要があります。
+
+    (defun semantic-and-gtags-complete ()
+      (interactive)
+      (auto-complete '(ac-source-semantic ac-source-gtags)))
+
+`auto-complete`関数は`ac-sources`の代替を引数として取ることができます。
+
 設定項目
 --------
 

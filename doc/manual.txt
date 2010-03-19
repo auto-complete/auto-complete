@@ -515,6 +515,27 @@ For example, you may want to use specific sources for C++ buffers. To do that, r
 
     (add-hook 'c++-mode (lambda () (add-to-list 'ac-sources 'ac-source-semantic)))
 
+### Completion with specific source ###
+
+You can start completion with specific source. For example, if you want to complete file name, do `M-x ac-complete-filename` at point. Or if you want to complete C/C++ member name, do `M-x ac-complete-semantic` at point. Usually, you may bind them to some key like:
+
+    ;; Complete member name by C-c . for C++ mode.
+    (add-hook 'c++-mode-hook
+              (lambda ()
+                (local-set-key (kbd "C-c .") 'ac-complete-semantic)))
+    ;; Complete file name by C-c /
+    (global-set-key (kbd "C-c /") 'ac-complete-filename)
+
+Generally, such commands will be automatically available when sources are defined. Assume that a source named `ac-source-foobar` is being defined for example, a command called `ac-complete-foobar` will be also defined automatically. See also [builtin sources](#Builtin_Sources) for available commands.
+
+If you want to use multiple sources for a command, you need to define a command for it like:
+
+    (defun semantic-and-gtags-complete ()
+      (interactive)
+      (auto-complete '(ac-source-semantic ac-source-gtags)))
+
+`auto-complete` function can take an alternative of `ac-sources`.
+
 Configuration
 -------------
 
@@ -796,7 +817,7 @@ This expression will be expanded like:
       (interactive)
       (auto-complete '(ac-source-mysource3)))
 
-A source will be defined as usual and in addition a command that completes with the source will be defined. Calling `auto-complete` without arguments will use `ac-sources` as default sources and with arguments will use the arguments as default sources. Considering compatibility, it is difficult to answer which you should use `defvar` and `ac-define-source`. Builtin sources are defined with `ac-define-sources`, so you can use them alone by binding some key to these commands such like `ac-complete-filename`.
+A source will be defined as usual and in addition a command that completes with the source will be defined. Calling `auto-complete` without arguments will use `ac-sources` as default sources and with arguments will use the arguments as default sources. Considering compatibility, it is difficult to answer which you should use `defvar` and `ac-define-source`. Builtin sources are defined with `ac-define-sources`, so you can use them alone by binding some key to these commands such like `ac-complete-filename`. See also [this tips](#Completion_with_specific_source].
 
 ### Source Properties ###
 
