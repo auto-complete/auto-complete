@@ -540,6 +540,21 @@ Tips
 
 `auto-complete`関数は`ac-sources`の代替を引数として取ることができます。
 
+### 永続的にヘルプを表示する ###
+
+`ac-help`の代わりに`ac-persist-help`を使ってください。デフォルトで`M-<f1>`と`C-M-?`に割り当てられています。
+
+### 最後に補完したヘルプを表示する ###
+
+`ac-last-help`コマンドは最後に補完した候補のヘルプを`ac-help`（バッファヘルプ）と同じ形式で表示してくれます。`C-u`で引数をあたえるか`ac-last-persist-help`を呼び出すことで、そのヘルプバッファを永続的に表示することも可能です。
+
+`ac-last-quick-help`コマンドは最後に補完した候補のヘルプを`ac-quick-help`（クイックヘルプ）と同じ形式で表示してくれます。例えば、後から関数のドキュメントを見るときなどに便利です。
+
+これらのコマンドは次のようにキーバインドするとよいでしょう。
+
+    (define-key ac-mode-map (kbd "C-c h") 'ac-last-quick-help)
+    (define-key ac-mode-map (kbd "C-c H") 'ac-last-help)
+
 設定項目
 --------
 

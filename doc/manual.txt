@@ -536,6 +536,21 @@ If you want to use multiple sources for a command, you need to define a command 
 
 `auto-complete` function can take an alternative of `ac-sources`.
 
+### Show help persistently ###
+
+Use `ac-persist-help` instead of `ac-help`, which is bound to `M-<f1>` and `C-M-?`.
+
+### Show a lastly completed candidate help ###
+
+`ac-last-help` command shows a lastly completed candidate help in a `ac-help` (buffer help) form. If you give an argument by `C-u` or just call `ac-last-persist-help`, its help buffer will not disappear automatically.
+
+`ac-last-quick-help` command show a lastly completed candidate help in a `ac-quick-help` (quick help) form. It is useful if you want to see a function documentation, for example.
+
+You may bind keys to these command like:
+
+    (define-key ac-mode-map (kbd "C-c h") 'ac-last-quick-help)
+    (define-key ac-mode-map (kbd "C-c H") 'ac-last-help)
+
 Configuration
 -------------
 

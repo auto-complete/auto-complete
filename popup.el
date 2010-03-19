@@ -215,6 +215,40 @@ See also `popup-item-propertize'."
 (defsubst popup-item-symbol (item)              (popup-item-property item 'symbol))
 (defsubst popup-item-sublist (item)             (popup-item-property item 'sublist))
 
+(defun popup-item-documentation (item)
+  (let ((doc (popup-item-document item)))
+    (if (functionp doc)
+        (setq doc (funcall doc (popup-item-value-or-self item))))
+    doc))
+
+(defun popup-item-show-help-1 (item)
+  (let ((doc (popup-item-documentation item)))
+    (when doc
+      (with-current-buffer (get-buffer-create " *Popup Help*")
+        (erase-buffer)
+        (insert doc)
+        (goto-char (point-min))
+        (display-buffer (current-buffer)))
+      t)))
+
+(defun popup-item-show-help (item &optional persist)
+  (when item
+    (if (not persist)
+        (save-window-excursion
+          (when (popup-item-show-help-1 item)
+            (block nil
+              (let (event)
+                (while (setq event (progn (clear-this-command-keys) (read-event)))
+                  (case (key-binding (vector event))
+                    ('scroll-other-window
+                     (scroll-other-window))
+                    ('scroll-other-window-down
+                     (scroll-other-window-down nil))
+                    (t
+                     (push event unread-command-events)
+                     (return))))))))
+      (popup-item-show-help-1 item))))
+
 (defun popup-set-list (popup list)
   (popup-set-filtered-list popup list)
   (setf (popup-pattern popup) nil)
@@ -528,9 +562,10 @@ See also `popup-item-propertize'."
 
 (defun popup-hidden-p (popup)
   (let ((hidden t))
-    (dotimes (i (popup-height popup))
-      (unless (popup-line-hidden-p popup i)
-        (setq hidden nil)))
+    (when (popup-live-p popup)
+      (dotimes (i (popup-height popup))
+        (unless (popup-line-hidden-p popup i)
+          (setq hidden nil))))
     hidden))
 
 (defun popup-select (popup i)
@@ -765,32 +800,8 @@ See also `popup-item-propertize'."
   "Face for popup menu selection."
   :group 'popup)
 
-(defun popup-menu-document (menu &optional item)
-  (or item (setq item (popup-selected-item menu)))
-  (let ((doc (popup-item-document item)))
-    (if (functionp doc)
-        (setq doc (funcall doc (popup-item-value-or-self item))))
-    doc))
-
-(defun popup-menu-show-help (menu &optional item)
-  (let ((doc (popup-menu-document menu item)) event)
-    (when doc
-      (save-window-excursion
-        (with-current-buffer (get-buffer-create " *Popup Help*")
-          (erase-buffer)
-          (insert doc)
-          (goto-char (point-min))
-          (display-buffer (current-buffer)))
-        (block nil
-          (while (setq event (progn (clear-this-command-keys) (read-event)))
-            (case (key-binding (vector event))
-              ('scroll-other-window
-               (scroll-other-window))
-              ('scroll-other-window-down
-               (scroll-other-window-down nil))
-              (t
-               (push event unread-command-events)
-               (return)))))))))
+(defun popup-menu-show-help (menu &optional persist item)
+  (popup-item-show-help (or item (popup-selected-item menu)) persist))
 
 (defun popup-menu-show-quick-help (menu &optional item &rest args)
   (or item (setq item (popup-selected-item menu)))
@@ -799,7 +810,7 @@ See also `popup-item-propertize'."
          (min-height (min height (popup-current-height menu)))
          (around nil)
          (parent-offset (popup-offset menu))
-         (doc (popup-menu-document menu item)))
+         (doc (popup-item-documentation item)))
     (when (stringp doc)
       (if (popup-hidden-p menu)
           (setq around t

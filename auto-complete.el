@@ -249,6 +249,9 @@ a prefix doen't contain any upper case letters."
 (defvar ac-show-menu nil
   "Flag to show menu on timer tick.")
 
+(defvar ac-last-completion nil
+  "Cons of prefix marker and selected item of last completion.")
+
 (defvar ac-quick-help nil
   "Quick help instance")
 
@@ -321,7 +324,9 @@ If there is no common part, this will be nil.")
     (define-key map [up] 'ac-previous)
 
     (define-key map [f1] 'ac-help)
+    (define-key map [M-f1] 'ac-persist-help)
     (define-key map (kbd "C-?") 'ac-help)
+    (define-key map (kbd "C-M-?") 'ac-persist-help)
 
     (define-key map [C-down] 'ac-quick-help-scroll-down)
     (define-key map [C-up] 'ac-quick-help-scroll-up)
@@ -1032,9 +1037,23 @@ that have been made before in this function."
     (ac-remove-quick-help)
     (ac-update t)))
 
-(defun ac-help ()
+(defun ac-help (&optional persist)
+  (interactive "P")
+  (when ac-menu
+    (popup-menu-show-help ac-menu persist)))
+
+(defun ac-persist-help ()
   (interactive)
-  (popup-menu-show-help ac-menu))
+  (ac-help t))
+
+(defun ac-last-help (&optional persist)
+  (interactive "P")
+  (when ac-last-completion
+    (popup-item-show-help (cdr ac-last-completion) persist)))
+
+(defun ac-last-persist-help ()
+  (interactive)
+  (ac-last-help t))
 
 (defun ac-set-quick-help-timer ()
   (when (and ac-use-quick-help
@@ -1055,7 +1074,6 @@ that have been made before in this function."
           (popup-menu-show-quick-help ac-menu nil
                                       :point ac-point
                                       :height ac-quick-help-height
-                                      ;:scroll-bar t
                                       :nowait t))))
 
 (defun ac-remove-quick-help ()
@@ -1063,12 +1081,25 @@ that have been made before in this function."
     (popup-delete ac-quick-help)
     (setq ac-quick-help nil)))
 
+(defun ac-last-quick-help ()
+  (interactive)
+  (when (and ac-last-completion
+             (eq (marker-buffer (car ac-last-completion))
+                 (current-buffer)))
+    (let ((doc (popup-item-documentation (cdr ac-last-completion))))
+      (if (stringp doc)
+          (popup-tip doc
+                     :point (marker-position (car ac-last-completion))
+                     :around t
+                     :scroll-bar t
+                     :margin t)))))
+
 (defmacro ac-define-quick-help-command (name arglist &rest body)
   (declare (indent 2))
   `(progn
      (defun ,name ,arglist ,@body)
      (put ',name 'ac-quick-help-command t)))
-        
+
 (ac-define-quick-help-command ac-quick-help-scroll-down ()
   (interactive)
   (when ac-quick-help
@@ -1188,7 +1219,13 @@ that have been made before in this function."
   (let* ((candidate (ac-selected-candidate))
          (action (popup-item-property candidate 'action)))
     (when candidate
-      (ac-expand-string candidate))
+      (ac-expand-string candidate)
+      ;; Remember to show help later
+      (when (and ac-point candidate)
+        (unless ac-last-completion
+          (setq ac-last-completion (cons (make-marker) nil)))
+        (set-marker (car ac-last-completion) ac-point ac-buffer)
+        (setcdr ac-last-completion candidate)))
     (ac-abort)
     (if action
         (funcall action))
