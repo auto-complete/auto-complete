@@ -397,32 +397,35 @@ If there is no common part, this will be nil.")
     index))
 
 (defun ac-comphist-add (db string prefix)
-  (setq prefix (max 0 (min prefix (1- (length string)))))
-  (setq string (substring-no-properties string))
-  (let ((stat (ac-comphist-get db string t)))
-    (incf (aref stat prefix))
-    (remhash string (ac-comphist-cache db))))
+  (setq prefix (min prefix (1- (length string))))
+  (when (<= 0 prefix)
+    (setq string (substring-no-properties string))
+    (let ((stat (ac-comphist-get db string t)))
+      (incf (aref stat prefix))
+      (remhash string (ac-comphist-cache db)))))
 
 (defun ac-comphist-freq (db string prefix)
   (setq prefix (min prefix (1- (length string))))
-  (let ((cache (gethash string (ac-comphist-cache db))))
-    (or (and cache (aref cache prefix))
-        (let ((stat (ac-comphist-get db string))
-              (freq 0.0))
-          (when stat
-            (loop for p from 0 below (length string)
-                  ;; sigmoid function
-                  with a = 5
-                  with d = (/ 6.0 a)
-                  for x = (- d (abs (- prefix p)))
-                  for r = (/ 1.0 (1+ (exp (* (- a) x))))
-                  do
-                  (incf freq (* (aref stat p) r))))
-          (unless cache
-            (setq cache (make-vector (length string) nil))
-            (puthash string cache (ac-comphist-cache db)))
-          (aset cache prefix freq)
-          freq))))
+  (if (<= 0 prefix)
+      (let ((cache (gethash string (ac-comphist-cache db))))
+        (or (and cache (aref cache prefix))
+            (let ((stat (ac-comphist-get db string))
+                  (freq 0.0))
+              (when stat
+                (loop for p from 0 below (length string)
+                      ;; sigmoid function
+                      with a = 5
+                      with d = (/ 6.0 a)
+                      for x = (- d (abs (- prefix p)))
+                      for r = (/ 1.0 (1+ (exp (* (- a) x))))
+                      do
+                      (incf freq (* (aref stat p) r))))
+              (unless cache
+                (setq cache (make-vector (length string) nil))
+                (puthash string cache (ac-comphist-cache db)))
+              (aset cache prefix freq)
+              freq)))
+    0.0))
 
 (defun ac-comphist-sort (db collection prefix &optional threshold)
   (let (result

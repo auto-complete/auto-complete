@@ -145,11 +145,12 @@
 ;; semantic
 
 (defun ac-semantic-candidates (prefix)
-  (mapcar 'semantic-tag-name
-          (ignore-errors
-            (or (semantic-analyze-possible-completions
-                 (semantic-analyze-current-context))
-                (senator-find-tag-for-completion prefix)))))
+  (delete ""              ; semantic sometimes returns an empty string
+          (mapcar 'semantic-tag-name
+                  (ignore-errors
+                    (or (semantic-analyze-possible-completions
+                         (semantic-analyze-current-context))
+                        (senator-find-tag-for-completion prefix))))))
 
 (ac-define-source semantic
   '((depends semantic-ia)
