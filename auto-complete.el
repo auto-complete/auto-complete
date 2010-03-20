@@ -124,8 +124,13 @@
 (defvaralias 'ac-candidate-menu-height 'ac-menu-height)
 
 (defcustom ac-quick-help-height 20
-  "Max height of quick help"
+  "Max height of quick help."
   :type 'integer
+  :group 'auto-complete)
+
+(defcustom ac-quick-help-prefer-x t
+  "Prefer X tooltip than overlay popup for displaying quick help."
+  :type 'boolean
   :group 'auto-complete)
 
 (defcustom ac-candidate-limit nil
@@ -1070,11 +1075,17 @@ that have been made before in this function."
   (when (and (or force (null this-command))
              (ac-menu-live-p)
              (null ac-quick-help))
-    (setq ac-quick-help
-          (popup-menu-show-quick-help ac-menu nil
-                                      :point ac-point
-                                      :height ac-quick-help-height
-                                      :nowait t))))
+    (if (and ac-quick-help-prefer-x
+             (eq (window-system) 'x)
+             (featurep 'pos-tip))
+        (let ((doc (popup-menu-documentation ac-menu)))
+          (when (and doc (fboundp 'pos-tip-show))
+            (pos-tip-show doc nil (popup-child-point ac-menu 0) nil nil nil nil nil 0)))
+      (setq ac-quick-help
+            (popup-menu-show-quick-help ac-menu nil
+                                        :point ac-point
+                                        :height ac-quick-help-height
+                                        :nowait t)))))
 
 (defun ac-remove-quick-help ()
   (when ac-quick-help
@@ -1086,13 +1097,19 @@ that have been made before in this function."
   (when (and ac-last-completion
              (eq (marker-buffer (car ac-last-completion))
                  (current-buffer)))
-    (let ((doc (popup-item-documentation (cdr ac-last-completion))))
-      (if (stringp doc)
+    (let ((doc (popup-item-documentation (cdr ac-last-completion)))
+          (point (marker-position (car ac-last-completion))))
+      (when (stringp doc)
+        (if (and ac-quick-help-prefer-x
+                 (eq (window-system) 'x)
+                 (featurep 'pos-tip)
+                 (fboundp 'pos-tip-show))
+            (pos-tip-show doc nil point nil nil nil nil nil 0)
           (popup-tip doc
-                     :point (marker-position (car ac-last-completion))
+                     :point point
                      :around t
                      :scroll-bar t
-                     :margin t)))))
+                     :margin t))))))
 
 (defmacro ac-define-quick-help-command (name arglist &rest body)
   (declare (indent 2))

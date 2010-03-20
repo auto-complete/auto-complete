@@ -324,6 +324,11 @@ See also `popup-item-propertize'."
 (defun popup-live-p (popup)
   (and popup (popup-overlays popup) t))
 
+(defun popup-child-point (popup &optional offset)
+  (overlay-end (popup-line-overlay popup
+                                   (or offset
+                                       (popup-selected-line popup)))))
+
 (defun* popup-create (point
                       width
                       height
@@ -342,11 +347,7 @@ See also `popup-item-propertize'."
   (or margin-right (setq margin-right 0))
   (unless point
     (setq point
-          (if parent
-              (overlay-end (popup-line-overlay parent
-                                               (or parent-offset
-                                                   (popup-selected-line parent))))
-            (point))))
+          (if parent (popup-child-point parent parent-offset) (point))))
 
   (save-excursion
     (goto-char point)
@@ -803,14 +804,16 @@ See also `popup-item-propertize'."
 (defun popup-menu-show-help (menu &optional persist item)
   (popup-item-show-help (or item (popup-selected-item menu)) persist))
 
+(defun popup-menu-documentation (menu &optional item)
+  (popup-item-documentation (or item (popup-selected-item menu))))
+
 (defun popup-menu-show-quick-help (menu &optional item &rest args)
-  (or item (setq item (popup-selected-item menu)))
   (let* ((point (plist-get args :point))
          (height (or (plist-get args :height) (popup-height menu)))
          (min-height (min height (popup-current-height menu)))
          (around nil)
          (parent-offset (popup-offset menu))
-         (doc (popup-item-documentation item)))
+         (doc (popup-menu-documentation menu item)))
     (when (stringp doc)
       (if (popup-hidden-p menu)
           (setq around t
