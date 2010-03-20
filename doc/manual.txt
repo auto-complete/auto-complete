@@ -41,7 +41,7 @@ Installation
 
 It is easy to install by using a installation script called `etc/install.el` that is located in the package directory.
 
-Type `M-x load-file RET` in the running Emacs or newly launched Emacs. Note that if you want to upgrade `auto-complete-mode`, you have to install in **a newly launched Emacs with `-q` option`. Then input a file name to load which is a path string with adding `/etc/install.el` to the package directory. For example, if the package directory is `~/tmp/auto-complete-1.2`, the file name will be `~/tmp/auto-complete-1.2/etc/install.el`.
+Type `M-x load-file RET` in the running Emacs or newly launched Emacs. Note that if you want to upgrade `auto-complete-mode`, you have to install in **a newly launched Emacs with `-q` option**. Then input a file name to load which is a path string with adding `/etc/install.el` to the package directory. For example, if the package directory is `~/tmp/auto-complete-1.2`, the file name will be `~/tmp/auto-complete-1.2/etc/install.el`.
 
 Then input a directory where Auto Complete will be installed. You need to add a directory to `load-path` later if `load-path` doesn't include the directory. The directory is to be `~/.emacs.d` by default.
 

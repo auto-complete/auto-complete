@@ -1076,11 +1076,11 @@ that have been made before in this function."
              (ac-menu-live-p)
              (null ac-quick-help))
     (if (and ac-quick-help-prefer-x
-             (eq (window-system) 'x)
+             (eq window-system 'x)
              (featurep 'pos-tip))
         (let ((doc (popup-menu-documentation ac-menu)))
           (when (and doc (fboundp 'pos-tip-show))
-            (pos-tip-show doc nil (popup-child-point ac-menu 0) nil -1 nil nil nil 0)))
+            (pos-tip-show doc nil (popup-child-point ac-menu 0) nil 0 nil nil nil 0)))
       (setq ac-quick-help
             (popup-menu-show-quick-help ac-menu nil
                                         :point ac-point
@@ -1101,10 +1101,10 @@ that have been made before in this function."
           (point (marker-position (car ac-last-completion))))
       (when (stringp doc)
         (if (and ac-quick-help-prefer-x
-                 (eq (window-system) 'x)
+                 (eq window-system 'x)
                  (featurep 'pos-tip)
                  (fboundp 'pos-tip-show))
-            (pos-tip-show doc nil point nil -1)
+            (pos-tip-show doc nil point nil 0)
           (popup-tip doc
                      :point point
                      :around t
