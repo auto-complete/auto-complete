@@ -52,6 +52,11 @@ Auto Complete Modeは[GNU Emacs][]のための最も賢い自動補完機能で�
 
 [Auto Complete Modeユーザーマニュアル](manual.ja.txt)
 
+利用者の声
+----------
+
+利用者の声をぜひお聞かせください。あなたの名前（匿名希望可）とコメントをそえて[tomo@cx4a.org](mailto: tomo@cx4a.org)までメールでお願いします。どんなコメントでも歓迎です。
+
 ソースコード
 ------------
 

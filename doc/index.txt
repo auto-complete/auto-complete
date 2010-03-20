@@ -52,6 +52,11 @@ User Manual
 
 [Auto Complete Mode User Manual](manual.txt)
 
+User's Voice
+------------
+
+Please send me a comment with your name (or anonymous) to [tomo@cx4a.org](mailto: tomo@cx4a.org) if you like it. Any comments are welcome.
+
 Source Code
 -----------
 
