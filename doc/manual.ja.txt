@@ -41,11 +41,15 @@ Auto Complete Mode（通称、`auto-complete.el`, `auto-complete-mode`）は[GNU
 
 パッケージディレクトリ内の`etc/install.el`というインストールスクリプトを利用すれば簡単にインストールを行うことができます。
 
-起動中のEmacsあるいは新しく起動したEmacsで`M-x load-file RET`と入力してください。ロードするファイル名を尋ねられるのでアーカイブを展開したディレクトリに`/etc/install.el`を追加したフルパスを入力します。例えば展開したディレクトリのパスが`~/tmp/auto-complete-1.2`である場合、`~/tmp/auto-complete-1.2/etc/install.el`と入力します。
+起動中のEmacsあるいは新しく起動したEmacsで`M-x load-file RET`と入力してください。なお`auto-complete-mode`をアップグレードする場合は**`-q`オプションで新しく起動したEmacs**でインストールを行ってください。`auto-complete-mode`ロードするファイル名を尋ねられるのでアーカイブを展開したディレクトリに`/etc/install.el`を追加したフルパスを入力します。例えば展開したディレクトリのパスが`~/tmp/auto-complete-1.2`である場合、`~/tmp/auto-complete-1.2/etc/install.el`と入力します。
 
 次にインストール先のディレクトリを尋ねられますので、お好みディレクトリを入力してください。このディレクトリが`load-path`に設定されていない場合は後で設定する必要があります。デフォルトでは`~/.emacs.d`です。
 
 最後に`RET`を押してインストールを開始してください。インストールが完了すると次のようなバッファが表示されるので、指示に従って`.emacs`を編集してください。
+
+あるいは、次のようにターミナルからインストールすることもできます。
+
+    $ emacs -batch -l etc/install.el
 
 **インストール後のメッセージ例（\*Installation Result*バッファ）**
 
