@@ -28,6 +28,11 @@ Auto Complete Mode（通称、`auto-complete.el`, `auto-complete-mode`）は[GNU
 
 なお、Auto Complete Modeは[GPLv3][]のもとでライセンスされています。また、このドキュメントは[GFDL][]のもとでライセンスされています。
 
+ダウンロード
+------------
+
+[Auto Complete Modeのトップページ](index.ja.txt)からダウンロードできます。
+
 インストール
 ------------
 

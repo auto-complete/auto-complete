@@ -28,6 +28,11 @@ This user manual covers from how to install and how to use to how to extend. Ple
 
 Auto Complete Mode is licensed under the term of [GPLv3][]. And this document is licensed under the term of [GFDL][].
 
+Downloads
+---------
+
+You can download from [Auto Complete Mode top page](index.txt).
+
 Installation
 ------------
 
