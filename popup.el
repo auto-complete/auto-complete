@@ -67,25 +67,53 @@ This is faster than prin1-to-string in many cases."
             (cons (substring string 0 l) (substring string l))
           (list string))))
 
-(defun popup-fill-string (string &optional width max-width)
+(defun popup-fill-string (string &optional width max-width justify squeeze)
+  "Split STRING into fixed width strings and return a cons cell like
+\(WIDTH . ROWS). Here, the car WIDTH indicates the actual maxim width of ROWS.
+
+The argument WIDTH specifies the width of filling each paragraph. WIDTH nil
+means don't perform any justification and word wrap. Note that this function
+doesn't add any padding characters at the end of each row.
+
+MAX-WIDTH, if WIDTH is nil, specifies the maximum number of columns.
+
+The optional fourth argument JUSTIFY specifies which kind of justification
+to do: `full', `left', `right', `center', or `none' (equivalent to nil).
+A value of t means handle each paragraph as specified by its text properties.
+
+SQUEEZE nil means leave whitespaces other than line breaks untouched."
   (if (eq width 0)
       (error "Can't fill string with 0 width"))
-  (let (lines)
-    (setq lines (split-string string "\n"))
-    (unless width
-      (setq width (loop for line in lines maximize (string-width line)))
-      (if (and max-width
-               (> width max-width))
-          (setq width max-width)))
-    (setq lines
-          (apply 'append
-                 (mapcar (lambda (line)
-                           (loop while (stringp line)
-                                 for result = (popup-substring-by-width line width)
-                                 do (setq line (cdr result))
-                                 collect (car result)))
-                         lines)))
-    (cons width lines)))
+  (if width
+      (setq max-width width))
+  (with-temp-buffer
+    (let ((tab-width 4)
+          (fill-column width)
+          (left-margin 0)
+          (kinsoku-limit 1)
+          indent-tabs-mode
+          row rows)
+      (insert string)
+      (untabify (point-min) (point-max))
+      (if width
+          (fill-region (point-min) (point-max) justify (not squeeze)))
+      (goto-char (point-min))
+      (setq width 0)
+      (while (prog2
+                 (let ((line (buffer-substring
+                              (point) (progn (end-of-line) (point)))))
+                   (if max-width
+                       (while (progn
+                                (setq row (truncate-string-to-width line max-width)
+                                      width (max width (string-width row)))
+                                (push row rows)
+                                (if (not (= (length row) (length line)))
+                                    (setq line (substring line (length row))))))
+                     (setq width (max width (string-width line)))
+                     (push line rows)))
+                 (< (point) (point-max))
+               (beginning-of-line 2)))
+      (cons width (nreverse rows)))))
 
 (defmacro popup-save-buffer-state (&rest body)
   (declare (indent 0))
