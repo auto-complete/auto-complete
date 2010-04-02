@@ -4,7 +4,7 @@
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; URL: http://cx4a.org/software/auto-complete
-;; Keywords: convenience
+;; Keywords: completion, convenience
 ;; Version: 1.2
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -63,7 +63,7 @@
 
 (defgroup auto-complete nil
   "Auto completion."
-  :group 'convenience
+  :group 'completion
   :prefix "ac-")
 
 (defcustom ac-delay 0.1
@@ -76,6 +76,11 @@
   :type '(choice (const :tag "Yes" t)
                  (const :tag "Never" nil)
                  (float :tag "Timer"))
+  :group 'auto-complete)
+
+(defcustom ac-stop-flymake-on-completing t
+  "Non-nil means disble flymake temporarily on completing."
+  :type 'boolean
   :group 'auto-complete)
 
 (defcustom ac-use-fuzzy t
@@ -1390,7 +1395,12 @@ that have been made before in this function."
   (if ac-use-comphist
       (ac-comphist-init))
   (unless ac-clear-variables-every-minute-timer
-    (setq ac-clear-variables-every-minute-timer (run-with-timer 60 60 'ac-clear-variables-every-minute))))
+    (setq ac-clear-variables-every-minute-timer (run-with-timer 60 60 'ac-clear-variables-every-minute)))
+  (if ac-stop-flymake-on-completing
+      (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
+        (unless ac-completing
+          ad-do-it))
+    (ad-disable-advice 'flymake-on-timer-event 'around 'ac-flymake-stop-advice)))
 
 (define-minor-mode auto-complete-mode
   "AutoComplete mode"
