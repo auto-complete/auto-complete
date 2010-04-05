@@ -78,6 +78,11 @@
                  (float :tag "Timer"))
   :group 'auto-complete)
 
+(defcustom ac-disable-on-comment t
+  "Non-nil means disable automatic completion on comments."
+  :type 'boolean
+  :group 'auto-complete)
+
 (defcustom ac-stop-flymake-on-completing t
   "Non-nil means disble flymake temporarily on completing."
   :type 'boolean
@@ -1349,6 +1354,9 @@ that have been made before in this function."
 
 ;;;; Auto complete mode
 
+(defun ac-cursor-on-comment-p (&optional point)
+  (eq (get-text-property (or point (point)) 'face) 'font-lock-comment-face))
+
 (defun ac-trigger-command-p (command)
   "Return non-nil if `COMMAND' is a trigger command."
   (and (symbolp command)
@@ -1367,7 +1375,9 @@ that have been made before in this function."
                                       (or (eq this-command 'auto-complete) ; special case
                                           (ac-trigger-command-p this-command)
                                           (and ac-completing
-                                               (memq this-command ac-trigger-commands-on-completing)))))
+                                               (memq this-command ac-trigger-commands-on-completing)))
+                                      (not (and ac-disable-on-comment
+                                                (ac-cursor-on-comment-p)))))
               (ac-compatible-package-command-p this-command))
           (progn
             (if (or (not (symbolp this-command))
