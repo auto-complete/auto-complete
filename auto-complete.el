@@ -1605,20 +1605,24 @@ that have been made before in this function."
           (buffer-string))
          ((boundp symbol)
           (let ((file-name  (ac-symbol-file symbol 'defvar)))
-            (princ "a variable defined in `")
-            (princ (if (eq file-name 'C-source)
-                       "C source code"
-                     (file-name-nondirectory file-name)))
+            (princ "a variable")
+            (when file-name
+              (princ " defined in `")
+              (princ (if (eq file-name 'C-source)
+                         "C source code"
+                       (file-name-nondirectory file-name))))
             (princ "'.\n\n")
             (princ (or (documentation-property symbol 'variable-documentation t)
                        "Not documented."))
             (buffer-string)))
          ((facep symbol)
           (let ((file-name  (ac-symbol-file symbol 'defface)))
-            (princ "a face defined in `")
-            (princ (if (eq file-name 'C-source)
-                       "C source code"
-                     (file-name-nondirectory file-name)))
+            (princ "a face")
+            (when file-name
+              (princ " defined in `")
+              (princ (if (eq file-name 'C-source)
+                         "C source code"
+                       (file-name-nondirectory file-name))))
             (princ "'.\n\n")
             (princ (or (documentation-property symbol 'face-documentation t)
                        "Not documented."))
