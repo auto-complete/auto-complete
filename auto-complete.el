@@ -1080,6 +1080,28 @@ that have been made before in this function."
     (cancel-timer ac-quick-help-timer)
     (setq ac-quick-help-timer nil)))
 
+(defun ac-pos-tip-show-quick-help (menu &optional item &rest args)
+  (let* ((point (plist-get args :point))
+         (around nil)
+         (parent-offset (popup-offset menu))
+         (doc (popup-menu-documentation menu item)))
+    (when (stringp doc)
+      (if (popup-hidden-p menu)
+          (setq around t)
+        (setq point nil))
+      (with-no-warnings
+        (pos-tip-show doc
+                      'popup-tip-face
+                      (or point
+                          (and menu
+                               (popup-child-point menu parent-offset))
+                          (point))
+                      nil 0
+                      popup-tip-max-width
+                      nil nil
+                      (and (not around) 0)))
+      nil)))
+
 (defun ac-quick-help (&optional force)
   (interactive)
   (when (and (or force (null this-command))
@@ -1088,10 +1110,7 @@ that have been made before in this function."
     (if (and ac-quick-help-prefer-x
              (eq window-system 'x)
              (featurep 'pos-tip))
-        (let ((doc (popup-menu-documentation ac-menu)))
-          (when doc
-            (with-no-warnings
-              (pos-tip-show doc nil (popup-child-point ac-menu 0) nil 0 nil nil nil 0))))
+        (ac-pos-tip-show-quick-help ac-menu nil :point ac-point)
       (setq ac-quick-help
             (popup-menu-show-quick-help ac-menu nil
                                         :point ac-point
