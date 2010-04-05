@@ -104,11 +104,17 @@ This is faster than prin1-to-string in many cases."
         maximize (string-width (popup-x-to-string item)) into width
         finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
 
+;; window-full-width-p is not defined in Emacs 22.1
+(defun popup-window-full-width-p (&optional window)
+  (if (fboundp 'window-full-width-p)
+      (window-full-width-p window)
+    (= (window-width window) (frame-width (window-frame (or window (selected-window)))))))
+
 ;; truncated-partial-width-window-p is not defined in Emacs 22
 (defun popup-truncated-partial-width-window-p (&optional window)
   (unless window
     (setq window (selected-window)))
-  (unless (window-full-width-p window)
+  (unless (popup-window-full-width-p window)
     (let ((t-p-w-w (buffer-local-value 'truncate-partial-width-windows
 				       (window-buffer window))))
       (if (integerp t-p-w-w)
