@@ -110,11 +110,24 @@
   "Face for the yasnippet selected candidate."
   :group 'auto-complete)
 
+(defun ac-yasnippet-table-hash (table)
+  (cond
+   ((fboundp 'yas/snippet-table-hash)
+    (yas/snippet-table-hash table))
+   ((fboundp 'yas/table-hash)
+    (yas/table-hash table))))
+
+(defun ac-yasnippet-table-parent (table)
+  (cond
+   ((fboundp 'yas/snippet-table-parent)
+    (yas/snippet-table-parent table))
+   ((fboundp 'yas/table-parent)
+    (yas/table-parent table))))
+
 (defun ac-yasnippet-candidate-1 (table)
   (with-no-warnings
-    (let ((hashtab (yas/snippet-table-hash table))
-          (parent (if (fboundp 'yas/snippet-table-parent)
-                      (yas/snippet-table-parent table)))
+    (let ((hashtab (ac-yasnippet-table-hash table))
+          (parent (ac-yasnippet-table-parent table))
           candidates)
       (maphash (lambda (key value)
                  (push key candidates))
@@ -125,7 +138,7 @@
                 (append candidates (ac-yasnippet-candidate-1 parent))))
       candidates)))
 
-(defun ac-yasnippet-candidate ()
+(defun ac-yasnippet-candidates ()
   (with-no-warnings
     (if (fboundp 'yas/get-snippet-tables)
         ;; >0.6.0
@@ -141,7 +154,7 @@
 
 (ac-define-source yasnippet
   '((depends yasnippet)
-    (candidates . ac-yasnippet-candidate)
+    (candidates . ac-yasnippet-candidates)
     (action . yas/expand)
     (candidate-face . ac-yasnippet-candidate-face)
     (selection-face . ac-yasnippet-selection-face)
