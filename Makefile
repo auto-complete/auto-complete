@@ -8,10 +8,9 @@ clean:
 	rm -f *.elc
 	rm -f doc/*.html
 	rm -rf ${PACKAGE}
-	rm -f ${PACKAGE}.zip ${PACKAGE}.tar.bz2 *.elc
+	rm -f ${PACKAGE}.zip ${PACKAGE}.tar.bz2
 
 package: clean
-	rm -rf ${PACKAGE}
 	mkdir ${PACKAGE}
 	cp -r *.el Makefile README.txt TODO.txt doc etc dict ${PACKAGE}
 

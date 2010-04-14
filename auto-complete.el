@@ -5,7 +5,7 @@
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; URL: http://cx4a.org/software/auto-complete
 ;; Keywords: completion, convenience
-;; Version: 1.2
+;; Version: 1.3
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -76,6 +76,16 @@
   :type '(choice (const :tag "Yes" t)
                  (const :tag "Never" nil)
                  (float :tag "Timer"))
+  :group 'auto-complete)
+
+(defcustom ac-show-menu-immediately-on-auto-complete t
+  "Non-nil means menu will be showed immediately on `auto-complete'."
+  :type 'boolean
+  :group 'auto-complete)
+
+(defcustom ac-expand-on-auto-complete t
+  "Non-nil means expand whole common part on first time `auto-complete'."
+  :type 'boolean
   :group 'auto-complete)
 
 (defcustom ac-disable-faces '(font-lock-comment-face font-lock-string-face font-lock-doc-face)
@@ -290,7 +300,11 @@ a prefix doen't contain any upper case letters."
   "Last selected candidate.")
 
 (defvar ac-common-part nil
-  "Common part string of candidates.
+  "Common part string of meaningful candidates.
+If there is no common part, this will be nil.")
+
+(defvar ac-whole-common-part nil
+  "Common part string of whole candidates.
 If there is no common part, this will be nil.")
 
 (defvar ac-prefix-overlay nil
@@ -870,12 +884,15 @@ You can not use it in source definition like (prefix . `NAME')."
                          (cdr (cdr cons)))
                     (if cons (setcdr cons nil))
                     (setq ac-common-part (try-completion ac-prefix result))
+                    (setq ac-whole-common-part (try-completion ac-prefix candidates))
                     (if cons (setcdr cons cdr))
                     result)
                 (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
                 (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
+                (setq ac-whole-common-part (try-completion ac-prefix candidates))
                 candidates)
             (setq ac-common-part (try-completion ac-prefix candidates))
+            (setq ac-whole-common-part ac-common-part)
             candidates))))
 
 (defun ac-update-candidates (cursor scroll-top)
@@ -940,6 +957,7 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-prefix-overlay nil
         ac-selected-candidate nil
         ac-common-part nil
+        ac-whole-common-part nil
         ac-triggered nil
         ac-limit nil
         ac-candidates nil
@@ -1178,19 +1196,24 @@ that have been made before in this function."
 (defun auto-complete (&optional sources)
   "Start auto-completion at current point."
   (interactive)
-  (let ((live (ac-menu-live-p)))
+  (let ((menu-live (ac-menu-live-p))
+        (inline-live (ac-inline-live-p)))
     (ac-abort)
     (let ((ac-sources (or sources ac-sources)))
-      (setq ac-show-menu t)
+      (if (or ac-show-menu-immediately-on-auto-complete
+              inline-live)
+          (setq ac-show-menu t))
       (ac-start))
     (when (ac-update-greedy t)
       ;; TODO Not to cause inline completion to be disrupted.
       (if (ac-inline-live-p)
           (ac-inline-hide))
       ;; Not to expand when it is first time to complete
-      (when (and (or (and (> (length ac-candidates) 1)
-                          (not live))
-                     (not (ac-expand-common)))
+      (when (and (or (and (not ac-expand-on-auto-complete)
+                          (> (length ac-candidates) 1)
+                          (not menu-live))
+                     (not (let ((ac-common-part ac-whole-common-part))
+                            (ac-expand-common))))
                  ac-use-fuzzy
                  (null ac-candidates))
         (ac-fuzzy-complete)))))
@@ -1248,7 +1271,7 @@ that have been made before in this function."
         string))))
 
 (defun ac-expand-common ()
-  "Try expand common part."
+  "Try to expand meaningful common part."
   (interactive)
   (if (and ac-dwim ac-dwim-enable)
       (ac-complete)

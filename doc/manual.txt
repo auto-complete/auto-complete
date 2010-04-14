@@ -196,7 +196,7 @@ So, as of `auto-complete` command, it is a little different from an original aut
 
 * Otherwise
 
-  Otherwise start completion with showing completion menu.
+  Otherwise start completion with/without expanding a whole common part and showing completion menu. See also [`ac-show-menu-immediately-on-auto-complete`](#) and [`ac-expand-on-auto-complete`](#).
 
 ### Completion by Fuzzy Matching ###
 
@@ -572,6 +572,14 @@ Delay time to start completion in real number seconds. It is a trade off of resp
 ### `ac-auto-show-menu` ###
 
 Show completion menu automatically if `t` specified. `t` means always automatically showing completion menu. `nil` means never showing completion menu. Real number means delay time in seconds.
+
+### `ac-show-menu-immediately-on-auto-complete` ###
+
+Whether or not to show completion menu immediately on `auto-complete` command. If inline completion has already been showed, this configuration will be ignored.
+
+### `ac-expand-on-auto-complete` ###
+
+Whether or not to expand a common part of whole candidates.
 
 ### `ac-disable-faces` ###
 
