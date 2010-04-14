@@ -784,7 +784,9 @@ See also `popup-item-propertize'."
                    &aux tip lines)
   (if (bufferp string)
       (setq string (with-current-buffer string (buffer-string))))
-  
+  ;; TODO strip text (mainly face) properties
+  (setq string (substring-no-properties string))
+
   (and (eq margin t) (setq margin 1))
   (or margin-left (setq margin-left margin))
   (or margin-right (setq margin-right margin))
