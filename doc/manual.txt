@@ -573,6 +573,14 @@ Delay time to start completion in real number seconds. It is a trade off of resp
 
 Show completion menu automatically if `t` specified. `t` means always automatically showing completion menu. `nil` means never showing completion menu. Real number means delay time in seconds.
 
+### `ac-disable-faces` ###
+
+Specify a list of face symbols for disabling auto completion. Auto completion will not be started if a face text property at a point is included in the list.
+
+### `ac-stop-flymake-on-completing` ###
+
+Whether or not to stop Flymake on completion.
+
 ### `ac-use-fuzzy` ###
 
 Whether or not to use [fuzzy matching](#Completion_by_Fuzzy_Matching).
