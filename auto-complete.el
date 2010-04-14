@@ -1585,8 +1585,9 @@ that have been made before in this function."
 (defun ac-symbol-file (symbol type)
   (if (fboundp 'find-lisp-object-file-name)
       (find-lisp-object-file-name symbol type)
-    (let ((file-name (describe-simplify-lib-file-name
-                      (symbol-file symbol type))))
+    (let ((file-name (with-no-warnings
+                       (describe-simplify-lib-file-name
+                        (symbol-file symbol type)))))
       (when (equal file-name "loaddefs.el")
         ;; Find the real def site of the preloaded object.
         (let ((location (condition-case nil
