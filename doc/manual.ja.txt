@@ -989,6 +989,11 @@ Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftで
     (set-face-font 'ac-candidate-face "MS Gothic 11")
     (set-face-font 'ac-selection-face "MS Gothic 11")
 
+バグレポート
+------------
+
+[Auto Complete Modeのバグトラッキングシステム](http://cx4a.org/redmine/projects/auto-complete-mode)に新しいチケットを登録してください。
+
 [GNU Emacs]: http://www.gnu.org/software/emacs/
 [GPLv3]: http://gplv3.fsf.org/
 [GFDL]: http://www.gnu.org/copyleft/fdl.html

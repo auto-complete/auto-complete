@@ -65,6 +65,11 @@ Auto Complete Modeは[GNU Emacs][]のための最も賢い自動補完機能で�
 * <http://cx4a.org/repo/auto-complete.git>
 * <http://github.com/m2ym/auto-complete> (GitHubミラー)
 
+バグレポート
+------------
+
+[Auto Complete Modeのバグトラッキングシステム](http://cx4a.org/redmine/projects/auto-complete-mode)に新しいチケットを登録してください。
+
 ライセンス
 ----------
 

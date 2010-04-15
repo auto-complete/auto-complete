@@ -65,6 +65,11 @@ Git repositories are available:
 * <http://cx4a.org/repo/auto-complete.git>
 * <http://github.com/m2ym/auto-complete> (GitHub mirror)
 
+Reporting Bugs
+--------------
+
+Visit [Auto Complete Mode Bug Tracking System](http://cx4a.org/redmine/projects/auto-complete-mode) and create a new ticket.
+
 License
 -------
 
