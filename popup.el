@@ -938,7 +938,7 @@ See also `popup-item-propertize'."
                            :face 'popup-menu-face
                            :selection-face 'popup-menu-selection-face
                            :margin-left margin-left
-                           :margin-right margin-right 
+                           :margin-right margin-right
                            :scroll-bar scroll-bar
                            :symbol symbol
                            :parent parent))
