@@ -995,6 +995,15 @@ Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftで
     (set-face-font 'ac-candidate-face "MS Gothic 11")
     (set-face-font 'ac-selection-face "MS Gothic 11")
 
+既知の問題
+----------
+
+### `flyspell-mode`が有効なバッファで自動補完できない ###
+
+`flyspell-mode`の遅延手法が原因で自動補完ができません。これを回避するには`M-x ac-flyspell-workaround`とするか`~/.emacs`に次のように書いてください。
+
+    (ac-flyspell-workaround)
+
 バグレポート
 ------------
 

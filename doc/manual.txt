@@ -990,6 +990,15 @@ We don't good answers now, but you may shot the troubles by changing font size w
     (set-face-font 'ac-candidate-face "MS Gothic 11")
     (set-face-font 'ac-selection-face "MS Gothic 11")
 
+Known Bugs
+----------
+
+### Auto completion will not be started in a buffer `flyspell-mode` enabled ###
+
+A way of delaying processes of `flyspell-mode` disables auto completion. You can avoid this problem by `M-x ac-flyspell-workaround`. You can write the following code into your `~/.emacs`.
+
+    (ac-flyspell-workaround)
+
 Reporting Bugs
 --------------
 

@@ -1484,6 +1484,19 @@ that have been made before in this function."
 
 
 
+;;;; Compatibilities with other extensions
+
+(defun ac-flyspell-workaround ()
+  "Flyspell uses `sit-for' for delaying its process. Unfortunatelly,
+it stops auto completion which is trigger with `run-with-idle-timer'.
+This workaround avoid flyspell processes when auto completion is being started."
+  (interactive)
+  (defadvice flyspell-post-command-hook (around ac-flyspell-workaround activate)
+    (unless ac-triggered
+      ad-do-it)))
+
+
+
 ;;;; Standard sources
 
 (defmacro ac-define-source (name source)
