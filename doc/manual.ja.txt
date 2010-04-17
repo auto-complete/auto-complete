@@ -54,6 +54,12 @@ Auto Complete Mode（通称、`auto-complete.el`, `auto-complete-mode`）は[GNU
 
 あるいは、次のようにターミナルからインストールすることもできます。
 
+    $ make install
+    $ # あるいはディレクトリをあらかじめ指定して
+    $ make install DIR=$HOME/.emacs.d/
+
+GNU Makeがない場合は次のようにします。
+
     $ emacs -batch -l etc/install.el
 
 **インストール後のメッセージ例（\*Installation Result*バッファ）**

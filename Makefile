@@ -4,6 +4,9 @@ PACKAGE=auto-complete-${VERSION}
 byte-compile:
 	emacs -Q -L . -batch -f batch-byte-compile *.el
 
+install:
+	emacs -Q -L . -batch -l etc/install ${DIR}
+
 clean:
 	rm -f *.elc
 	rm -f doc/*.html

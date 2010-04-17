@@ -54,6 +54,12 @@ Finally type `RET` to start installation. After installation, you may see the fo
 
 You can also install from terminal like:
 
+    $ make install
+    $ # or with directory specified
+    $ make install DIR=$HOME/.emacs.d/
+
+If you don't have GNU Make, run emacs like:
+
     $ emacs -batch -l etc/install.el
 
 **Example message after installation (\*Installation Result* Buffer)**
