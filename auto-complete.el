@@ -1639,7 +1639,8 @@ This workaround avoid flyspell processes when auto completion is being started."
         (princ " is ")
         (cond
          ((fboundp symbol)
-          (describe-function-1 symbol)
+          (let ((help-xref-following t))
+            (describe-function-1 symbol))
           (buffer-string))
          ((boundp symbol)
           (let ((file-name  (ac-symbol-file symbol 'defvar)))
