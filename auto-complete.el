@@ -1512,9 +1512,7 @@ This workaround avoid flyspell processes when auto completion is being started."
 ;; Words in buffer source
 (defvar ac-word-index nil)
 
-(defun ac-candidate-words-in-buffer (&optional point prefix limit)
-  (or point (setq point (point-min)))
-  (or prefix (setq prefix ""))
+(defun ac-candidate-words-in-buffer (point prefix limit)
   (let ((i 0)
         candidate
         candidates
@@ -1559,7 +1557,10 @@ This workaround avoid flyspell processes when auto completion is being started."
   (when (and (not (car ac-word-index))
              (< (buffer-size) 1048576))
     ;; Complete index
-    (setq ac-word-index (cons t (ac-candidate-words-in-buffer)))))
+    (setq ac-word-index
+          (cons t
+                (split-string (buffer-substring-no-properties (point-min) (point-max))
+                              "\\(?:^\\|\\_>\\).*?\\(?:\\_<\\|$\\)")))))
 
 (defun ac-update-word-index ()
   (dolist (buffer (buffer-list))
