@@ -867,15 +867,40 @@ See also `popup-item-propertize'."
                :parent-offset parent-offset
                args)))))
 
+(defun popup-menu-read-key-sequence (keymap &optional prompt timeout)
+  (catch 'timeout
+    (if timeout
+        (run-with-idle-timer timeout nil 'throw 'timeout nil))
+    (let ((old-global-map (current-global-map))
+          (old-local-map (current-local-map))
+          (temp-global-map (make-sparse-keymap))
+          (temp-local-map (make-sparse-keymap)))
+      (substitute-key-definition 'keyboard-quit 'keyboard-quit
+                                 temp-global-map old-global-map)
+      (define-key temp-global-map [menu-bar] (lookup-key old-global-map [menu-bar]))
+      (define-key temp-global-map [tool-bar] (lookup-key old-global-map [tool-bar]))
+      (set-keymap-parent temp-local-map keymap)
+      (define-key temp-local-map [menu-bar] (lookup-key old-local-map [menu-bar]))
+      (unwind-protect
+          (progn
+            (use-global-map temp-global-map)
+            (use-local-map temp-local-map)
+            (clear-this-command-keys)
+            (read-key-sequence prompt))
+        (use-global-map old-global-map)
+        (use-local-map old-local-map)))))
+
 (defun popup-menu-fallback (event default))
 
-(defun* popup-menu-event-loop (menu keymap fallback &optional prompt help-delay &aux event binding)
+(defun* popup-menu-event-loop (menu keymap fallback &optional prompt help-delay &aux key binding)
   (block nil
     (while (popup-live-p menu)
-      (setq event (progn (clear-this-command-keys) (read-event prompt nil help-delay)))
-      (if (null event)
+      (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
+      (if (null key)
           (popup-menu-show-quick-help menu)
-        (setq binding (popup-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
+        (if (eq (lookup-key (current-global-map) key) 'keyboard-quit)
+            (keyboard-quit))
+        (setq binding (lookup-key keymap key))
         (cond
          ((eq binding 'popup-close)
           (if (popup-parent menu)
@@ -901,10 +926,10 @@ See also `popup-item-propertize'."
           (popup-menu-show-help menu))
          ((eq binding 'popup-isearch)
           (popup-isearch menu))
-         (binding
+         ((commandp binding)
           (call-interactively binding))
          (t
-          (funcall fallback event (popup-lookup-key-by-event (lambda (key) (key-binding key)) event))))))))
+          (funcall fallback (aref key 0) (key-binding key))))))))
 
 ;; popup-menu is used by mouse.el unfairly...
 (defun* popup-menu* (list
