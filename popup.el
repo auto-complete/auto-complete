@@ -271,15 +271,16 @@ See also `popup-item-propertize'."
         (save-window-excursion
           (when (popup-item-show-help-1 item)
             (block nil
-              (let (event)
-                (while (setq event (progn (clear-this-command-keys) (read-event)))
-                  (case (key-binding (vector event))
+              (while t
+                (clear-this-command-keys)
+                (let ((key (read-key-sequence-vector nil)))
+                  (case (key-binding key)
                     ('scroll-other-window
                      (scroll-other-window))
                     ('scroll-other-window-down
                      (scroll-other-window-down nil))
                     (t
-                     (push event unread-command-events)
+                     (setq unread-command-events (append key unread-command-events))
                      (return))))))))
       (popup-item-show-help-1 item))))
 
