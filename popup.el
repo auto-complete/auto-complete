@@ -886,7 +886,9 @@ See also `popup-item-propertize'."
 (defun popup-menu-read-key-sequence (keymap &optional prompt timeout)
   (catch 'timeout
     (if timeout
-        (run-with-idle-timer timeout nil 'throw 'timeout nil))
+        (run-with-idle-timer timeout nil (lambda ()
+                                           (if (zerop (length (this-command-keys)))
+                                               (throw 'timeout nil)))))
     (let ((old-global-map (current-global-map))
           (old-local-map (current-local-map))
           (temp-global-map (make-sparse-keymap))
