@@ -885,11 +885,12 @@ See also `popup-item-propertize'."
 
 (defun popup-menu-read-key-sequence (keymap &optional prompt timeout)
   (catch 'timeout
-    (if timeout
-        (run-with-idle-timer timeout nil (lambda ()
-                                           (if (zerop (length (this-command-keys)))
-                                               (throw 'timeout nil)))))
-    (let ((old-global-map (current-global-map))
+    (let ((timer (and timeout
+                      (run-with-idle-timer timeout nil
+                                           (lambda ()
+                                             (if (zerop (length (this-command-keys)))
+                                                 (throw 'timeout nil))))))
+          (old-global-map (current-global-map))
           (old-local-map (current-local-map))
           (temp-global-map (make-sparse-keymap))
           (temp-local-map (make-sparse-keymap)))
@@ -904,7 +905,9 @@ See also `popup-item-propertize'."
             (use-global-map temp-global-map)
             (use-local-map temp-local-map)
             (clear-this-command-keys)
-            (read-key-sequence prompt))
+            (prog1
+                (read-key-sequence prompt)
+              (if timer (cancel-timer timer))))
         (use-global-map old-global-map)
         (use-local-map old-local-map)))))
 
