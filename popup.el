@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2009, 2010  Tomohiro Matsuyama
 
-;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
+;; Author: Tomohiro Matsuyama <tomo@cx4a.org>
 ;; Keywords: lisp
 ;; Version: 0.4
 
@@ -129,8 +129,11 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
   "Return preferred width of popup to show `LIST' beautifully."
   (loop with tab-width = 4
         for item in list
+        for summary = (popup-item-summary item)
         maximize (string-width (popup-x-to-string item)) into width
-        finally return (* (ceiling (/ (or width 0) 10.0)) 10)))
+        if (stringp summary)
+        maximize (+ (string-width summary) tab-width) into summary-width
+        finally return (* (ceiling (/ (+ (or width 0) (or summary-width 0)) 10.0)) 10)))
 
 ;; window-full-width-p is not defined in Emacs 22.1
 (defun popup-window-full-width-p (&optional window)
@@ -230,7 +233,8 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
                          selection-face
                          sublist
                          document
-                         symbol)
+                         symbol
+                         summary)
   "Utility function to make popup item.
 See also `popup-item-propertize'."
   (popup-item-propertize name
@@ -239,6 +243,7 @@ See also `popup-item-propertize'."
                          'selection-face selection-face
                          'document document
                          'symbol symbol
+                         'summary summary
                          'sublist sublist))
 
 (defsubst popup-item-value (item)               (popup-item-property item 'value))
@@ -246,6 +251,7 @@ See also `popup-item-propertize'."
 (defsubst popup-item-popup-face (item)          (popup-item-property item 'popup-face))
 (defsubst popup-item-selection-face (item)      (popup-item-property item 'selection-face))
 (defsubst popup-item-document (item)            (popup-item-property item 'document))
+(defsubst popup-item-summary (item)             (popup-item-property item 'summary))
 (defsubst popup-item-symbol (item)              (popup-item-property item 'symbol))
 (defsubst popup-item-sublist (item)             (popup-item-property item 'sublist))
 
@@ -347,14 +353,21 @@ See also `popup-item-propertize'."
                          postfix))))
 
 (defun popup-create-line-string (popup item)
-  (let* ((string (car (popup-substring-by-width (popup-x-to-string item)
-                                                (popup-width popup))))
-         (string-width (string-width string))
-         (popup-width (popup-width popup)))
-    (if (< string-width popup-width)
-        ;; Padding
-        (concat string (make-string (- popup-width string-width) ? ))
-      string)))
+  (let* ((popup-width (popup-width popup))
+         (string (car (popup-substring-by-width (popup-x-to-string item)
+                                                popup-width)))
+         (string-width (string-width string)))
+    (if (>= string-width popup-width)
+        string
+      ;; Embed summary (if possible) and padding with space
+      (let* ((summary (popup-item-summary item))
+             (summary-width (if (stringp summary) (string-width summary))))
+        (if (and summary-width
+                 (< summary-width (- popup-width string-width)))
+            (concat string
+                    (make-string (- popup-width string-width summary-width) ? )
+                    summary)
+          (concat string (make-string (- popup-width string-width) ? )))))))
 
 (defun popup-live-p (popup)
   (and popup (popup-overlays popup) t))
