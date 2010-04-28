@@ -948,7 +948,7 @@ See also `popup-item-propertize'."
          ((commandp binding)
           (call-interactively binding))
          (t
-          (funcall fallback (aref key 0) (key-binding key))))))))
+          (funcall fallback key (key-binding key))))))))
 
 ;; popup-menu is used by mouse.el unfairly...
 (defun* popup-menu* (list
