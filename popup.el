@@ -893,9 +893,10 @@ See also `popup-item-propertize'."
 
 (defun popup-menu-fallback (event default))
 
-(defun* popup-menu-event-loop (menu keymap fallback &optional prompt help-delay &aux key binding)
+(defun* popup-menu-event-loop (menu keymap fallback &optional prompt help-delay isearch &aux key binding)
   (block nil
     (while (popup-live-p menu)
+      (if isearch (popup-isearch menu))
       (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
       (if (null key)
           (popup-menu-show-quick-help menu)
@@ -950,6 +951,7 @@ See also `popup-item-propertize'."
                      (fallback 'popup-menu-fallback)
                      help-delay
                      prompt
+                     isearch
                      &aux menu event)
   (and (eq margin t) (setq margin 1))
   (or margin-left (setq margin-left margin))
@@ -972,7 +974,7 @@ See also `popup-item-propertize'."
       (progn
         (popup-set-list menu list)
         (popup-draw menu)
-        (popup-menu-event-loop menu keymap fallback prompt help-delay))
+        (popup-menu-event-loop menu keymap fallback prompt help-delay isearch))
     (popup-delete menu)))
 
 (defun popup-cascade-menu (list &rest args)
