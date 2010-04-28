@@ -216,11 +216,16 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
   pattern original-list)
 
 (defun popup-item-propertize (item &rest properties)
-  (apply 'propertize
-         (if (stringp item)
-             item
-           (popup-x-to-string item))
-         properties))
+  "Same to `propertize` but this avoids overriding existed value with `nil` property."
+  (let (props)
+    (while properties
+      (when (cadr properties)
+        (push (car properties) props)
+        (push (cadr properties) props))
+      (setq properties (cddr properties)))
+    (apply 'propertize
+           (popup-x-to-string item)
+           (nreverse props))))
 
 (defun popup-item-property (item property)
   (if (stringp item)
