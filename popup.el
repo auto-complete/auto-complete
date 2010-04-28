@@ -132,7 +132,7 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
         for summary = (popup-item-summary item)
         maximize (string-width (popup-x-to-string item)) into width
         if (stringp summary)
-        maximize (+ (string-width summary) tab-width) into summary-width
+        maximize (+ (string-width summary) 2) into summary-width
         finally return (* (ceiling (/ (+ (or width 0) (or summary-width 0)) 10.0)) 10)))
 
 ;; window-full-width-p is not defined in Emacs 22.1
@@ -323,12 +323,9 @@ See also `popup-item-propertize'."
     (and (eq (overlay-get overlay 'display) nil)
          (eq (overlay-get overlay 'after-string) nil))))
 
-(defun popup-set-line-item (popup line item face margin-left margin-right scroll-bar-char symbol)
+(defun popup-set-line-item (popup line item face margin-left margin-right scroll-bar-char symbol summary)
   (let* ((overlay (popup-line-overlay popup line))
-         (content (concat margin-left
-                          (popup-create-line-string popup item)
-                          symbol
-                          margin-right))
+         (content (popup-create-line-string popup (popup-x-to-string item) margin-left margin-right symbol summary))
          (start 0)
          (prefix (overlay-get overlay 'prefix))
          (postfix (overlay-get overlay 'postfix))
@@ -352,22 +349,21 @@ See also `popup-item-propertize'."
                          scroll-bar-char
                          postfix))))
 
-(defun popup-create-line-string (popup item)
+(defun popup-create-line-string (popup string margin-left margin-right symbol summary)
   (let* ((popup-width (popup-width popup))
-         (string (car (popup-substring-by-width (popup-x-to-string item)
-                                                popup-width)))
+         (summary-width (string-width summary))
+         (string (car (popup-substring-by-width string
+                                                (- popup-width
+                                                   (if (> summary-width 0)
+                                                       (+ summary-width 2)
+                                                     0)))))
          (string-width (string-width string)))
-    (if (>= string-width popup-width)
-        string
-      ;; Embed summary (if possible) and padding with space
-      (let* ((summary (popup-item-summary item))
-             (summary-width (if (stringp summary) (string-width summary))))
-        (if (and summary-width
-                 (< summary-width (- popup-width string-width)))
-            (concat string
-                    (make-string (- popup-width string-width summary-width) ? )
-                    summary)
-          (concat string (make-string (- popup-width string-width) ? )))))))
+    (concat margin-left
+            string
+            (make-string (max (- popup-width string-width summary-width) 0) ? )
+            summary
+            symbol
+            margin-right)))
 
 (defun popup-live-p (popup)
   (and popup (popup-overlays popup) t))
@@ -577,10 +573,11 @@ See also `popup-item-propertize'."
         for sym = (if symbol
                       (concat " " (or (popup-item-symbol item) " "))
                     "")
+        for summary = (or (popup-item-summary item) "")
         
         do
         ;; Show line and set item to the line
-        (popup-set-line-item popup o item face margin-left margin-right scroll-bar-char sym)
+        (popup-set-line-item popup o item face margin-left margin-right scroll-bar-char sym summary)
         
         finally
         ;; Remember current height
@@ -593,7 +590,7 @@ See also `popup-item-propertize'."
               (progn
                 (when min-height
                   (while (< o min-height)
-                    (popup-set-line-item popup o "" popup-face margin-left margin-right scroll-bar-char symbol)
+                    (popup-set-line-item popup o "" popup-face margin-left margin-right scroll-bar-char symbol "")
                     (incf o)))
                 (while (< o height)
                   (popup-hide-line popup o)
@@ -603,7 +600,7 @@ See also `popup-item-propertize'."
                   if (< o h)
                   do (popup-hide-line popup o)
                   if (>= o h)
-                  do (popup-set-line-item popup o "" popup-face margin-left margin-right scroll-bar-char symbol))))))
+                  do (popup-set-line-item popup o "" popup-face margin-left margin-right scroll-bar-char symbol ""))))))
 
 (defun popup-hide (popup)
   (dotimes (i (popup-height popup))
