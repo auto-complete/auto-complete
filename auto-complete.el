@@ -1120,22 +1120,28 @@ that have been made before in this function."
                       popup-tip-max-width
                       nil nil
                       (and (not around) 0)))
-      nil)))
+      (unless (plist-get args :nowait)
+        (clear-this-command-keys)
+        (unwind-protect
+            (push (read-event) unread-command-events)
+          (pos-tip-hide))
+        t))))
 
 (defun ac-quick-help (&optional force)
   (interactive)
   (when (and (or force (null this-command))
              (ac-menu-live-p)
              (null ac-quick-help))
-    (if (and ac-quick-help-prefer-x
-             (eq window-system 'x)
-             (featurep 'pos-tip))
-        (ac-pos-tip-show-quick-help ac-menu nil :point ac-point)
       (setq ac-quick-help
-            (popup-menu-show-quick-help ac-menu nil
-                                        :point ac-point
-                                        :height ac-quick-help-height
-                                        :nowait t)))))
+            (funcall (if (and ac-quick-help-prefer-x
+                              (eq window-system 'x)
+                              (featurep 'pos-tip))
+                         'ac-pos-tip-show-quick-help
+                       'popup-menu-show-quick-help)
+                     ac-menu nil
+                     :point ac-point
+                     :height ac-quick-help-height
+                     :nowait t))))
 
 (defun ac-remove-quick-help ()
   (when ac-quick-help
