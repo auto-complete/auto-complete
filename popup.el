@@ -853,6 +853,12 @@ See also `popup-item-propertize'."
   "Face for popup menu selection."
   :group 'popup)
 
+(defvar popup-menu-show-tip-function 'popup-tip
+  "Function used for showing tooltip by `popup-menu-show-quick-help'.")
+
+(defvar popup-menu-show-quick-help-function 'popup-menu-show-quick-help
+  "Function used for showing quick help by `popup-menu*'.")
+
 (defun popup-menu-show-help (menu &optional persist item)
   (popup-item-show-help (or item (popup-selected-item menu)) persist))
 
@@ -873,7 +879,7 @@ See also `popup-item-propertize'."
                 parent-offset nil)
         (setq point nil))
       (let ((popup-use-optimized-column-computation nil)) ; To avoid wrong positioning
-        (apply 'popup-tip
+        (apply popup-menu-show-tip-function
                doc
                :point point
                :height height
@@ -919,7 +925,7 @@ See also `popup-item-propertize'."
       (if isearch (popup-isearch menu))
       (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
       (if (null key)
-          (popup-menu-show-quick-help menu)
+          (funcall popup-menu-show-quick-help-function menu)
         (if (eq (lookup-key (current-global-map) key) 'keyboard-quit)
             (keyboard-quit))
         (setq binding (lookup-key keymap key))
