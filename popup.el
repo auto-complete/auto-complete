@@ -899,25 +899,23 @@ See also `popup-item-propertize'."
                                              (if (zerop (length (this-command-keys)))
                                                  (throw 'timeout nil))))))
           (old-global-map (current-global-map))
-          (old-local-map (current-local-map))
           (temp-global-map (make-sparse-keymap))
-          (temp-local-map (make-sparse-keymap)))
+          (overriding-terminal-local-map (make-sparse-keymap)))
       (substitute-key-definition 'keyboard-quit 'keyboard-quit
                                  temp-global-map old-global-map)
       (define-key temp-global-map [menu-bar] (lookup-key old-global-map [menu-bar]))
       (define-key temp-global-map [tool-bar] (lookup-key old-global-map [tool-bar]))
-      (set-keymap-parent temp-local-map keymap)
-      (define-key temp-local-map [menu-bar] (lookup-key old-local-map [menu-bar]))
+      (set-keymap-parent overriding-terminal-local-map keymap)
+      (define-key overriding-terminal-local-map [menu-bar]
+        (lookup-key (current-local-map) [menu-bar]))
       (unwind-protect
           (progn
             (use-global-map temp-global-map)
-            (use-local-map temp-local-map)
             (clear-this-command-keys)
-            (prog1
-                (read-key-sequence prompt)
-              (if timer (cancel-timer timer))))
+            (with-temp-message prompt
+              (read-key-sequence nil)))
         (use-global-map old-global-map)
-        (use-local-map old-local-map)))))
+        (if timer (cancel-timer timer))))))
 
 (defun popup-menu-fallback (event default))
 
