@@ -688,7 +688,7 @@ See also `popup-item-propertize'."
 (defvar popup-isearch-keymap
   (let ((map (make-sparse-keymap)))
     ;(define-key map "\r"        'popup-isearch-done)
-    (define-key map (kbd "ESC") 'popup-isearch-cancel)
+    (define-key map "\C-g"      'popup-isearch-cancel)
     (define-key map "\C-h"      'popup-isearch-delete)
     (define-key map (kbd "DEL") 'popup-isearch-delete)
     map))
@@ -718,14 +718,13 @@ See also `popup-item-propertize'."
                                      item)
                   item)))
 
-(defun popup-isearch-read-event (popup pattern)
-  (clear-this-command-keys)
+(defun popup-isearch-read-key-sequence (popup pattern keymap)
   (let (prompt)
     (setq prompt
           (format "Pattern: %s" (if (= (length (popup-list popup)) 0)
                                     (propertize pattern 'face 'isearch-fail)
                                   pattern)))
-    (read-event prompt pattern)))
+    (popup-menu-read-key-sequence keymap prompt)))
 
 (defun popup-isearch-update (popup pattern &optional callback)
   (setf (popup-cursor popup) 0
@@ -745,16 +744,17 @@ See also `popup-item-propertize'."
   (let ((list (popup-original-list popup))
         (pattern (or (popup-pattern popup) ""))
         (old-cursor-color (frame-parameter (selected-frame) 'cursor-color))
-        prompt event binding done)
+        prompt key binding done)
     (unwind-protect
         (unless (block nil
                   (if cursor-color
                       (set-cursor-color cursor-color))
-                  (while (setq event (popup-isearch-read-event popup pattern))
-                    (setq binding (popup-lookup-key-by-event (lambda (key) (lookup-key keymap key)) event))
+                  (while (setq key (popup-isearch-read-key-sequence popup pattern keymap))
+                    (setq binding (lookup-key keymap key))
                     (cond
-                     ((popup-isearch-char-p event)
-                      (setq pattern (concat pattern (char-to-string event))))
+                     ((and (stringp key)
+                           (popup-isearch-char-p (aref key 0)))
+                      (setq pattern (concat pattern key)))
                      ((eq binding 'popup-isearch-done)
                       (return t))
                      ((eq binding 'popup-isearch-cancel)
@@ -763,10 +763,12 @@ See also `popup-item-propertize'."
                       (if (> (length pattern) 0)
                           (setq pattern (substring pattern 0 (1- (length pattern))))))
                      (t
-                      (push event unread-command-events)
+                      (setq unread-command-events
+                            (append (listify-key-sequence key) unread-command-events))
                       (return t)))
                     (popup-isearch-update popup pattern callback)))
-          (popup-isearch-update popup "" callback))
+          (popup-isearch-update popup "" callback)
+          t) ; Return non-nil if isearch is cancelled
       (if old-cursor-color
           (set-cursor-color old-cursor-color)))))
 
@@ -922,7 +924,9 @@ See also `popup-item-propertize'."
 (defun* popup-menu-event-loop (menu keymap fallback &optional prompt help-delay isearch &aux key binding)
   (block nil
     (while (popup-live-p menu)
-      (if isearch (popup-isearch menu))
+      (and isearch
+           (popup-isearch menu)
+           (keyboard-quit))
       (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
       (if (null key)
           (funcall popup-menu-show-quick-help-function menu)
