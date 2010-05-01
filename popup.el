@@ -931,7 +931,7 @@ See also `popup-item-propertize'."
            (keyboard-quit))
       (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
       (if (null key)
-          (unless (funcall popup-menu-show-quick-help-function menu)
+          (unless (funcall popup-menu-show-quick-help-function menu nil :prompt prompt)
             (clear-this-command-keys)
             (push (read-event prompt) unread-command-events))
         (if (eq (lookup-key (current-global-map) key) 'keyboard-quit)
