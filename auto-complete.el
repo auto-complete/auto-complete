@@ -1123,7 +1123,7 @@ that have been made before in this function."
       (unless (plist-get args :nowait)
         (clear-this-command-keys)
         (unwind-protect
-            (push (read-event) unread-command-events)
+            (push (read-event (plist-get args :prompt)) unread-command-events)
           (pos-tip-hide))
         t))))
 
