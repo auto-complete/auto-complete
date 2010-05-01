@@ -718,13 +718,10 @@ See also `popup-item-propertize'."
                                      item)
                   item)))
 
-(defun popup-isearch-read-key-sequence (popup pattern keymap)
-  (let (prompt)
-    (setq prompt
-          (format "Pattern: %s" (if (= (length (popup-list popup)) 0)
-                                    (propertize pattern 'face 'isearch-fail)
-                                  pattern)))
-    (popup-menu-read-key-sequence keymap prompt)))
+(defun popup-isearch-prompt (popup pattern)
+  (format "Pattern: %s" (if (= (length (popup-list popup)) 0)
+                            (propertize pattern 'face 'isearch-fail)
+                          pattern)))
 
 (defun popup-isearch-update (popup pattern &optional callback)
   (setf (popup-cursor popup) 0
@@ -740,7 +737,8 @@ See also `popup-item-propertize'."
                        &key
                        (cursor-color popup-isearch-cursor-color)
                        (keymap popup-isearch-keymap)
-                       callback)
+                       callback
+                       help-delay)
   (let ((list (popup-original-list popup))
         (pattern (or (popup-pattern popup) ""))
         (old-cursor-color (frame-parameter (selected-frame) 'cursor-color))
@@ -749,24 +747,28 @@ See also `popup-item-propertize'."
         (unless (block nil
                   (if cursor-color
                       (set-cursor-color cursor-color))
-                  (while (setq key (popup-isearch-read-key-sequence popup pattern keymap))
-                    (setq binding (lookup-key keymap key))
-                    (cond
-                     ((and (stringp key)
-                           (popup-isearch-char-p (aref key 0)))
-                      (setq pattern (concat pattern key)))
-                     ((eq binding 'popup-isearch-done)
-                      (return t))
-                     ((eq binding 'popup-isearch-cancel)
-                      (return nil))
-                     ((eq binding 'popup-isearch-delete)
-                      (if (> (length pattern) 0)
-                          (setq pattern (substring pattern 0 (1- (length pattern))))))
-                     (t
-                      (setq unread-command-events
-                            (append (listify-key-sequence key) unread-command-events))
-                      (return t)))
-                    (popup-isearch-update popup pattern callback)))
+                  (while t
+                    (setq prompt (popup-isearch-prompt popup pattern))
+                    (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
+                    (if (null key)
+                        (funcall popup-menu-show-quick-help-function popup nil :prompt prompt)
+                      (setq binding (lookup-key keymap key))
+                      (cond
+                       ((and (stringp key)
+                             (popup-isearch-char-p (aref key 0)))
+                        (setq pattern (concat pattern key)))
+                       ((eq binding 'popup-isearch-done)
+                        (return t))
+                       ((eq binding 'popup-isearch-cancel)
+                        (return nil))
+                       ((eq binding 'popup-isearch-delete)
+                        (if (> (length pattern) 0)
+                            (setq pattern (substring pattern 0 (1- (length pattern))))))
+                       (t
+                        (setq unread-command-events
+                              (append (listify-key-sequence key) unread-command-events))
+                        (return t)))
+                      (popup-isearch-update popup pattern callback))))
           (popup-isearch-update popup "" callback)
           t) ; Return non-nil if isearch is cancelled
       (if old-cursor-color
@@ -923,7 +925,7 @@ See also `popup-item-propertize'."
   (block nil
     (while (popup-live-p menu)
       (and isearch
-           (popup-isearch menu)
+           (popup-isearch menu :help-delay help-delay)
            (keyboard-quit))
       (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
       (if (null key)
