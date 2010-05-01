@@ -751,7 +751,9 @@ See also `popup-item-propertize'."
                     (setq prompt (popup-isearch-prompt popup pattern))
                     (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
                     (if (null key)
-                        (funcall popup-menu-show-quick-help-function popup nil :prompt prompt)
+                        (unless (funcall popup-menu-show-quick-help-function popup nil :prompt prompt)
+                          (clear-this-command-keys)
+                          (push (read-event prompt) unread-command-events))
                       (setq binding (lookup-key keymap key))
                       (cond
                        ((and (stringp key)
@@ -896,10 +898,10 @@ See also `popup-item-propertize'."
 (defun popup-menu-read-key-sequence (keymap &optional prompt timeout)
   (catch 'timeout
     (let ((timer (and timeout
-                      (run-with-idle-timer timeout nil
-                                           (lambda ()
-                                             (if (zerop (length (this-command-keys)))
-                                                 (throw 'timeout nil))))))
+                      (run-with-timer timeout nil
+                                      (lambda ()
+                                        (if (zerop (length (this-command-keys)))
+                                            (throw 'timeout nil))))))
           (old-global-map (current-global-map))
           (temp-global-map (make-sparse-keymap))
           (overriding-terminal-local-map (make-sparse-keymap)))
@@ -929,7 +931,9 @@ See also `popup-item-propertize'."
            (keyboard-quit))
       (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
       (if (null key)
-          (funcall popup-menu-show-quick-help-function menu)
+          (unless (funcall popup-menu-show-quick-help-function menu)
+            (clear-this-command-keys)
+            (push (read-event prompt) unread-command-events))
         (if (eq (lookup-key (current-global-map) key) 'keyboard-quit)
             (keyboard-quit))
         (setq binding (lookup-key keymap key))
