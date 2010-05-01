@@ -910,8 +910,9 @@ See also `popup-item-propertize'."
       (define-key temp-global-map [menu-bar] (lookup-key old-global-map [menu-bar]))
       (define-key temp-global-map [tool-bar] (lookup-key old-global-map [tool-bar]))
       (set-keymap-parent overriding-terminal-local-map keymap)
-      (define-key overriding-terminal-local-map [menu-bar]
-        (lookup-key (current-local-map) [menu-bar]))
+      (if (current-local-map)
+          (define-key overriding-terminal-local-map [menu-bar]
+            (lookup-key (current-local-map) [menu-bar])))
       (unwind-protect
           (progn
             (use-global-map temp-global-map)
