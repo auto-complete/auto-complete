@@ -924,11 +924,15 @@ See also `popup-item-propertize'."
 
 (defun popup-menu-fallback (event default))
 
-(defun* popup-menu-event-loop (menu keymap fallback &optional prompt help-delay isearch &aux key binding)
+(defun* popup-menu-event-loop (menu keymap fallback &optional prompt help-delay isearch isearch-cursor-color isearch-keymap isearch-callback &aux key binding)
   (block nil
     (while (popup-live-p menu)
       (and isearch
-           (popup-isearch menu :help-delay help-delay)
+           (popup-isearch menu
+                          :cursor-color isearch-cursor-color
+                          :keymap isearch-keymap
+                          :callback isearch-callback
+                          :help-delay help-delay)
            (keyboard-quit))
       (setq key (popup-menu-read-key-sequence keymap prompt help-delay))
       (if (null key)
@@ -962,7 +966,11 @@ See also `popup-item-propertize'."
          ((eq binding 'popup-help)
           (popup-menu-show-help menu))
          ((eq binding 'popup-isearch)
-          (popup-isearch menu :help-delay help-delay))
+          (popup-isearch menu
+                         :cursor-color isearch-cursor-color
+                         :keymap isearch-keymap
+                         :callback isearch-callback
+                         :help-delay help-delay))
          ((commandp binding)
           (call-interactively binding))
          (t
@@ -987,6 +995,9 @@ See also `popup-item-propertize'."
                      help-delay
                      prompt
                      isearch
+                     (isearch-cursor-color popup-isearch-cursor-color)
+                     (isearch-keymap popup-isearch-keymap)
+                     isearch-callback
                      &aux menu event)
   (and (eq margin t) (setq margin 1))
   (or margin-left (setq margin-left margin))
@@ -1009,7 +1020,8 @@ See also `popup-item-propertize'."
       (progn
         (popup-set-list menu list)
         (popup-draw menu)
-        (popup-menu-event-loop menu keymap fallback prompt help-delay isearch))
+        (popup-menu-event-loop menu keymap fallback prompt help-delay isearch
+                               isearch-cursor-color isearch-keymap isearch-callback))
     (popup-delete menu)))
 
 (defun popup-cascade-menu (list &rest args)
