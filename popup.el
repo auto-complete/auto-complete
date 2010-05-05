@@ -962,7 +962,7 @@ See also `popup-item-propertize'."
          ((eq binding 'popup-help)
           (popup-menu-show-help menu))
          ((eq binding 'popup-isearch)
-          (popup-isearch menu))
+          (popup-isearch menu :help-delay help-delay))
          ((commandp binding)
           (call-interactively binding))
          (t
