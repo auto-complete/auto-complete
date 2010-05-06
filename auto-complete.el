@@ -1119,13 +1119,13 @@ that have been made before in this function."
                       nil 0
                       popup-tip-max-width
                       nil nil
-                      (and (not around) 0)))
-      (unless (plist-get args :nowait)
-        (clear-this-command-keys)
-        (unwind-protect
-            (push (read-event (plist-get args :prompt)) unread-command-events)
-          (pos-tip-hide))
-        t))))
+                      (and (not around) 0))
+        (unless (plist-get args :nowait)
+          (clear-this-command-keys)
+          (unwind-protect
+              (push (read-event (plist-get args :prompt)) unread-command-events)
+            (pos-tip-hide))
+          t)))))
 
 (defun ac-quick-help (&optional force)
   (interactive)
