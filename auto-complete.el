@@ -383,7 +383,8 @@ If there is no common part, this will be nil.")
   '((symbol . ac-prefix-symbol)
     (file . ac-prefix-file)
     (valid-file . ac-prefix-valid-file)
-    (c-dot . ac-prefix-c-dot))
+    (c-dot . ac-prefix-c-dot)
+    (c-dot-ref . ac-prefix-c-dot-ref))
   "Prefix definitions for common use.")
 
 (defvar ac-sources '(ac-source-words-in-same-mode-buffers)
@@ -562,8 +563,13 @@ If there is no common part, this will be nil.")
 
 (defun ac-prefix-c-dot ()
   "C-like languages dot(.) prefix."
-  (let ((point (re-search-backward "\\.\\([a-zA-Z0-9][_a-zA-Z0-9]*\\)?\\=" nil t)))
-    (if point (1+ point))))
+  (if (re-search-backward "\\.\\(\\(?:[a-zA-Z0-9][_a-zA-Z0-9]*\\)?\\)\\=" nil t)
+      (match-beginning 1)))
+
+(defun ac-prefix-c-dot-ref ()
+  "C-like languages dot(.) and reference(->) prefix."
+  (if (re-search-backward "\\(?:\\.\\|->\\)\\(\\(?:[a-zA-Z0-9][_a-zA-Z0-9]*\\)?\\)\\=" nil t)
+      (match-beginning 1)))
 
 (defun ac-define-prefix (name prefix)
   "Define new prefix definition.
@@ -582,12 +588,25 @@ You can not use it in source definition like (prefix . `NAME')."
     source))
 
 (defun ac-source-available-p (source)
-  (setq source (ac-source-entity source))
-  (loop for feature in (assoc-default 'depends source)
-        if (eq (get feature 'available) 'no) return nil ; use cache
-        unless (require feature nil t)
-        do (put feature 'available 'no) and return nil
-        finally return t))
+  (if (and (symbolp source)
+           (get source 'available))
+      (eq (get source 'available) t)
+    (let* ((src (ac-source-entity source))
+           (avail-pair (assq 'available src))
+           (avail-cond (cdr avail-pair))
+           (available (and (if avail-pair
+                               (cond
+                                ((symbolp avail-cond)
+                                 (funcall avail-cond))
+                                ((listp avail-cond)
+                                 (eval avail-cond)))
+                             t)
+                           (loop for feature in (assoc-default 'depends src)
+                                 unless (require feature nil t) return nil
+                                 finally return t))))
+      (if (symbolp source)
+          (put source 'available (if available t 'no)))
+      available)))
 
 (defun ac-compile-sources (sources)
   "Compiled `SOURCES' into expanded sources style."

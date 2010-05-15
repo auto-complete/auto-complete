@@ -920,6 +920,14 @@ Specify a face of candidate. It overrides [`ac-candidate-face`](#) partially.
 
 Specify a face of selection. It overrides [`ac-selection-face`](#) partially.
 
+#### `depends` ####
+
+Specify a list of features (which are `require`d) that the source is depending.
+
+#### `available` ####
+
+Specify a function or an expression that describe the source is available or not.
+
 ### Variables ###
 
 Here is a list of often used variables.

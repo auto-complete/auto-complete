@@ -173,9 +173,10 @@
                           (senator-find-tag-for-completion prefix)))))))
 
 (ac-define-source semantic
-  '((depends semantic-ia)
+  '((available . (or (require 'semantic-ia nil t)
+                     (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
-    (prefix . c-dot)
+    (prefix . c-dot-ref)
     (requires . 0)
     (symbol . "f")))
 
