@@ -178,7 +178,13 @@
     (candidates . (ac-semantic-candidates ac-prefix))
     (prefix . c-dot-ref)
     (requires . 0)
-    (symbol . "f")))
+    (symbol . "m")))
+
+(ac-define-source semantic-raw
+  '((available . (or (require 'semantic-ia nil t)
+                     (require 'semantic/ia nil t)))
+    (candidates . (ac-semantic-candidates ac-prefix))
+    (symbol . "s")))
 
 ;; eclim
 
