@@ -164,7 +164,7 @@
     lisp-interaction-mode
     c-mode cc-mode c++-mode clojure-mode java-mode
     perl-mode cperl-mode python-mode ruby-mode
-    ecmascript-mode javascript-mode js2-mode php-mode css-mode
+    ecmascript-mode javascript-mode js-mode js2-mode php-mode css-mode
     makefile-mode sh-mode fortran-mode f90-mode ada-mode
     xml-mode sgml-mode)
   "Major modes `auto-complete-mode' can run on."
