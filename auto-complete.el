@@ -999,30 +999,31 @@ You can not use it in source definition like (prefix . `NAME')."
 This function records deletion and insertion sequences by `undo-boundary'.
 If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
 that have been made before in this function."
-  (undo-boundary)
-  ;; We can't use primitive-undo since it undoes by
-  ;; groups, divided by boundaries.
-  ;; We don't want boundary between deletion and insertion.
-  ;; So do it manually.
-  ;; Delete region silently for undo:
-  (if remove-undo-boundary
-      (progn
-        (let (buffer-undo-list)
-          (save-excursion
-            (delete-region ac-point (point))))
-        (setq buffer-undo-list
-              (nthcdr 2 buffer-undo-list)))
-    (delete-region ac-point (point)))
-  (insert string)
-  ;; Sometimes, possible when omni-completion used, (insert) added
-  ;; to buffer-undo-list strange record about position changes.
-  ;; Delete it here:
-  (when (and remove-undo-boundary
-             (integerp (cadr buffer-undo-list)))
-    (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
-  (undo-boundary)
-  (setq ac-selected-candidate string)
-  (setq ac-prefix string))
+  (when (not (equal string (buffer-substring ac-point (point))))
+    (undo-boundary)
+    ;; We can't use primitive-undo since it undoes by
+    ;; groups, divided by boundaries.
+    ;; We don't want boundary between deletion and insertion.
+    ;; So do it manually.
+    ;; Delete region silently for undo:
+    (if remove-undo-boundary
+        (progn
+          (let (buffer-undo-list)
+            (save-excursion
+              (delete-region ac-point (point))))
+          (setq buffer-undo-list
+                (nthcdr 2 buffer-undo-list)))
+      (delete-region ac-point (point)))
+    (insert string)
+    ;; Sometimes, possible when omni-completion used, (insert) added
+    ;; to buffer-undo-list strange record about position changes.
+    ;; Delete it here:
+    (when (and remove-undo-boundary
+               (integerp (cadr buffer-undo-list)))
+      (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
+    (undo-boundary)
+    (setq ac-selected-candidate string)
+    (setq ac-prefix string)))
 
 (defun ac-set-trigger-key (key)
   "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
@@ -1313,9 +1314,11 @@ that have been made before in this function."
   "Try complete."
   (interactive)
   (let* ((candidate (ac-selected-candidate))
-         (action (popup-item-property candidate 'action)))
+         (action (popup-item-property candidate 'action))
+         (fallback nil))
     (when candidate
-      (ac-expand-string candidate)
+      (unless (ac-expand-string candidate)
+        (setq fallback t))
       ;; Remember to show help later
       (when (and ac-point candidate)
         (unless ac-last-completion
@@ -1323,8 +1326,11 @@ that have been made before in this function."
         (set-marker (car ac-last-completion) ac-point ac-buffer)
         (setcdr ac-last-completion candidate)))
     (ac-abort)
-    (if action
-        (funcall action))
+    (cond
+     (action
+      (funcall action))
+     (fallback
+      (ac-fallback-command)))
     candidate))
 
 (defun* ac-start (&key
@@ -1372,19 +1378,7 @@ that have been made before in this function."
   (interactive "P")
   (if (or force (ac-trigger-command-p last-command))
       (auto-complete)
-    ;; borrowed from yasnippet.el
-    (let* ((auto-complete-mode nil)
-           (keys-1 (this-command-keys-vector))
-           (keys-2 (read-kbd-macro ac-trigger-key))
-           (command-1 (if keys-1 (key-binding keys-1)))
-           (command-2 (if keys-2 (key-binding keys-2)))
-           (command (or (if (not (eq command-1 'ac-trigger-key-command))
-                            command-1)
-                        command-2)))
-      (when (and (commandp command)
-                 (not (eq command 'ac-trigger-key-command)))
-        (setq this-command command)
-        (call-interactively command)))))
+    (ac-fallback-command)))
 
 
 
@@ -1432,6 +1426,21 @@ that have been made before in this function."
        (or (memq command ac-trigger-commands)
            (string-match "self-insert-command" (symbol-name command))
            (string-match "electric" (symbol-name command)))))
+
+(defun ac-fallback-command ()
+  ;; borrowed from yasnippet.el
+  (let* ((auto-complete-mode nil)
+         (keys-1 (this-command-keys-vector))
+         (keys-2 (read-kbd-macro ac-trigger-key))
+         (command-1 (if keys-1 (key-binding keys-1)))
+         (command-2 (if keys-2 (key-binding keys-2)))
+         (command (or (if (not (eq command-1 'ac-trigger-key-command))
+                          command-1)
+                      command-2)))
+    (when (and (commandp command)
+               (not (eq command 'ac-trigger-key-command)))
+      (setq this-command command)
+      (call-interactively command))))
 
 (defun ac-compatible-package-command-p (command)
   "Return non-nil if `COMMAND' is compatible with auto-complete."
