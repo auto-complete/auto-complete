@@ -674,6 +674,14 @@ Specify how distinguish case. `t` means always ignoring case. `nil` means never 
 * After selecting candidates, TAB will behave as RET
 * TAB will behave as RET only on candidate remains
 
+### `ac-use-menu-map` ###
+
+Specify a special keymap (`ac-menu-map`) should be enabled when completion menu is displayed. `ac-menu-map` will be enabled when it is `t` and satisfy one of the following conditions:
+
+* `ac-auto-start` and `ac-auto-show-menu` are not `nil`, and completion menu is displayed after starting completion
+* Completion menu is displayed by `auto-complete` command
+* Completion menu is displayed by `ac-isearch` command
+
 ### `ac-use-overriding-local-map` ###
 
 Use only when operations is not affected. Internally it uses `overriding-local-map`, which is too powerful to use with keeping orthogonality. So don't use as much as possible.
@@ -712,11 +720,15 @@ Specify sources as a list of [source](#Source). This is a buffer local variable.
 
 ### `ac-completing-map` ###
 
-Key map on completing.
+Keymap for completion.
+
+### `ac-menu-map` ###
+
+Keymap for completion on completion menu. See also [`ac-use-menu-map`](#).
 
 ### `ac-mode-map` ###
 
-Key map for `auto-complete-mode` enabled buffers.
+Keymap for `auto-complete-mode` enabled buffers.
 
 Extend
 ------

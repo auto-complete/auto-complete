@@ -89,7 +89,7 @@
   :group 'auto-complete)
 
 (defcustom ac-disable-faces '(font-lock-comment-face font-lock-string-face font-lock-doc-face)
-  "Non-nil means disable automatic completion on comments."
+  "Non-nil means disable automatic completion on specified faces."
   :type '(repeat symbol)
   :group 'auto-complete)
 
@@ -229,6 +229,11 @@ a prefix doen't contain any upper case letters."
 
 (defcustom ac-dwim t
   "Non-nil means `auto-complete' works based on Do What I Mean."
+  :type 'boolean
+  :group 'auto-complete)
+
+(defcustom ac-use-menu-map nil
+  "Non-nil means a special keymap `ac-menu-map' on completing menu will be used."
   :type 'boolean
   :group 'auto-complete)
 
@@ -372,9 +377,21 @@ If there is no common part, this will be nil.")
         (define-key map (read-kbd-macro (format "M-%s" (1+ i))) symbol)))
 
     map)
-  "Keymap for completion")
-
+  "Keymap for completion.")
 (defvaralias 'ac-complete-mode-map 'ac-completing-map)
+
+(defvar ac-menu-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-n" 'ac-next)
+    (define-key map "\C-p" 'ac-previous)
+    (set-keymap-parent map ac-completing-map)
+    map)
+  "Keymap for completion on completing menu.")
+
+(defvar ac-current-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map ac-completing-map)
+    map))
 
 (defvar ac-match-function 'all-completions
   "Default match function.")
@@ -707,7 +724,7 @@ You can not use it in source definition like (prefix . `NAME')."
         (setf (nth 1 ac-inline)  overlay)
         (overlay-put overlay 'priority 9999)
         ;; Help prefix-overlay in some cases
-        (overlay-put overlay 'keymap ac-completing-map))
+        (overlay-put overlay 'keymap ac-current-map))
       (overlay-put overlay 'display (substring string 0 1))
       ;; TODO no width but char
       (overlay-put overlay 'after-string (substring string 1))
@@ -771,15 +788,18 @@ You can not use it in source definition like (prefix . `NAME')."
     (delete-overlay ac-prefix-overlay)))
 
 (defun ac-activate-completing-map ()
+  (if (and ac-show-menu ac-use-menu-map)
+      (set-keymap-parent ac-current-map ac-menu-map))
   (when (and ac-use-overriding-local-map
              (null overriding-terminal-local-map))
-    (setq overriding-terminal-local-map ac-completing-map))
+    (setq overriding-terminal-local-map ac-current-map))
   (when ac-prefix-overlay
-    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) ac-completing-map)))
+    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) ac-current-map)))
 
 (defun ac-deactivate-completing-map ()
+  (set-keymap-parent ac-current-map ac-completing-map)
   (when (and ac-use-overriding-local-map
-             (eq overriding-terminal-local-map ac-completing-map))
+             (eq overriding-terminal-local-map ac-current-map))
     (setq overriding-terminal-local-map nil))
   (when ac-prefix-overlay
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
@@ -1214,7 +1234,7 @@ that have been made before in this function."
   (when (ac-menu-live-p)
     (ac-cancel-show-menu-timer)
     (ac-cancel-quick-help-timer)
-    (popup-draw ac-menu)
+    (ac-show-menu)
     (popup-isearch ac-menu :callback 'ac-isearch-callback)))
 
 
