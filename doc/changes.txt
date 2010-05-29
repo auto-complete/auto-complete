@@ -10,7 +10,7 @@ Auto Complete Mode Changes
 
 See also [documentation](manual.txt).
 
-v1.3 Changes
+v1.3 Changes {#Changes_v1.3}
 ------------
 
 Major changes in v1.3.
@@ -53,7 +53,7 @@ Major changes in v1.3.
 * Yasnippet 0.61 support
 * Fix many bugs
 
-v1.2 Changes
+v1.2 Changes {#Changes_v1.2}
 ------------
 
 Major changes in v1.2 since v1.0.
