@@ -947,7 +947,7 @@ Specify a symbol of candidate meaning in one character string. The symbol will b
 
 #### `summary` ####
 
-Specify a summary of candidate in string. It should be used for summarize the candidate in short string.
+Specify a summary of candidate in string. It should be used for summarizing the candidate in short string.
 
 #### `cache` ####
 

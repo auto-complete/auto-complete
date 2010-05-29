@@ -40,9 +40,16 @@ Demo
 Downloads
 ---------
 
-### Latest Stable ###
+### Latest Stable (v1.3) ### {#Latest_Stable}
 
-[Changes v1.2](changes-v1.2.txt)
+[Changes v1.3](changes.txt#Changes_v1.3)
+
+* [auto-complete-1.3.tar.bz2](/pub/auto-complete/auto-complete-1.3.tar.bz2)
+* [auto-complete-1.3.zip](/pub/auto-complete/auto-complete-1.3.zip)
+
+### v1.2 ###
+
+[Changes v1.2](changes.txt#Changes_v1.2)
 
 * [auto-complete-1.2.tar.bz2](/pub/auto-complete/auto-complete-1.2.tar.bz2)
 * [auto-complete-1.2.zip](/pub/auto-complete/auto-complete-1.2.zip)
@@ -73,7 +80,7 @@ Visit [Auto Complete Mode Bug Tracking System](http://cx4a.org/redmine/projects/
 License
 -------
 
-This software is distributed under the term of [GPLv3][].
+This software is distributed under the term of [GPLv3][]+.
 
 [GNU Emacs]: http://www.gnu.org/software/emacs/
 [GPLv3]: http://gplv3.fsf.org/
