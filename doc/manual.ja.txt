@@ -345,6 +345,10 @@ Emacs Lispについて若干の知識があれば誰でも簡単に情報源を�
 
 Emacsの略語機能のための情報源です。略語機能に関しては`info emacs Abbrevs`を参照してください。
 
+#### `ac-source-css-property` ####
+
+CSSプロパティのための情報源です。
+
 #### `ac-source-dictionary` ####
 
 辞書のための情報源です。辞書に関しては[辞書による補完](#)を参照してください。
@@ -380,6 +384,10 @@ Emacs Lispの関数を補完するための情報源です。`(`の直後で有�
 #### `ac-source-semantic` ####
 
 [Semantic](http://cedet.sourceforge.net/semantic.shtml)のための情報源です。C/C++でメンバー名補完として利用できます。
+
+#### `ac-source-semantic-raw` ####
+
+`ac-source-semantic`と違って、この情報源は生の名前空間でシンボルを補完するのに使います。
 
 #### `ac-source-symbols` ####
 
@@ -586,6 +594,10 @@ Tips
 
     (define-key ac-mode-map (kbd "C-c h") 'ac-last-quick-help)
     (define-key ac-mode-map (kbd "C-c H") 'ac-last-help)
+
+### ヘルプを綺麗に表示する ###
+
+[pos-tip.el](http://www.emacswiki.org/emacs-en/PosTip)がインストールされている場合、`auto-complete-mode`は従来のレンダリングエンジンの代わりに、`pos-tip.el`が提供するネイティブレンダリングエンジンを利用してヘルプを表示します。
 
 設定項目
 --------
@@ -937,6 +949,10 @@ Bと入力してBar, Bazが補完候補として現われれば成功です。�
 | c    | 定数           |
 | a    | 略語           |
 | d    | 辞書           |
+
+#### `summary` ####
+
+補完候補のサマリを文字列で指定します。これは補完候補を簡潔に説明するために使うべきです。
 
 #### `cache` ####
 

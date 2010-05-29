@@ -341,6 +341,10 @@ Here are defined sources in `auto-complete.el` and `auto-complete-config.el`.
 
 A source for Emacs abbreviation function. See `info emacs Abbrevs` about abbreviation function.
 
+#### `ac-source-css-property` ####
+
+A source for CSS property.
+
 #### `ac-source-dictionary` ####
 
 A source for dictionary. See [completion by dictionary](#Completion_by_Dictionary) about dictionary.
@@ -376,6 +380,10 @@ A source for completing `imenu` nodes. See `info emacs imenu` for details.
 #### `ac-source-semantic` ####
 
 A source for [Semantic](http://cedet.sourceforge.net/semantic.shtml). It can be used for completing member name for C/C++.
+
+#### `ac-source-semantic-raw` ####
+
+Unlike `ac-source-semantic`, this source is for completing symbols in a raw namespace.
 
 #### `ac-source-symbols` ####
 
@@ -582,6 +590,10 @@ You may bind keys to these command like:
 
     (define-key ac-mode-map (kbd "C-c h") 'ac-last-quick-help)
     (define-key ac-mode-map (kbd "C-c H") 'ac-last-help)
+
+### Show help beautifully ###
+
+If [pos-tip.el](http://www.emacswiki.org/emacs-en/PosTip) is installed, `auto-complete-mode` uses its native rendering engine for displaying quick help instead of legacy one.
 
 Configuration
 -------------
@@ -932,6 +944,10 @@ Specify a symbol of candidate meaning in one character string. The symbol will b
 | c      | Constant         |
 | a      | Abbreviation     |
 | d      | Dictionary       |
+
+#### `summary` ####
+
+Specify a summary of candidate in string. It should be used for summarize the candidate in short string.
 
 #### `cache` ####
 
