@@ -462,6 +462,23 @@ Tips
     (define-key ac-completing-map "\t" 'ac-complete)
     (define-key ac-completing-map "\r" nil)
 
+### 補完メニュー表示時のみC-n/C-pで補完候補を選択する ###
+
+次のコードを評価することでC-n/C-pで補完候補を選択できますが、これでは邪魔だと感じることがあります。
+
+    ;; 良くない設定
+    (define-key ac-completing-map "\C-n" 'ac-next)
+    (define-key ac-completing-map "\C-p" 'ac-previous)
+
+そこで補完メニュー表示時のみにC-n/C-pで補完候補を選択できるようにして、キー入力を極力奪わないようにしてみます。`ac-menu-map`は補完メニューが表示されているときに利用されるキーマップで、`ac-use-menu-map`が`t`のときに有効になります。
+
+    (setq ac-use-menu-map t)
+    ;; デフォルトで設定済み
+    (define-key ac-menu-map "\C-n" 'ac-next)
+    (define-key ac-menu-map "\C-p" 'ac-previous)
+
+詳しくは[`ac-use-menu-map`](#)および[`ac-menu-map`](#)を参照してください。
+
 ### クイックヘルプを利用しない ###
 
 補完中に1秒ほど待ったときに出てくるツールチップヘルプをクイックヘルプと呼んでいますが、これを利用したくない場合は次のように設定します。

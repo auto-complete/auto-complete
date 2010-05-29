@@ -1401,7 +1401,7 @@ that have been made before in this function."
   (interactive "P")
   (if (or force (ac-trigger-command-p last-command))
       (auto-complete)
-    (ac-fallback-command)))
+    (ac-fallback-command 'ac-trigger-key-command)))
 
 
 
@@ -1450,18 +1450,12 @@ that have been made before in this function."
            (string-match "self-insert-command" (symbol-name command))
            (string-match "electric" (symbol-name command)))))
 
-(defun ac-fallback-command ()
-  ;; borrowed from yasnippet.el
+(defun ac-fallback-command (&optional except-command)
   (let* ((auto-complete-mode nil)
-         (keys-1 (this-command-keys-vector))
-         (keys-2 (read-kbd-macro ac-trigger-key))
-         (command-1 (if keys-1 (key-binding keys-1)))
-         (command-2 (if keys-2 (key-binding keys-2)))
-         (command (or (if (not (eq command-1 'ac-trigger-key-command))
-                          command-1)
-                      command-2)))
+         (keys (this-command-keys-vector))
+         (command (if keys (key-binding keys))))
     (when (and (commandp command)
-               (not (eq command 'ac-trigger-key-command)))
+               (not (eq command except-command)))
       (setq this-command command)
       (call-interactively command))))
 

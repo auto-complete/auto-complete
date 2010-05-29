@@ -458,6 +458,23 @@ As we described above, there is many behaviors in TAB. You need to use TAB and R
     (define-key ac-completing-map "\t" 'ac-complete)
     (define-key ac-completing-map "\r" nil)
 
+### Select candidates with C-n/C-p only when completion menu is displayed ###
+
+By evaluating the following code, you can select candidates with C-n/C-p, but it might be annoying sometimes.
+
+    ;; Bad config
+    (define-key ac-completing-map "\C-n" 'ac-next)
+    (define-key ac-completing-map "\C-p" 'ac-previous)
+
+In this case, it is better that selecting candidates is enabled only when completion menu is displayed so that the key input will not be taken as much as possible. `ac-menu-map` is a keymap for completion on completion menu which is enabled when `ac-use-menu-map` is `t`.
+
+    (setq ac-use-menu-map t)
+    ;; Default settings
+    (define-key ac-menu-map "\C-n" 'ac-next)
+    (define-key ac-menu-map "\C-p" 'ac-previous)
+
+See [`ac-use-menu-map`](#) and [`ac-menu-map`](#) for more details.
+
 ### Not to use quick help ###
 
 A tooltip help that is shown when completing is called quick help. You can disable it if you don't want to use it:
