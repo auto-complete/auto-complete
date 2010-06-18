@@ -973,6 +973,10 @@ Specify a list of features (which are `require`d) that the source is depending.
 
 Specify a function or an expression that describe the source is available or not.
 
+#### `document` ####
+
+Specify a function or an expression that returns documentation of the candidate.
+
 ### Variables ###
 
 Here is a list of often used variables.

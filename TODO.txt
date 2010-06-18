@@ -8,3 +8,4 @@
 - kanji henkan support
 - create menu if needed
 - quick help positioning on tabs (bug)
+- skip short completion
