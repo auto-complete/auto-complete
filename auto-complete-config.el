@@ -465,7 +465,8 @@
   (add-to-list 'ac-ignores "end"))
 
 (defun ac-css-mode-setup ()
-  (setq ac-sources (append '(ac-source-css-property) ac-sources)))
+  ;(setq ac-sources (append '(ac-source-css-property) ac-sources))
+  )
 
 (defun ac-config-default ()
   (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
