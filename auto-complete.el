@@ -163,7 +163,7 @@
   '(emacs-lisp-mode
     lisp-interaction-mode
     c-mode cc-mode c++-mode
-    java-mode clojure-mode scala-mode
+    java-mode malabar-mode clojure-mode scala-mode
     scheme-mode
     ocaml-mode tuareg-mode haskell-mode
     perl-mode cperl-mode python-mode ruby-mode
