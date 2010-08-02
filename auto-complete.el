@@ -470,8 +470,9 @@ If there is no common part, this will be nil.")
                 (loop for p from 0 below (length string)
                       ;; sigmoid function
                       with a = 5
+                      with b = (/ 700.0 a) ; bounds for avoiding range error in `exp'
                       with d = (/ 6.0 a)
-                      for x = (- d (abs (- prefix p)))
+                      for x = (max (- b) (min b (- d (abs (- prefix p)))))
                       for r = (/ 1.0 (1+ (exp (* (- a) x))))
                       do
                       (incf score (* (aref stat p) r))))
