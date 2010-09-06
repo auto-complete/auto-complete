@@ -389,6 +389,12 @@
     (prefix . ac-css-prefix)
     (requires . 0)))
 
+;; slime
+(ac-define-source slime
+  '((candidates . (car (slime-simple-completions ac-prefix)))
+    (symbol . "s")
+    (cache)))
+
 
 
 ;;;; Not maintained sources
