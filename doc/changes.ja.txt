@@ -15,7 +15,8 @@ v1.4の変更点 {#Changes_v1.4}
 
 ### 新しいオプション ### {#New_Options_v1.4}
 
-* [`ac-use-dictionary-as-stop-words`](manual.txt#ac-use-dictionary-as-stop-words)
+* [`ac-use-dictionary-as-stop-words`](manual.ja.txt#ac-use-dictionary-as-stop-words)
+* [`ac-non-trigger-commands`](manual.ja.txt#ac-non-trigger-commands)
 
 ### 新しい情報源 ### {#New_Sources_v1.4}
 

@@ -695,6 +695,10 @@ Specify major modes as a list of symbols that will be enabled automatically if `
 
 Specify a regexp that identifies starting completion or not for that package.
 
+### `ac-non-trigger-commands` ###
+
+Specify commands as a list of symbols that does NOT starts completion automatically.
+
 ### `ac-trigger-commands` ###
 
 Specify commands as a list of symbols that starts completion automatically. `self-insert-command` is one of default.

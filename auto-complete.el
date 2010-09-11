@@ -197,6 +197,12 @@
   :type 'string
   :group 'auto-complete)
 
+(defcustom ac-non-trigger-commands
+  '(*table--cell-self-insert-command)
+  "Commands that can't be used as triggers of `auto-complete'."
+  :type '(repeat symbol)
+  :group 'auto-complete)
+
 (defcustom ac-trigger-commands
   '(self-insert-command)
   "Trigger commands that specify whether `auto-complete' should start or not."
@@ -1524,6 +1530,7 @@ that have been made before in this function."
 (defun ac-trigger-command-p (command)
   "Return non-nil if `COMMAND' is a trigger command."
   (and (symbolp command)
+       (not (memq command ac-non-trigger-commands))
        (or (memq command ac-trigger-commands)
            (string-match "self-insert-command" (symbol-name command))
            (string-match "electric" (symbol-name command)))))

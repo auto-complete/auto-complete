@@ -16,6 +16,7 @@ v1.4 Changes {#Changes_v1.4}
 ### New Options ### {#New_Options_v1.4}
 
 * [`ac-use-dictionary-as-stop-words`](manual.txt#ac-use-dictionary-as-stop-words)
+* [`ac-non-trigger-commands`](manual.txt#ac-non-trigger-commands)
 
 ### New Sources ### {#New_Sources_v1.4}
 
