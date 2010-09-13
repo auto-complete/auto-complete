@@ -391,7 +391,15 @@
 
 ;; slime
 (ac-define-source slime
-  '((candidates . (car (slime-simple-completions ac-prefix)))
+  '((depends slime)
+    (candidates . (car (slime-simple-completions ac-prefix)))
+    (symbol . "s")
+    (cache)))
+
+;; ghc-mod
+(ac-define-source ghc-mod
+  '((depends ghc)
+    (candidates . (ghc-select-completion-symbol))
     (symbol . "s")
     (cache)))
 
