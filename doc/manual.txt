@@ -679,6 +679,10 @@ Specify an integer of lines of completion menu.
 
 Specify an integer of lines of quick help.
 
+### `ac-quick-help-prefer-pos-tip` ###
+
+Whether or not auto-complete prefers native tooltip with pos-tip than overlap popup for displaying quick help. If non-nil, you also need to install [pos-tip.el](http://www.emacswiki.org/emacs/PosTip) so that displaying tooltip can work well.
+
 ### `ac-candidate-limit` ###
 
 Limit a number of candidates. Specifying an integer, the value will be a limit of candidates. `nil` means no limit.

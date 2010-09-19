@@ -164,10 +164,11 @@
   :type 'integer
   :group 'auto-complete)
 
-(defcustom ac-quick-help-prefer-x t
-  "Prefer X tooltip than overlay popup for displaying quick help."
+(defcustom ac-quick-help-prefer-pos-tip t
+  "Prefer native tooltip with pos-tip than overlay popup for displaying quick help."
   :type 'boolean
   :group 'auto-complete)
+(defvaralias 'ac-quick-help-prefer-x 'ac-quick-help-prefer-pos-tip)
 
 (defcustom ac-candidate-limit nil
   "Limit number of candidates. Non-integer means no limit."
@@ -1243,15 +1244,18 @@ that have been made before in this function."
             (pos-tip-hide))
           t)))))
 
+(defun ac-quick-help-use-pos-tip-p ()
+  (and ac-quick-help-prefer-pos-tip
+       window-system
+       (featurep 'pos-tip)))
+
 (defun ac-quick-help (&optional force)
   (interactive)
   (when (and (or force (null this-command))
              (ac-menu-live-p)
              (null ac-quick-help))
       (setq ac-quick-help
-            (funcall (if (and ac-quick-help-prefer-x
-                              (eq window-system 'x)
-                              (featurep 'pos-tip))
+            (funcall (if (ac-quick-help-use-pos-tip-p)
                          'ac-pos-tip-show-quick-help
                        'popup-menu-show-quick-help)
                      ac-menu nil
@@ -1272,9 +1276,7 @@ that have been made before in this function."
     (let ((doc (popup-item-documentation (cdr ac-last-completion)))
           (point (marker-position (car ac-last-completion))))
       (when (stringp doc)
-        (if (and ac-quick-help-prefer-x
-                 (eq window-system 'x)
-                 (featurep 'pos-tip))
+        (if (ac-quick-help-use-pos-tip-p)
             (with-no-warnings (pos-tip-show doc nil point nil 0))
           (popup-tip doc
                      :point point

@@ -683,6 +683,10 @@ Tips
 
 クイックヘルプの行数を整数で指定します。
 
+### `ac-quick-help-prefer-pos-tip` ###
+
+auto-completeがクイックヘルプの表示にpos-tipによるネイティブのツールチップを使うかどうかです。non-nilなら追加で[pos-tip.el](http://www.emacswiki.org/emacs/PosTip)をインストールする必要があります。
+
 ### `ac-candidate-limit` ###
 
 補完候補数を制限します。整数が指定されている場合は、その値を表示する補完候補数の上限にします。`nil`の場合は無制限です。

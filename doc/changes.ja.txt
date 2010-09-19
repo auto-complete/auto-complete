@@ -32,6 +32,7 @@ v1.4の変更点 {#Changes_v1.4}
 * 頻度計算で稀に起こるエラー
 * 辞書のキャッシュ戦略の改善
 * help-modeがおかしくなる問題を修正 ("help-setup-xref: Symbol's value as variable is void: help-xref-following")
+* auto-completeがWindows上でpos-tipを使えなかった問題を修正
 
 v1.3.1の変更点 {#Changes_v1.3.1}
 ------------
