@@ -1191,9 +1191,12 @@ that have been made before in this function."
                      :nowait t))))
 
 (defun ac-remove-quick-help ()
-  (when ac-quick-help
+  (cond
+   ((ac-use-pos-tip-p)
+    (pos-tip-hide))
+   (ac-quick-help
     (popup-delete ac-quick-help)
-    (setq ac-quick-help nil)))
+    (setq ac-quick-help nil))))
 
 (defun ac-last-quick-help ()
   (interactive)
