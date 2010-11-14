@@ -69,8 +69,8 @@ GNU Makeがない場合は次のようにします。
     Add the following code to your .emacs:
     
     (add-to-list 'load-path "~/.emacs.d")    ; load-pathにすでに設定されている場合は表れません
-    (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
     (require 'auto-complete-config)
+    (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
     (ac-config-default)
 
 ### 手動によるインストール ###
@@ -91,8 +91,8 @@ GNU Makeがない場合は次のようにします。
 
 最後に`.emacs`に次のような設定を記述します。
 
-    (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
     (require 'auto-complete-config)
+    (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
     (ac-config-default)
 
 `load-path`の設定が行われていない場合は次のコードも記述する必要があります。

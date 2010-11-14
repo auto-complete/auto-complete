@@ -69,8 +69,8 @@ If you don't have GNU Make, run emacs like:
     Add the following code to your .emacs:
     
     (add-to-list 'load-path "~/.emacs.d")    ; This may not be appeared if you have already added.
-    (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
     (require 'auto-complete-config)
+    (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
     (ac-config-default)
 
 ### Manual Installation ###
