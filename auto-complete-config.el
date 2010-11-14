@@ -374,13 +374,16 @@
 
 (defun ac-css-property-candidates ()
   (or (loop with list = (assoc-default ac-css-property ac-css-property-alist)
+            with seen = nil
             with value
             while (setq value (pop list))
             if (symbolp value)
-            do (setq list
-                     (append list
-                             (or (assoc-default value ac-css-value-classes)
-                                 (assoc-default (symbol-name value) ac-css-property-alist))))
+            do (unless (memq value seen)
+                 (push value seen)
+                 (setq list
+                       (append list
+                               (or (assoc-default value ac-css-value-classes)
+                                   (assoc-default (symbol-name value) ac-css-property-alist)))))
             else collect value)
       ac-css-pseudo-classes))
 
