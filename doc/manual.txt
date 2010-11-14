@@ -222,7 +222,7 @@ It is difficult what key `auto-complete` command is bound to. It should be bound
 
     (ac-set-trigger-key "TAB")
 
-Trigger key will be enabled after inserting characters. Otherwise it is dealt as an usual command (TAB will be indent). Generally, trigger key is used with `auto-auto-start` being `nil`.
+Trigger key will be enabled after inserting characters. Otherwise it is dealt as an usual command (TAB will be indent). Generally, trigger key is used with `ac-auto-start` being `nil`.
 
     (setq ac-auto-start nil)
 
