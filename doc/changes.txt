@@ -25,8 +25,18 @@ v1.4 Changes {#Changes_v1.4}
 
 ### Fixed Bugs ### {#Fixed_Bugs_v1.4}
 
-* Significant bug on css-mode
 * Rare completion frequency computation error
+
+v1.3.1 Changes {#Changes_v1.3.1}
+------------
+
+### Fixed Bugs ### {#Fixed_Bugs_v1.3.1}
+
+* Significant bug on css-mode
+
+### Others ### {#Others_v1.3.1}
+
+* Added COPYING files
 
 v1.3 Changes {#Changes_v1.3}
 ------------

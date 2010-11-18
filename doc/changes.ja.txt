@@ -25,8 +25,18 @@ v1.4の変更点 {#Changes_v1.4}
 
 ### 修正されたバグ ### {#Fixed_Bugs_v1.4}
 
-* css-modeでborder:と入力するとEmacsが固まる問題
 * 頻度計算で稀に起こるエラー
+
+v1.3.1の変更点 {#Changes_v1.3.1}
+------------
+
+### 修正されたバグ ### {#Fixed_Bugs_v1.3.1}
+
+* css-modeでborder:と入力するとEmacsが固まる問題
+
+### その他 ### {#Others_v1.3.1}
+
+* COPYINGファイルの追加
 
 v1.3の変更点 {#Changes_v1.3}
 ------------

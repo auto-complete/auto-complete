@@ -40,19 +40,12 @@ Auto Complete Modeは[GNU Emacs][]のための最も賢い自動補完機能で�
 ダウンロード
 ------------
 
-### 最新安定板 (v1.3) ### {#Latest_Stable}
+### 最新安定板 (v1.3.1) ### {#Latest_Stable}
 
-[v1.3の変更点](changes.ja.txt#Changes_v1.3)
+[v1.3.1の変更点](changes.ja.txt#Changes_v1.3.1)
 
-* [auto-complete-1.3.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.3.tar.bz2)
-* [auto-complete-1.3.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.3.zip)
-
-### v1.2 ###
-
-[v1.2の変更点](changes.ja.txt#Changes_v1.2)
-
-* [auto-complete-1.2.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.2.tar.bz2)
-* [auto-complete-1.2.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.2.zip)
+* [auto-complete-1.3.1.tar.bz2](http://cx4a.org/pub/auto-complete/auto-complete-1.3.1.tar.bz2)
+* [auto-complete-1.3.1.tar.zip](http://cx4a.org/pub/auto-complete/auto-complete-1.3.1.zip)
 
 ユーザーマニュアル
 ------------------
