@@ -15,7 +15,7 @@ clean:
 
 package: clean
 	mkdir ${PACKAGE}
-	cp -r *.el Makefile README.txt TODO.txt doc etc dict ${PACKAGE}
+	cp -r *.el Makefile README.txt TODO.txt COPYING.*.txt doc etc dict ${PACKAGE}
 
 tar.bz2: package
 	tar cjf ${PACKAGE}.tar.bz2 ${PACKAGE}
