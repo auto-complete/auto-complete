@@ -40,19 +40,12 @@ Demo
 Downloads
 ---------
 
-### Latest Stable (v1.3) ### {#Latest_Stable}
+### Latest Stable (v1.3.1) ### {#Latest_Stable}
 
-[Changes v1.3](changes.txt#Changes_v1.3)
+[Changes v1.3.1](changes.txt#Changes_v1.3.1)
 
-* [auto-complete-1.3.tar.bz2](/pub/auto-complete/auto-complete-1.3.tar.bz2)
-* [auto-complete-1.3.zip](/pub/auto-complete/auto-complete-1.3.zip)
-
-### v1.2 ###
-
-[Changes v1.2](changes.txt#Changes_v1.2)
-
-* [auto-complete-1.2.tar.bz2](/pub/auto-complete/auto-complete-1.2.tar.bz2)
-* [auto-complete-1.2.zip](/pub/auto-complete/auto-complete-1.2.zip)
+* [auto-complete-1.3.1.tar.bz2](/pub/auto-complete/auto-complete-1.3.1.tar.bz2)
+* [auto-complete-1.3.1.zip](/pub/auto-complete/auto-complete-1.3.1.zip)
 
 User Manual
 -----------
