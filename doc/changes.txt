@@ -10,6 +10,24 @@ Auto Complete Mode Changes
 
 See also [documentation](manual.txt).
 
+v1.4 Changes {#Changes_v1.4}
+------------
+
+### New Sources ### {#New_Sources_v1.4}
+
+* [`ac-source-ghc-mod`](manual.txt#ac-source-ghc-mod)
+* [`ac-source-slime`](manual.txt#ac-source-slime)
+
+### New Dictionaries ### {#New_Dictionaries_v1.4}
+
+* erlang-mode
+* ada-mode
+
+### Fixed Bugs ### {#Fixed_Bugs_v1.4}
+
+* Significant bug on css-mode
+* Rare completion frequency computation error
+
 v1.3 Changes {#Changes_v1.3}
 ------------
 

@@ -373,6 +373,10 @@ CSSプロパティのための情報源です。
 
 Emacs Lispの関数を補完するための情報源です。`(`の直後で有効です。
 
+#### `ac-source-ghc-mod` ####
+
+[ghc-mod](http://www.mew.org/~kazu/proj/ghc-mod/en/)のための情報源です。
+
 #### `ac-source-gtags` ####
 
 [Global](http://www.tamacom.com/global.html)のタグを補完するための情報源です。
@@ -388,6 +392,10 @@ Emacs Lispの関数を補完するための情報源です。`(`の直後で有�
 #### `ac-source-semantic-raw` ####
 
 `ac-source-semantic`と違って、この情報源は生の名前空間でシンボルを補完するのに使います。
+
+#### `ac-source-slime` ####
+
+[SLIME](http://common-lisp.net/project/slime/)のための情報源です。
 
 #### `ac-source-symbols` ####
 

@@ -369,6 +369,10 @@ A source for completing files in a current directory. It may be useful with `esh
 
 A source for completing Emacs Lisp functions. It is available only after `(`.
 
+#### `ac-source-ghc-mod` ####
+
+A source for [ghc-mod](http://www.mew.org/~kazu/proj/ghc-mod/en/).
+
 #### `ac-source-gtags` ####
 
 A source for completing tags of [Global](http://www.tamacom.com/global.html).
@@ -380,6 +384,10 @@ A source for completing `imenu` nodes. See `info emacs imenu` for details.
 #### `ac-source-semantic` ####
 
 A source for [Semantic](http://cedet.sourceforge.net/semantic.shtml). It can be used for completing member name for C/C++.
+
+#### `ac-source-slime` ####
+
+A source for [SLIME](http://common-lisp.net/project/slime/).
 
 #### `ac-source-semantic-raw` ####
 

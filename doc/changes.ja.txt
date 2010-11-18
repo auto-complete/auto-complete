@@ -10,6 +10,24 @@ Auto Complete Mode 変更点
 
 [ユーザーマニュアル](manual.ja.txt)も参照してください。
 
+v1.4の変更点 {#Changes_v1.4}
+------------
+
+### 新しい情報源 ### {#New_Sources_v1.4}
+
+* [`ac-source-ghc-mod`](manual.ja.txt#ac-source-ghc-mod)
+* [`ac-source-slime`](manual.ja.txt#ac-source-slime)
+
+### 新しい辞書 ### {#New_Dictionaries_v1.4}
+
+* erlang-mode
+* ada-mode
+
+### 修正されたバグ ### {#Fixed_Bugs_v1.4}
+
+* css-modeでborder:と入力するとEmacsが固まる問題
+* 頻度計算で稀に起こるエラー
+
 v1.3の変更点 {#Changes_v1.3}
 ------------
 
