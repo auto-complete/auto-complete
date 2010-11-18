@@ -10,6 +10,17 @@ Auto Complete Mode 変更点
 
 [ユーザーマニュアル](manual.ja.txt)も参照してください。
 
+v1.3.1の変更点 {#Changes_v1.3.1}
+------------
+
+### 修正されたバグ ### {#Fixed_Bugs_v1.3.1}
+
+* css-modeでborder:と入力するとEmacsが固まる問題
+
+### その他 ### {#Others_v1.3.1}
+
+* COPYINGファイルの追加
+
 v1.3の変更点 {#Changes_v1.3}
 ------------
 

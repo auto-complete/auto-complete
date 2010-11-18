@@ -10,6 +10,17 @@ Auto Complete Mode Changes
 
 See also [documentation](manual.txt).
 
+v1.3.1 Changes {#Changes_v1.3.1}
+------------
+
+### Fixed Bugs ### {#Fixed_Bugs_v1.3.1}
+
+* Significant bug on css-mode
+
+### Others ### {#Others_v1.3.1}
+
+* Added COPYING files
+
 v1.3 Changes {#Changes_v1.3}
 ------------
 
