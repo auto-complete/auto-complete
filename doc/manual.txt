@@ -603,6 +603,17 @@ You may bind keys to these command like:
 
 If [pos-tip.el](http://www.emacswiki.org/emacs-en/PosTip) is installed, `auto-complete-mode` uses its native rendering engine for displaying quick help instead of legacy one.
 
+Third-party Extensions
+----------------------
+
+### SLIME ###
+
+See [ac-slime](https://github.com/purcell/ac-slime) page.
+
+### Scala ###
+
+See [ENSIME](https://github.com/aemoncannon/ensime) page.
+
 Configuration
 -------------
 

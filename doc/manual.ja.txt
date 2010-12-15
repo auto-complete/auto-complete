@@ -607,6 +607,17 @@ Tips
 
 [pos-tip.el](http://www.emacswiki.org/emacs-en/PosTip)がインストールされている場合、`auto-complete-mode`は従来のレンダリングエンジンの代わりに、`pos-tip.el`が提供するネイティブレンダリングエンジンを利用してヘルプを表示します。
 
+サードパーティ拡張
+------------------
+
+### SLIME ###
+
+[ac-slime](https://github.com/purcell/ac-slime)のページを参照してください。
+
+### Scala ###
+
+[ENSIME](https://github.com/aemoncannon/ensime)のページを参照してください。
+
 設定項目
 --------
 
