@@ -127,6 +127,22 @@
   :type 'string
   :group 'auto-complete)
 
+(defcustom ac-user-dictionary nil
+  "User defined dictionary"
+  :type '(repeat string)
+  :group 'auto-complete)
+
+(defcustom ac-dictionary-files '("~/.dict")
+  "Dictionary files."
+  :type '(repeat string)
+  :group 'auto-complete)
+(defvaralias 'ac-user-dictionary-files 'ac-dictionary-files)
+
+(defcustom ac-dictionary-directories nil
+  "Dictionary directories."
+  :type '(repeat string)
+  :group 'auto-complete)
+
 (defcustom ac-use-quick-help t
   "Non-nil means use quick help."
   :type 'boolean
@@ -216,9 +232,15 @@ If you specify `nil', never be started automatically."
                  (integer :tag "Require"))
   :group 'auto-complete)
 
-(defcustom ac-ignores nil
-  "List of string to ignore completion."
+(defcustom ac-stop-words nil
+  "List of string to stop completion."
   :type '(repeat string)
+  :group 'auto-complete)
+(defvaralias 'ac-ignores 'ac-stop-words)
+
+(defcustom ac-use-dictionary-as-stop-words nil
+  "Non-nil means a buffer related dictionary will be thought of as stop words."
+  :type 'boolean
   :group 'auto-complete)
 
 (defcustom ac-ignore-case 'smart
@@ -547,6 +569,51 @@ If there is no common part, this will be nil.")
 
 
 
+;;;; Dictionary
+(defvar ac-buffer-dictionary nil)
+(defvar ac-file-dictionary (make-hash-table :test 'equal))
+
+(defun ac-clear-dictionary-cache ()
+  (interactive)
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (if (local-variable-p 'ac-buffer-dictionary)
+          (kill-local-variable 'ac-buffer-dictionary))))
+  (clrhash ac-file-dictionary))
+
+(defun ac-file-dictionary (filename)
+  (let ((cache (gethash filename ac-file-dictionary 'none)))
+    (if (and cache (not (eq cache 'none)))
+        cache
+      (let (result)
+        (ignore-errors
+          (with-temp-buffer
+            (insert-file-contents filename)
+            (setq result (split-string (buffer-string) "\n"))))
+        (puthash filename result ac-file-dictionary)
+        result))))
+
+(defun ac-mode-dictionary (mode)
+  (loop for name in (cons (symbol-name mode)
+                          (ignore-errors (list (file-name-extension (buffer-file-name)))))
+        for dir in ac-dictionary-directories
+        for file = (concat dir "/" name)
+        if (file-exists-p file)
+        append (ac-file-dictionary file)))
+
+(defun ac-buffer-dictionary (&optional buffer)
+  (with-current-buffer (or buffer (current-buffer))
+    (if (local-variable-p 'ac-buffer-dictionary)
+        ac-buffer-dictionary
+      (make-local-variable 'ac-buffer-dictionary)
+      (setq ac-buffer-dictionary
+            (apply 'append
+                   ac-user-dictionary
+                   (ac-mode-dictionary major-mode)
+                   (mapcar 'ac-file-dictionary ac-dictionary-files))))))
+
+
+
 ;;;; Auto completion internals
 
 (defun ac-menu-at-wrapper-line-p ()
@@ -556,6 +623,11 @@ If there is no common part, this will be nil.")
            (save-excursion
              (vertical-motion 1)
              (line-beginning-position)))))
+
+(defun ac-stop-word-p (word)
+  (or (member word ac-stop-words)
+      (if ac-use-dictionary-as-stop-words
+          (member word (ac-buffer-dictionary)))))
 
 (defun ac-prefix-symbol ()
   "Default prefix definition function."
@@ -1371,8 +1443,9 @@ that have been made before in this function."
            prefix
            (init (or force-init (not (eq ac-point point)))))
       (if (or (null point)
-              (member (setq prefix (buffer-substring-no-properties point (point)))
-                      ac-ignores))
+              (progn
+                (setq prefix (buffer-substring-no-properties point (point)))
+                (ac-stop-word-p prefix)))
           (prog1 nil
             (ac-abort))
         (unless ac-cursor-color
@@ -1838,60 +1911,8 @@ This workaround avoid flyspell processes when auto completion is being started."
     (limit . nil)))
 
 ;; Dictionary source
-(defcustom ac-user-dictionary nil
-  "User dictionary"
-  :type '(repeat string)
-  :group 'auto-complete)
-
-(defcustom ac-user-dictionary-files '("~/.dict")
-  "User dictionary files."
-  :type '(repeat string)
-  :group 'auto-complete)
-
-(defcustom ac-dictionary-directories nil
-  "Dictionary directories."
-  :type '(repeat string)
-  :group 'auto-complete)
-
-(defvar ac-dictionary nil)
-(defvar ac-dictionary-cache (make-hash-table :test 'equal))
-
-(defun ac-clear-dictionary-cache ()
-  (interactive)
-  (clrhash ac-dictionary-cache))
-
-(defun ac-read-file-dictionary (filename)
-  (let ((cache (gethash filename ac-dictionary-cache 'none)))
-    (if (and cache (not (eq cache 'none)))
-        cache
-      (let (result)
-        (ignore-errors
-          (with-temp-buffer
-            (insert-file-contents filename)
-            (setq result (split-string (buffer-string) "\n"))))
-        (puthash filename result ac-dictionary-cache)
-        result))))
-
-(defun ac-buffer-dictionary ()
-  (apply 'append
-         (mapcar 'ac-read-file-dictionary
-                 (mapcar (lambda (name)
-                           (loop for dir in ac-dictionary-directories
-                                 for file = (concat dir "/" name)
-                                 if (file-exists-p file)
-                                 return file))
-                         (list (symbol-name major-mode)
-                               (ignore-errors
-                                 (file-name-extension (buffer-file-name))))))))
-
-(defun ac-dictionary-candidates ()
-  (apply 'append `(,ac-user-dictionary
-                   ,(ac-buffer-dictionary)
-                   ,@(mapcar 'ac-read-file-dictionary
-                             ac-user-dictionary-files))))
-
 (ac-define-source dictionary
-  '((candidates . ac-dictionary-candidates)
+  '((candidates . ac-buffer-dictionary)
     (symbol . "d")))
 
 (provide 'auto-complete)

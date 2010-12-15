@@ -529,14 +529,14 @@ Tips
 
 ### 特定の単語を入力したら補完を自動的に中止する ###
 
-`ac-ignores`に自動的に補完を中止する単語を設定します。例えばRubyでendと入力した後に自動的に補完を中止するには以下のようにします。
+`ac-stop-words`に自動的に補完を中止する単語を設定します。例えばRubyでendと入力した後に自動的に補完を中止するには以下のようにします。
 
     (add-hook 'ruby-mode-hook
               (lambda ()
-                (make-local-variable 'ac-ignores)
-                (add-to-list 'ac-ignores "end")))
+                (make-local-variable 'ac-stop-words)
+                (add-to-list 'ac-stop-words "end")))
 
-`ac-ignores`はバッファローカル変数ではないので、バッファ特有の設定にする場合は`make-local-variable`で適宜バッファローカルにする必要があります。
+`ac-stop-words`はバッファローカル変数ではないので、バッファ特有の設定にする場合は`make-local-variable`で適宜バッファローカルにする必要があります。
 
 ### 色を変更する ###
 
@@ -700,9 +700,13 @@ Tips
 
 補完が自動的に開始されるかどうかを指定します。`t`の場合は常に自動的に開始されます。`nil`の場合は絶対に自動的に開始されません。整数の場合は、補完対象文字列の長さがその値以上になるまで自動的に開始されません。
 
-### `ac-ignores` ###
+### `ac-stop-words` ###
 
 補完しない文字列を文字列のリストで指定します。
+
+### `ac-use-dictionary-as-stop-words` ###
+
+auto-completeが辞書をストップワードとして利用するかどうかを指定します。
 
 ### `ac-ignore-case` ###
 

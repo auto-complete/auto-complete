@@ -13,6 +13,10 @@ See also [documentation](manual.txt).
 v1.4 Changes {#Changes_v1.4}
 ------------
 
+### New Options ### {#New_Options_v1.4}
+
+* [`ac-use-dictionary-as-stop-words`](manual.txt#ac-use-dictionary-as-stop-words)
+
 ### New Sources ### {#New_Sources_v1.4}
 
 * [`ac-source-ghc-mod`](manual.txt#ac-source-ghc-mod)
@@ -26,6 +30,7 @@ v1.4 Changes {#Changes_v1.4}
 ### Fixed Bugs ### {#Fixed_Bugs_v1.4}
 
 * Rare completion frequency computation error
+* Improve dictionary caching sterategy
 
 v1.3.1 Changes {#Changes_v1.3.1}
 ------------

@@ -477,9 +477,7 @@
 (defun ac-cc-mode-setup ()
   (setq ac-sources (append '(ac-source-yasnippet ac-source-gtags) ac-sources)))
 
-(defun ac-ruby-mode-setup ()
-  (make-local-variable 'ac-ignores)
-  (add-to-list 'ac-ignores "end"))
+(defun ac-ruby-mode-setup ())
 
 (defun ac-css-mode-setup ()
   (setq ac-sources (append '(ac-source-css-property) ac-sources)))

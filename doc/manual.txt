@@ -525,14 +525,14 @@ Default is `smart`.
 
 ### Stop completion automatically after inserting specific words ###
 
-Set `ac-ignores` to words that stops completion automatically. In ruby, some people want to stop completion automatically after inserting "end":
+Set `ac-stop-words` to words that stops completion automatically. In ruby, some people want to stop completion automatically after inserting "end":
 
     (add-hook 'ruby-mode-hook
               (lambda ()
-                (make-local-variable 'ac-ignores)
-                (add-to-list 'ac-ignores "end")))
+                (make-local-variable 'ac-stop-words)
+                (add-to-list 'ac-stop-words "end")))
 
-Note that `ac-ignores` is not a buffer local variable, so you need to make it buffer local with `make-local-variable` if it is buffer specific setting.
+Note that `ac-stop-words` is not a buffer local variable, so you need to make it buffer local with `make-local-variable` if it is buffer specific setting.
 
 ### Change colors ###
 
@@ -696,9 +696,13 @@ Specify a [trigger key](#Trigger_Key).
 
 Specify how completion will be started. `t` means always starting completion automatically. `nil` means never started automatically. An integer means completion will not be started until the value is more than a length of the completion target string.
 
-### `ac-ignores` ###
+### `ac-stop-words` ###
 
 Specify a list of strings that stops completion.
+
+### `ac-use-dictionary-as-stop-words` ###
+
+Specify whether auto-complete uses dictionaries as stop words.
 
 ### `ac-ignore-case` ###
 

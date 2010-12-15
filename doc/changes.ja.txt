@@ -13,6 +13,10 @@ Auto Complete Mode 変更点
 v1.4の変更点 {#Changes_v1.4}
 ------------
 
+### 新しいオプション ### {#New_Options_v1.4}
+
+* [`ac-use-dictionary-as-stop-words`](manual.txt#ac-use-dictionary-as-stop-words)
+
 ### 新しい情報源 ### {#New_Sources_v1.4}
 
 * [`ac-source-ghc-mod`](manual.ja.txt#ac-source-ghc-mod)
@@ -26,6 +30,7 @@ v1.4の変更点 {#Changes_v1.4}
 ### 修正されたバグ ### {#Fixed_Bugs_v1.4}
 
 * 頻度計算で稀に起こるエラー
+* 辞書のキャッシュ戦略の改善
 
 v1.3.1の変更点 {#Changes_v1.3.1}
 ------------
