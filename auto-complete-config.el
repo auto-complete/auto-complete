@@ -90,7 +90,7 @@
 
 (defun ac-gtags-candidate ()
   (ignore-errors
-    (split-string (shell-command-to-string (format "global -ci %s" ac-prefix)) "\n")))
+    (split-string (shell-command-to-string (format "global -ciq %s" ac-prefix)) "\n")))
 
 (ac-define-source gtags
   '((candidates . ac-gtags-candidate)
