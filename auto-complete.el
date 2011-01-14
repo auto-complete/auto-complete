@@ -245,7 +245,7 @@ If you specify `nil', never be started automatically."
   :group 'auto-complete)
 (defvaralias 'ac-ignores 'ac-stop-words)
 
-(defcustom ac-use-dictionary-as-stop-words nil
+(defcustom ac-use-dictionary-as-stop-words t
   "Non-nil means a buffer related dictionary will be thought of as stop words."
   :type 'boolean
   :group 'auto-complete)
