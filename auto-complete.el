@@ -1631,6 +1631,14 @@ This workaround avoid flyspell processes when auto completion is being started."
     (unless ac-triggered
       ad-do-it)))
 
+(defun ac-linum-workaround ()
+  "linum-mode tries to display the line numbers even for the
+completion menu. This workaround stops that annoying behavior."
+  (interactive)
+  (defadvice linum-update (around ac-linum-update-workaround activate)
+    (unless ac-completing
+      ad-do-it)))
+
 
 
 ;;;; Standard sources

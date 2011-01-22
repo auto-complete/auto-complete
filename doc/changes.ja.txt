@@ -34,6 +34,7 @@ v1.4の変更点 {#Changes_v1.4}
 * 辞書のキャッシュ戦略の改善
 * help-modeがおかしくなる問題を修正 ("help-setup-xref: Symbol's value as variable is void: help-xref-following")
 * auto-completeがWindows上でpos-tipを使えなかった問題を修正
+* [linum-modeの表示に関するバグの回避策を追加](manual.ja.txt#linum-mode-bug)
 
 v1.3.1の変更点 {#Changes_v1.3.1}
 ------------

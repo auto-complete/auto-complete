@@ -34,6 +34,7 @@ v1.4 Changes {#Changes_v1.4}
 * Improve dictionary caching sterategy
 * Fixed help-mode error ("help-setup-xref: Symbol's value as variable is void: help-xref-following")
 * Fixed auto-complete couldn't use pos-tip on Windows
+* [Added workaround for linum-mode displaying bug](manual.txt#linum-mode-bug)
 
 v1.3.1 Changes {#Changes_v1.3.1}
 ------------

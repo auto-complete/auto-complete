@@ -1081,11 +1081,17 @@ We don't good answers now, but you may shot the troubles by changing font size w
 Known Bugs
 ----------
 
-### Auto completion will not be started in a buffer `flyspell-mode` enabled ###
+### Auto completion will not be started in a buffer `flyspell-mode` enabled ### {#flyspell-mode-bug}
 
 A way of delaying processes of `flyspell-mode` disables auto completion. You can avoid this problem by `M-x ac-flyspell-workaround`. You can write the following code into your `~/.emacs`.
 
     (ac-flyspell-workaround)
+
+### `linum-mode` tries to display the line numbers even for the comletion menu ### {#linum-mode-bug}
+
+linum-mode tries to add the line numbers even for the comletion menu. To stop that annoying behavior, do `M-x ac-linum-workaround` or add the following code into your `~/.emacs`.
+
+    (ac-linum-workaround)
 
 Reporting Bugs
 --------------

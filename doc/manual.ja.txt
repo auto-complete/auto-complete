@@ -1086,11 +1086,17 @@ Ubuntu 9.10にて[IPAフォント](http://ossipedia.ipa.go.jp/ipafont/)をXftで
 既知の問題
 ----------
 
-### `flyspell-mode`が有効なバッファで自動補完できない ###
+### `flyspell-mode`が有効なバッファで自動補完できない ### {#flyspell-mode-bug}
 
 `flyspell-mode`の遅延手法が原因で自動補完ができません。これを回避するには`M-x ac-flyspell-workaround`とするか`~/.emacs`に次のように書いてください。
 
     (ac-flyspell-workaround)
+
+### `linum-mode`が補完メニューの行番号を表示してしまう ### {#linum-mode-bug}
+
+`linum-mode`が補完メニューの行番号を表示してしまいます。これを回避するには`M-x ac-linum-workaround`とするか`~/.emacs`に次のように書いてください。
+
+    (ac-linum-workaround)
 
 バグレポート
 ------------
