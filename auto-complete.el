@@ -1041,9 +1041,10 @@ You can not use it in source definition like (prefix . `NAME')."
 (defun ac-reposition ()
   "Force to redraw candidate menu with current `ac-candidates'."
   (let ((cursor (popup-cursor ac-menu))
-        (scroll-top (popup-scroll-top ac-menu)))
+        (scroll-top (popup-scroll-top ac-menu))
+        (height (popup-height ac-menu)))
     (ac-menu-delete)
-    (ac-menu-create ac-point (popup-preferred-width ac-candidates) (popup-height ac-menu))
+    (ac-menu-create ac-point (popup-preferred-width ac-candidates) height)
     (ac-update-candidates cursor scroll-top)))
 
 (defun ac-cleanup ()
