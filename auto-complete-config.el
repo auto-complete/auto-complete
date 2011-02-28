@@ -373,21 +373,22 @@
     (or (ac-prefix-symbol) (point))))
 
 (defun ac-css-property-candidates ()
-  (or (loop with list = (assoc-default ac-css-property ac-css-property-alist)
-            with seen = nil
-            with value
-            while (setq value (pop list))
-            if (symbolp value)
-            do (unless (memq value seen)
-                 (push value seen)
-                 (setq list
-                       (append list
-                               (or (assoc-default value ac-css-value-classes)
-                                   (assoc-default (symbol-name value) ac-css-property-alist)))))
-            else collect value)
-      ac-css-pseudo-classes))
+  (let ((list (assoc-default ac-css-property ac-css-property-alist)))
+    (if list
+        (loop with seen
+              with value
+              while (setq value (pop list))
+              if (symbolp value)
+              do (unless (memq value seen)
+                   (push value seen)
+                   (setq list
+                         (append list
+                                 (or (assoc-default value ac-css-value-classes)
+                                     (assoc-default (symbol-name value) ac-css-property-alist)))))
+              else collect value)
+      ac-css-pseudo-classes)))
 
-(defvar ac-source-css-property
+(ac-define-source css-property
   '((candidates . ac-css-property-candidates)
     (prefix . ac-css-prefix)
     (requires . 0)))
