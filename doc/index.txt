@@ -17,7 +17,7 @@ Auto Complete Mode
 What is Auto Complete Mode?
 ---------------------------
 
-Auto Complete Mode is the most intelligent auto-completion extension for [GNU Emacs][]. Auto Complete Mode renews an old completion interface and provides an environment that makes users could be more concentrate on their own works.
+Auto Complete Mode is the most intelligent auto-completion extension for [GNU Emacs][]. It extends the standard Emacs completion interface and provides an environment that allows users to concentrate more on their own work.
 
 Features
 --------
