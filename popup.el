@@ -130,7 +130,7 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
   (loop with tab-width = 4
         for item in list
         for summary = (popup-item-summary item)
-        maximize (string-width (popup-x-to-string item)) into width
+        maximize (string-width (popup-x-to-string (or (get-text-property 0 'view item) item ))) into width
         if (stringp summary)
         maximize (+ (string-width summary) 2) into summary-width
         finally return (* (ceiling (/ (+ (or width 0) (or summary-width 0)) 10.0)) 10)))
@@ -362,9 +362,9 @@ See also `popup-item-propertize'."
                                                    (if (> summary-width 0)
                                                        (+ summary-width 2)
                                                      0)))))
-         (string-width (string-width string)))
+         (string-width (string-width (or (get-text-property 0 'view string) string ))))
     (concat margin-left
-            string
+            (or  (get-text-property 0 'view string) string)
             (make-string (max (- popup-width string-width summary-width) 0) ? )
             summary
             symbol
