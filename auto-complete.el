@@ -1100,30 +1100,34 @@ This function records deletion and insertion sequences by `undo-boundary'.
 If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
 that have been made before in this function."
   (when (not (equal string (buffer-substring ac-point (point))))
-    (undo-boundary)
-    ;; We can't use primitive-undo since it undoes by
-    ;; groups, divided by boundaries.
-    ;; We don't want boundary between deletion and insertion.
-    ;; So do it manually.
-    ;; Delete region silently for undo:
-    (if remove-undo-boundary
-        (progn
-          (let (buffer-undo-list)
-            (save-excursion
-              (delete-region ac-point (point))))
-          (setq buffer-undo-list
-                (nthcdr 2 buffer-undo-list)))
-      (delete-region ac-point (point)))
-    (insert string)
-    ;; Sometimes, possible when omni-completion used, (insert) added
-    ;; to buffer-undo-list strange record about position changes.
-    ;; Delete it here:
-    (when (and remove-undo-boundary
-               (integerp (cadr buffer-undo-list)))
-      (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
-    (undo-boundary)
-    (setq ac-selected-candidate string)
-    (setq ac-prefix string)))
+    ;; If string already begins at ac-point, but (point) is not at its end, replace the entire
+    ;; common part
+    (let* ((common (try-completion "" (list string (buffer-substring ac-point (+ ac-point (length string))))))
+           (replace-up-to (+ ac-point (length common))))
+      (undo-boundary)
+      ;; We can't use primitive-undo since it undoes by
+      ;; groups, divided by boundaries.
+      ;; We don't want boundary between deletion and insertion.
+      ;; So do it manually.
+      ;; Delete region silently for undo:
+      (if remove-undo-boundary
+          (progn
+            (let (buffer-undo-list)
+              (save-excursion
+                (delete-region ac-point replace-up-to)))
+            (setq buffer-undo-list
+                  (nthcdr 2 buffer-undo-list)))
+        (delete-region ac-point replace-up-to))
+      (insert string)
+      ;; Sometimes, possible when omni-completion used, (insert) added
+      ;; to buffer-undo-list strange record about position changes.
+      ;; Delete it here:
+      (when (and remove-undo-boundary
+                 (integerp (cadr buffer-undo-list)))
+        (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
+      (undo-boundary)
+      (setq ac-selected-candidate string)
+      (setq ac-prefix string))))
 
 (defun ac-set-trigger-key (key)
   "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
