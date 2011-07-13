@@ -1782,8 +1782,6 @@ completion menu. This workaround stops that annoying behavior."
         (princ " is ")
         (cond
          ((fboundp symbol)
-          ;; import help-xref-following
-          (require 'help-mode)
           (describe-function-1 symbol)
           (buffer-string))
          ((boundp symbol)
