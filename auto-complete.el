@@ -1102,7 +1102,7 @@ that have been made before in this function."
   (when (not (equal string (buffer-substring ac-point (point))))
     ;; If string already begins at ac-point, but (point) is not at its end, replace the entire
     ;; common part
-    (let* ((common (try-completion "" (list string (buffer-substring ac-point (+ ac-point (length string))))))
+    (let* ((common (try-completion "" (list string (buffer-substring ac-point (min (point-max) (+ ac-point (length string)))))))
            (replace-up-to (max (point) (+ ac-point (length common)))))
       (undo-boundary)
       ;; We can't use primitive-undo since it undoes by
