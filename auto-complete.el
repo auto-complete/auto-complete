@@ -436,6 +436,10 @@ If there is no common part, this will be nil.")
     (c-dot-ref . ac-prefix-c-dot-ref))
   "Prefix definitions for common use.")
 
+(defvar ac-end-definitions
+  '((symbol . ac-end-symbol))
+  "Word end position function definitions.")
+
 (defvar ac-sources '(ac-source-words-in-same-mode-buffers)
   "Sources for completion.")
 (make-variable-buffer-local 'ac-sources)
@@ -450,6 +454,8 @@ If there is no common part, this will be nil.")
   "Do not use this anymore.")
 
 (defvar ac-current-prefix-def nil)
+
+(defvar ac-current-end-def nil)
 
 (defvar ac-ignoring-prefix-def nil)
 
@@ -637,10 +643,17 @@ If there is no common part, this will be nil.")
           (member word (ac-buffer-dictionary)))))
 
 (defun ac-prefix-symbol ()
-  "Default prefix definition function."
+  "Start position of symbol at point."
   (require 'thingatpt)
   (car-safe (bounds-of-thing-at-point 'symbol)))
+
+(defun ac-end-symbol ()
+  "End position of symbol at point."
+  (require 'thingatpt)
+  (cdr-safe (bounds-of-thing-at-point 'symbol)))
+
 (defalias 'ac-prefix-default 'ac-prefix-symbol)
+(defalias 'ac-end-default 'ac-end-symbol)
 
 (defun ac-prefix-file ()
   "File prefix."
@@ -673,8 +686,13 @@ If there is no common part, this will be nil.")
 
 (defun ac-define-prefix (name prefix)
   "Define new prefix definition.
-You can not use it in source definition like (prefix . `NAME')."
+You can use it in source definition like (prefix . `NAME')."
   (push (cons name prefix) ac-prefix-definitions))
+
+(defun ac-define-end (name end)
+  "Define new end function definition.
+You can use it in source definition like (end . `NAME')."
+  (push (cons name end) ac-end-definitions))
 
 (defun ac-match-substring (prefix candidates)
   (loop with regexp = (regexp-quote prefix)
@@ -723,6 +741,14 @@ You can not use it in source definition like (prefix . `NAME')."
               (add-attribute 'prefix real))
              ((null prefix)
               (add-attribute 'prefix 'ac-prefix-default))))
+          ;; end
+          (let* ((end (assoc 'end source))
+                 (real (assoc-default (cdr end) ac-end-definitions)))
+            (cond
+             (real
+              (add-attribute 'end real))
+             ((null end)
+              (add-attribute 'end 'ac-end-default))))
           ;; match
           (let ((match (assq 'match source)))
             (cond
@@ -894,6 +920,7 @@ You can not use it in source definition like (prefix . `NAME')."
         with sources
         for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
+        for end-def = (assoc-default 'end source)
         for req = (or (assoc-default 'requires source) requires 1)
 
         if (null prefix-def)
@@ -925,7 +952,7 @@ You can not use it in source definition like (prefix . `NAME')."
         if (equal prefix prefix-def) do (push source sources)
 
         finally return
-        (and point (list prefix-def point (nreverse sources)))))
+        (and point (list prefix-def point end-def (nreverse sources)))))
 
 (defun ac-init ()
   "Initialize current sources to start completion."
@@ -1088,6 +1115,7 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-compiled-sources nil
         ac-current-sources nil
         ac-current-prefix-def nil
+        ac-current-end-def nil
         ac-ignoring-prefix-def nil))
 
 (defsubst ac-abort ()
@@ -1100,34 +1128,31 @@ This function records deletion and insertion sequences by `undo-boundary'.
 If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
 that have been made before in this function."
   (when (not (equal string (buffer-substring ac-point (point))))
-    ;; If string already begins at ac-point, but (point) is not at its end, replace the entire
-    ;; common part
-    (let* ((common (try-completion "" (list string (buffer-substring ac-point (min (point-max) (+ ac-point (length string)))))))
-           (replace-up-to (max (point) (+ ac-point (length common)))))
-      (undo-boundary)
-      ;; We can't use primitive-undo since it undoes by
-      ;; groups, divided by boundaries.
-      ;; We don't want boundary between deletion and insertion.
-      ;; So do it manually.
-      ;; Delete region silently for undo:
+    (undo-boundary)
+    ;; We can't use primitive-undo since it undoes by
+    ;; groups, divided by boundaries.
+    ;; We don't want boundary between deletion and insertion.
+    ;; So do it manually.
+    ;; Delete the word at point silently for undo:
+    (let ((end (funcall ac-current-end-def)))
       (if remove-undo-boundary
           (progn
             (let (buffer-undo-list)
               (save-excursion
-                (delete-region ac-point replace-up-to)))
+                (delete-region ac-point end)))
             (setq buffer-undo-list
                   (nthcdr 2 buffer-undo-list)))
-        (delete-region ac-point replace-up-to))
-      (insert string)
-      ;; Sometimes, possible when omni-completion used, (insert) added
-      ;; to buffer-undo-list strange record about position changes.
-      ;; Delete it here:
-      (when (and remove-undo-boundary
-                 (integerp (cadr buffer-undo-list)))
-        (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
-      (undo-boundary)
-      (setq ac-selected-candidate string)
-      (setq ac-prefix string))))
+        (delete-region ac-point end)))
+    (insert string)
+    ;; Sometimes, possible when omni-completion used, (insert) added
+    ;; to buffer-undo-list strange record about position changes.
+    ;; Delete it here:
+    (when (and remove-undo-boundary
+               (integerp (cadr buffer-undo-list)))
+      (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
+    (undo-boundary)
+    (setq ac-selected-candidate string)
+    (setq ac-prefix string)))
 
 (defun ac-set-trigger-key (key)
   "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
@@ -1451,7 +1476,8 @@ that have been made before in this function."
     (let* ((info (ac-prefix requires ac-ignoring-prefix-def))
            (prefix-def (nth 0 info))
            (point (nth 1 info))
-           (sources (nth 2 info))
+           (end-def (nth 2 info))
+           (sources (nth 3 info))
            prefix
            (init (or force-init (not (eq ac-point point)))))
       (if (or (null point)
@@ -1469,7 +1495,8 @@ that have been made before in this function."
               ac-prefix prefix
               ac-limit ac-candidate-limit
               ac-triggered t
-              ac-current-prefix-def prefix-def)
+              ac-current-prefix-def prefix-def
+              ac-current-end-def end-def)
         (when (or init (null ac-prefix-overlay))
           (ac-init))
         (ac-set-timer)
