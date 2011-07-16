@@ -872,12 +872,12 @@ You can use it in source definition like (end . `NAME')."
   (unless ac-prefix-overlay
     (let (newline)
       ;; Insert newline to make sure that cursor always on the overlay
-      (when (and (eq ac-point (point-max))
-                 (eq ac-point (point)))
+      (when (eq ac-end (point-max))
         (popup-save-buffer-state
+          (goto-char ac-end)
           (insert "\n"))
         (setq newline t))
-      (setq ac-prefix-overlay (make-overlay ac-point (1+ (point)) nil t t))
+      (setq ac-prefix-overlay (make-overlay ac-point (1+ ac-end) nil t t))
       (overlay-put ac-prefix-overlay 'priority 9999)
       (overlay-put ac-prefix-overlay 'keymap (make-sparse-keymap))
       (overlay-put ac-prefix-overlay 'newline newline))))
