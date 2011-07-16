@@ -1125,10 +1125,10 @@ You can use it in source definition like (end . `NAME')."
   "Abort completion."
   (ac-cleanup))
 
-(defun ac-expand-string (string &optional remove-undo-boundary)
+(defun ac-expand-string (string &optional repeated-invocation)
   "Expand `STRING' into the buffer and update `ac-prefix' to `STRING'.
 This function records deletion and insertion sequences by `undo-boundary'.
-If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
+If `REPEATED-INVOCATION' is non-nil, this function also removes `undo-boundary'
 that have been made before in this function."
   (when (not (equal string (buffer-substring ac-point (point))))
     (undo-boundary)
@@ -1137,7 +1137,7 @@ that have been made before in this function."
     ;; We don't want boundary between deletion and insertion.
     ;; So do it manually.
     ;; Delete the word at point silently for undo:
-    (if remove-undo-boundary
+    (if repeated-invocation
         (progn
           (let (buffer-undo-list)
             (save-excursion
@@ -1149,7 +1149,7 @@ that have been made before in this function."
     ;; Sometimes, possible when omni-completion used, (insert) added
     ;; to buffer-undo-list strange record about position changes.
     ;; Delete it here:
-    (when (and remove-undo-boundary
+    (when (and repeated-invocation
                (integerp (cadr buffer-undo-list)))
       (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
     (undo-boundary)
