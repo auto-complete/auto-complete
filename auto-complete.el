@@ -331,10 +331,9 @@ a prefix doen't contain any upper case letters."
 
 (defvar ac-prefix nil
   "Prefix string.")
-(defvaralias 'ac-target 'ac-prefix)
 
 (defvar ac-end nil
-  "End position of word at point.")
+  "Last point of target string.")
 
 (defvar ac-selected-candidate nil
   "Last selected candidate.")
@@ -347,8 +346,8 @@ If there is no common part, this will be nil.")
   "Common part string of whole candidates.
 If there is no common part, this will be nil.")
 
-(defvar ac-prefix-overlay nil
-  "Overlay for prefix string.")
+(defvar ac-target-overlay nil
+  "Overlay for the target string.")
 
 (defvar ac-timer nil
   "Completion idle timer.")
@@ -441,7 +440,7 @@ If there is no common part, this will be nil.")
 
 (defvar ac-end-definitions
   '((symbol . ac-end-symbol))
-  "Word end position function definitions.")
+  "Target end position function definitions.")
 
 (defvar ac-sources '(ac-source-words-in-same-mode-buffers)
   "Sources for completion.")
@@ -691,7 +690,7 @@ You can use it in source definition like (prefix . `NAME')."
   (push (cons name prefix) ac-prefix-definitions))
 
 (defun ac-define-end (name end)
-  "Define new end function definition.
+  "Define new target end definition.
 You can use it in source definition like (end . `NAME')."
   (push (cons name end) ac-end-definitions))
 
@@ -828,7 +827,7 @@ You can use it in source definition like (end . `NAME')."
         (setq overlay (make-overlay point (+ point length)))
         (setf (nth 0 ac-inline)  overlay)
         (overlay-put overlay 'priority 9999)
-        ;; Help prefix-overlay in some cases
+        ;; Help target-overlay in some cases
         (overlay-put overlay 'keymap ac-current-map))
       ;; TODO no width but char
       (if (eq length 0)
@@ -869,8 +868,8 @@ You can use it in source definition like (end . `NAME')."
           (ac-inline-delete)))
     (ac-inline-delete)))
 
-(defun ac-put-prefix-overlay ()
-  (unless ac-prefix-overlay
+(defun ac-put-target-overlay ()
+  (unless ac-target-overlay
     (let (newline)
       ;; Insert newline to make sure that cursor always on the overlay
       (when (eq ac-end (point-max))
@@ -878,20 +877,20 @@ You can use it in source definition like (end . `NAME')."
           (goto-char ac-end)
           (insert "\n"))
         (setq newline t))
-      (setq ac-prefix-overlay (make-overlay ac-point (1+ ac-end) nil t t))
-      (overlay-put ac-prefix-overlay 'priority 9999)
-      (overlay-put ac-prefix-overlay 'keymap (make-sparse-keymap))
-      (overlay-put ac-prefix-overlay 'newline newline))))
+      (setq ac-target-overlay (make-overlay ac-point (1+ ac-end) nil t t))
+      (overlay-put ac-target-overlay 'priority 9999)
+      (overlay-put ac-target-overlay 'keymap (make-sparse-keymap))
+      (overlay-put ac-target-overlay 'newline newline))))
 
-(defun ac-remove-prefix-overlay ()
-  (when ac-prefix-overlay
-    (when (overlay-get ac-prefix-overlay 'newline)
+(defun ac-remove-target-overlay ()
+  (when ac-target-overlay
+    (when (overlay-get ac-target-overlay 'newline)
       ;; Remove inserted newline
       (popup-save-buffer-state
         (goto-char (point-max))
         (if (eq (char-before) ?\n)
             (delete-char -1))))
-    (delete-overlay ac-prefix-overlay)))
+    (delete-overlay ac-target-overlay)))
 
 (defun ac-activate-completing-map ()
   (if (and ac-show-menu ac-use-menu-map)
@@ -899,16 +898,16 @@ You can use it in source definition like (end . `NAME')."
   (when (and ac-use-overriding-local-map
              (null overriding-terminal-local-map))
     (setq overriding-terminal-local-map ac-current-map))
-  (when ac-prefix-overlay
-    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) ac-current-map)))
+  (when ac-target-overlay
+    (set-keymap-parent (overlay-get ac-target-overlay 'keymap) ac-current-map)))
 
 (defun ac-deactivate-completing-map ()
   (set-keymap-parent ac-current-map ac-completing-map)
   (when (and ac-use-overriding-local-map
              (eq overriding-terminal-local-map ac-current-map))
     (setq overriding-terminal-local-map nil))
-  (when ac-prefix-overlay
-    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
+  (when ac-target-overlay
+    (set-keymap-parent (overlay-get ac-target-overlay 'keymap) nil)))
 
 (defsubst ac-selected-candidate ()
   (if ac-menu
@@ -1090,7 +1089,7 @@ You can use it in source definition like (end . `NAME')."
                            (- ac-last-point ac-point)
                          (length ac-prefix)))))
   (ac-deactivate-completing-map)
-  (ac-remove-prefix-overlay)
+  (ac-remove-target-overlay)
   (ac-remove-quick-help)
   (ac-inline-delete)
   (ac-menu-delete)
@@ -1105,7 +1104,7 @@ You can use it in source definition like (end . `NAME')."
         ac-point nil
         ac-last-point nil
         ac-prefix nil
-        ac-prefix-overlay nil
+        ac-target-overlay nil
         ac-end nil
         ac-selected-candidate nil
         ac-common-part nil
@@ -1182,7 +1181,7 @@ that have been made before in this function."
              (or ac-triggered
                  force)
              (not isearch-mode))
-    (ac-put-prefix-overlay)
+    (ac-put-target-overlay)
     (setq ac-candidates (ac-candidates))
     (let ((preferred-width (popup-preferred-width ac-candidates)))
       ;; Reposition if needed
@@ -1499,12 +1498,12 @@ that have been made before in this function."
               ac-limit ac-candidate-limit
               ac-triggered t
               ac-current-prefix-def prefix-def)
-        (when (or init (null ac-prefix-overlay))
+        (when (or init (null ac-target-overlay))
           (ac-init))
         (ac-set-timer)
         (ac-set-show-menu-timer)
         (ac-set-quick-help-timer)
-        (ac-put-prefix-overlay)))))
+        (ac-put-target-overlay)))))
 
 (defun ac-stop ()
   "Stop completiong."
