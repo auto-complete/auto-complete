@@ -333,6 +333,9 @@ a prefix doen't contain any upper case letters."
   "Prefix string.")
 (defvaralias 'ac-target 'ac-prefix)
 
+(defvar ac-end nil
+  "End position of word at point.")
+
 (defvar ac-selected-candidate nil
   "Last selected candidate.")
 
@@ -454,8 +457,6 @@ If there is no common part, this will be nil.")
   "Do not use this anymore.")
 
 (defvar ac-current-prefix-def nil)
-
-(defvar ac-current-end-def nil)
 
 (defvar ac-ignoring-prefix-def nil)
 
@@ -916,6 +917,7 @@ You can use it in source definition like (end . `NAME')."
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)
         with point
+        with end
         with prefix-def
         with sources
         for source in (ac-compiled-sources)
@@ -935,24 +937,25 @@ You can use it in source definition like (end . `NAME')."
                                (or (match-beginning 1) (match-beginning 0))))
                          ((stringp (car-safe prefix))
                           (let ((regexp (nth 0 prefix))
-                                (end (nth 1 prefix))
+                                (endp (nth 1 prefix))
                                 (group (nth 2 prefix)))
                             (and (re-search-backward (concat regexp "\\=") nil t)
-                                 (funcall (if end 'match-end 'match-beginning)
+                                 (funcall (if endp 'match-end 'match-beginning)
                                           (or group 0)))))
                          (t
                           (eval prefix))))
             (if (and point
                      (integerp req)
                      (< (- current point) req))
-                (setq point nil))
-            (if point
-                (setq prefix-def prefix))))
+                (setq point nil)))
+          (when point
+            (setq prefix-def prefix)
+            (setq end (funcall end-def))))
         
         if (equal prefix prefix-def) do (push source sources)
 
         finally return
-        (and point (list prefix-def point end-def (nreverse sources)))))
+        (and point (list prefix-def point end (nreverse sources)))))
 
 (defun ac-init ()
   "Initialize current sources to start completion."
@@ -1103,6 +1106,7 @@ You can use it in source definition like (end . `NAME')."
         ac-last-point nil
         ac-prefix nil
         ac-prefix-overlay nil
+        ac-end nil
         ac-selected-candidate nil
         ac-common-part nil
         ac-whole-common-part nil
@@ -1115,7 +1119,6 @@ You can use it in source definition like (end . `NAME')."
         ac-compiled-sources nil
         ac-current-sources nil
         ac-current-prefix-def nil
-        ac-current-end-def nil
         ac-ignoring-prefix-def nil))
 
 (defsubst ac-abort ()
@@ -1134,15 +1137,14 @@ that have been made before in this function."
     ;; We don't want boundary between deletion and insertion.
     ;; So do it manually.
     ;; Delete the word at point silently for undo:
-    (let ((end (funcall ac-current-end-def)))
-      (if remove-undo-boundary
-          (progn
-            (let (buffer-undo-list)
-              (save-excursion
-                (delete-region ac-point end)))
-            (setq buffer-undo-list
-                  (nthcdr 2 buffer-undo-list)))
-        (delete-region ac-point end)))
+    (if remove-undo-boundary
+        (progn
+          (let (buffer-undo-list)
+            (save-excursion
+              (delete-region ac-point (point))))
+          (setq buffer-undo-list
+                (nthcdr 2 buffer-undo-list)))
+      (delete-region ac-point ac-end))
     (insert string)
     ;; Sometimes, possible when omni-completion used, (insert) added
     ;; to buffer-undo-list strange record about position changes.
@@ -1476,7 +1478,7 @@ that have been made before in this function."
     (let* ((info (ac-prefix requires ac-ignoring-prefix-def))
            (prefix-def (nth 0 info))
            (point (nth 1 info))
-           (end-def (nth 2 info))
+           (end (nth 2 info))
            (sources (nth 3 info))
            prefix
            (init (or force-init (not (eq ac-point point)))))
@@ -1493,10 +1495,10 @@ that have been made before in this function."
               ac-buffer (current-buffer)
               ac-point point
               ac-prefix prefix
+              ac-end end
               ac-limit ac-candidate-limit
               ac-triggered t
-              ac-current-prefix-def prefix-def
-              ac-current-end-def end-def)
+              ac-current-prefix-def prefix-def)
         (when (or init (null ac-prefix-overlay))
           (ac-init))
         (ac-set-timer)
