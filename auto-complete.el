@@ -983,6 +983,15 @@ You can not use it in source definition like (prefix . `NAME')."
                              candidates))
     candidates))
 
+(defun ac-equal-candidates (a b)
+  "Return t if A and B are equal, otherwise nil. The comparison
+is done with a look at text properties."
+  (and (equal (popup-item-value-or-self a) (popup-item-value-or-self b))
+       (equal (popup-item-document a) (popup-item-document b))
+       (equal (popup-item-summary a) (popup-item-summary b))
+       (equal (popup-item-summary a) (popup-item-summary b))
+       (equal (popup-item-sublist a) (popup-item-sublist b))))
+
 (defun ac-candidates ()
   "Produce candidates for current sources."
   (loop with completion-ignore-case = (or (eq ac-ignore-case t)
@@ -994,7 +1003,9 @@ You can not use it in source definition like (prefix . `NAME')."
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
-          (delete-dups candidates)
+          ;; FIXME: Don't know how to handle that correctly for the
+          ;; moment.
+          (delete-duplicates :test 'ac-equal-candidates)
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
