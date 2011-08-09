@@ -1005,7 +1005,7 @@ is done with a look at text properties."
         (progn
           ;; FIXME: Don't know how to handle that correctly for the
           ;; moment.
-          (delete-duplicates :test 'ac-equal-candidates)
+          (delete-duplicates candidates :test 'ac-equal-candidates)
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
