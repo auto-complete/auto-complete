@@ -986,11 +986,9 @@ You can not use it in source definition like (prefix . `NAME')."
 (defun ac-equal-candidates (a b)
   "Return t if A and B are equal, otherwise nil. The comparison
 is done with a look at text properties."
-  (and (equal (popup-item-value-or-self a) (popup-item-value-or-self b))
-       (equal (popup-item-document a) (popup-item-document b))
-       (equal (popup-item-summary a) (popup-item-summary b))
-       (equal (popup-item-summary a) (popup-item-summary b))
-       (equal (popup-item-sublist a) (popup-item-sublist b))))
+  (and (equal a b)
+       (equal (popup-item-value a) (popup-item-value b))
+       (equal (popup-item-summary a) (popup-item-summary b))))
 
 (defun ac-candidates ()
   "Produce candidates for current sources."
@@ -1005,7 +1003,7 @@ is done with a look at text properties."
         (progn
           ;; FIXME: Don't know how to handle that correctly for the
           ;; moment.
-          (delete-duplicates candidates :test 'ac-equal-candidates)
+          (setq candidates (remove-duplicates candidates :test 'ac-equal-candidates))
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
