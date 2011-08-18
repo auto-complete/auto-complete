@@ -21,7 +21,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -124,13 +124,13 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
        (unwind-protect
            (progn ,@body)
          (set-buffer-modified-p modified)))))
-  
+
 (defun popup-preferred-width (list)
   "Return preferred width of popup to show `LIST' beautifully."
   (loop with tab-width = 4
         for item in list
         for summary = (popup-item-summary item)
-        maximize (string-width (popup-x-to-string (or (get-text-property 0 'view item) item ))) into width
+        maximize (string-width (popup-x-to-string (or (popup-item-view item) item))) into width
         if (stringp summary)
         maximize (+ (string-width summary) 2) into summary-width
         finally return (* (ceiling (/ (+ (or width 0) (or summary-width 0)) 10.0)) 10)))
@@ -147,10 +147,10 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
     (setq window (selected-window)))
   (unless (popup-window-full-width-p window)
     (let ((t-p-w-w (buffer-local-value 'truncate-partial-width-windows
-				       (window-buffer window))))
+                                       (window-buffer window))))
       (if (integerp t-p-w-w)
-	  (< (window-width window) t-p-w-w)
-	t-p-w-w))))
+          (< (window-width window) t-p-w-w)
+        t-p-w-w))))
 
 (defun popup-current-physical-column ()
   (or (when (and popup-use-optimized-column-computation
@@ -302,7 +302,7 @@ See also `popup-item-propertize'."
   (popup-set-filtered-list popup list)
   (setf (popup-pattern popup) nil)
   (setf (popup-original-list popup) list))
-  
+
 (defun popup-set-filtered-list (popup list)
   (setf (popup-list popup) list
         (popup-offset popup) (if (> (popup-direction popup) 0)
@@ -360,14 +360,14 @@ See also `popup-item-propertize'."
 (defun popup-create-line-string (popup string margin-left margin-right symbol summary)
   (let* ((popup-width (popup-width popup))
          (summary-width (string-width summary))
-         (string (car (popup-substring-by-width string
+         (string (car (popup-substring-by-width (or (popup-item-view string) string)
                                                 (- popup-width
                                                    (if (> summary-width 0)
                                                        (+ summary-width 2)
                                                      0)))))
-         (string-width (string-width (or (get-text-property 0 'view string) string ))))
+         (string-width (string-width string)))
     (concat margin-left
-            (or  (get-text-property 0 'view string) string)
+            string
             (make-string (max (- popup-width string-width summary-width) 0) ? )
             summary
             symbol
@@ -440,7 +440,7 @@ See also `popup-item-propertize'."
         (popup-save-buffer-state
           (goto-char (point-max))
           (insert (make-string newlines ?\n))))
-      
+
       (if overflow
           (if foldable
               (progn
@@ -459,7 +459,7 @@ See also `popup-item-propertize'."
         (setq column 0)
         (decf popup-width margin-left)
         (setq margin-left-cancel t))
-      
+
       (dotimes (i height)
         (let (overlay begin w (dangle t) (prefix "") (postfix ""))
           (when around
@@ -467,7 +467,7 @@ See also `popup-item-propertize'."
                 (vertical-motion (cons column direction))
               (vertical-motion direction)
               (move-to-column (+ (current-column) column))))
-	  (setq around t
+          (setq around t
                 current-column (popup-current-physical-column))
 
           (when (> current-column column)
@@ -497,8 +497,8 @@ See also `popup-item-propertize'."
           (overlay-put overlay 'postfix postfix)
           (overlay-put overlay 'width width)
           (aset overlays
-		(if (> direction 0) i (- height i 1))
-		overlay)))
+                (if (> direction 0) i (- height i 1))
+                overlay)))
       (loop for p from (- 10000 (* depth 1000))
             for overlay in (nreverse (append overlays nil))
             do (overlay-put overlay 'priority p))
@@ -582,11 +582,11 @@ See also `popup-item-propertize'."
                       (concat " " (or (popup-item-symbol item) " "))
                     "")
         for summary = (or (popup-item-summary item) "")
-        
+
         do
         ;; Show line and set item to the line
         (popup-set-line-item popup o item face margin-left margin-right scroll-bar-char sym summary)
-        
+
         finally
         ;; Remember current height
         (setf (popup-current-height popup) (- o offset))
@@ -815,11 +815,11 @@ See also `popup-item-propertize'."
   (and (eq margin t) (setq margin 1))
   (or margin-left (setq margin-left margin))
   (or margin-right (setq margin-right margin))
-  
+
   (let ((it (popup-fill-string string width popup-tip-max-width)))
     (setq width (car it)
           lines (cdr it)))
-  
+
   (setq tip (popup-create point width height
                           :min-height min-height
                           :around around
