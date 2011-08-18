@@ -152,15 +152,15 @@ SQUEEZE nil means leave whitespaces other than line breaks untouched."
           (< (window-width window) t-p-w-w)
         t-p-w-w))))
 
-(defun popup-current-physical-column ()
+(defun popup-current-physical-column (&optional window)
   (or (when (and popup-use-optimized-column-computation
-                 (eq (window-hscroll) 0))
+                 (eq (window-hscroll window) 0))
         (let ((current-column (current-column)))
-          (if (or (popup-truncated-partial-width-window-p)
+          (if (or (popup-truncated-partial-width-window-p window)
                   truncate-lines
-                  (< current-column (window-width)))
+                  (< current-column (window-width window)))
               current-column)))
-      (car (posn-col-row (posn-at-point)))))
+      (car (posn-col-row (posn-at-point nil window)))))
 
 (defun popup-last-line-of-buffer-p ()
   (save-excursion (end-of-line) (/= (forward-line) 0)))
