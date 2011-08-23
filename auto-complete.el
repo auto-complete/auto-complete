@@ -1001,10 +1001,10 @@ You can not use it in source definition like (prefix . `NAME')."
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
-          ;; Deleting candidates with a custom test function was to
-          ;; costly so now buffer know to have duplicated (but valid)
-          ;; candidates can set the variable: `ac-allow-duplicates' to
-          ;; t.
+          ;; Deleting candidates with a custom test function was too
+          ;; costly. Now each buffer known to have duplicate (but
+          ;; valid) candidates can set the variable:
+          ;; `ac-allow-duplicates' to t.
           (unless ac-allow-duplicates
             (delete-dups candidates))
 
