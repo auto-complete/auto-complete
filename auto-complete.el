@@ -264,6 +264,13 @@ a prefix doen't contain any upper case letters."
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-allow-duplicates nil
+  "Non-nil means allow duplicates in candidates for completion.
+
+note: this variable exist because some sources can have
+duplicates but with different actions, views, ...")
+(make-variable-buffer-local 'ac-allow-duplicates)
+
 (defcustom ac-use-menu-map nil
   "Non-nil means a special keymap `ac-menu-map' on completing menu will be used."
   :type 'boolean
@@ -983,13 +990,6 @@ You can not use it in source definition like (prefix . `NAME')."
                              candidates))
     candidates))
 
-(defun ac-equal-candidates (a b)
-  "Return t if A and B are equal, otherwise nil. The comparison
-is done with a look at text properties."
-  (and (equal a b)
-       (equal (popup-item-value a) (popup-item-value b))
-       (equal (popup-item-summary a) (popup-item-summary b))))
-
 (defun ac-candidates ()
   "Produce candidates for current sources."
   (loop with completion-ignore-case = (or (eq ac-ignore-case t)
@@ -1001,9 +1001,13 @@ is done with a look at text properties."
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
-          ;; FIXME: Don't know how to handle that correctly for the
-          ;; moment.
-          (setq candidates (remove-duplicates candidates :test 'ac-equal-candidates))
+          ;; Deleting candidates with a custom test function was to
+          ;; costly so now buffer know to have duplicated (but valid)
+          ;; candidates can set the variable: `ac-allow-duplicates' to
+          ;; t.
+          (unless ac-allow-duplicates
+            (delete-dups candidates))
+
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))

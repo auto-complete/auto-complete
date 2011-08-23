@@ -455,7 +455,7 @@ See also `popup-item-propertize'."
         (decf column margin-left))
       (when (and (null parent)
                  (< column 0))
-          ;; Cancel margin left
+        ;; Cancel margin left
         (setq column 0)
         (decf popup-width margin-left)
         (setq margin-left-cancel t))
@@ -690,7 +690,7 @@ See also `popup-item-propertize'."
 
 (defvar popup-isearch-keymap
   (let ((map (make-sparse-keymap)))
-    ;(define-key map "\r"        'popup-isearch-done)
+    ;; (define-key map "\r"        'popup-isearch-done)
     (define-key map "\C-g"      'popup-isearch-cancel)
     (define-key map "\C-h"      'popup-isearch-delete)
     (define-key map (kbd "DEL") 'popup-isearch-delete)
