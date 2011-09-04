@@ -991,7 +991,7 @@ You can not use it in source definition like (prefix . `NAME')."
         with case-fold-search = completion-ignore-case
         with prefix-len = (length ac-prefix)
         for source in ac-current-sources
-        if (assoc-default 'allow-dups source) sum 1 into allow-dups
+        if (assq 'allow-dups source) sum 1 into allow-dups
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
