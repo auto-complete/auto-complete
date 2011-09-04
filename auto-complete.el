@@ -264,13 +264,6 @@ a prefix doen't contain any upper case letters."
   :type 'boolean
   :group 'auto-complete)
 
-(defcustom ac-allow-duplicates nil
-  "Non-nil means allow duplicates in candidates for completion.
-
-note: this variable exist because some sources can have
-duplicates but with different actions, views, ...")
-(make-variable-buffer-local 'ac-allow-duplicates)
-
 (defcustom ac-use-menu-map nil
   "Non-nil means a special keymap `ac-menu-map' on completing menu will be used."
   :type 'boolean
@@ -998,15 +991,15 @@ You can not use it in source definition like (prefix . `NAME')."
         with case-fold-search = completion-ignore-case
         with prefix-len = (length ac-prefix)
         for source in ac-current-sources
+        if (assoc-default 'allow-dups source) sum 1 into allow-dups
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
           ;; Deleting candidates with a custom test function was too
-          ;; costly. Now each buffer known to have duplicate (but
-          ;; valid) candidates can set the variable:
-          ;; `ac-allow-duplicates' to t.
-          (unless ac-allow-duplicates
-            (delete-dups candidates))
+          ;; slow. Now each source known to have valid duplicates can
+          ;; put allow-dups in the source defintion.
+          (if (zerop allow-dups)
+              (delete-dups candidates))
 
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
