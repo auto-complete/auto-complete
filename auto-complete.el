@@ -995,9 +995,6 @@ You can not use it in source definition like (prefix . `NAME')."
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
-          ;; Deleting candidates with a custom test function was too
-          ;; slow. Now each source known to have valid duplicates can
-          ;; put allow-dups in the source defintion.
           (if (zerop allow-dups)
               (delete-dups candidates))
 
