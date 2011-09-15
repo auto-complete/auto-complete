@@ -62,7 +62,6 @@ apd_set_session_trace
 apd_set_session_trace_socket
 appenditerator
 array
-array
 arrayaccess
 array_change_key_case
 array_chunk
@@ -320,7 +319,9 @@ calcul_hmac
 cal_days_in_month
 cal_from_jd
 cal_info
+__call()
 callbackfilteriterator
+__callStatic()
 call_user_func
 call_user_func_array
 call_user_method
@@ -343,6 +344,7 @@ chr
 chroot
 chunk_split
 class
+__CLASS__
 class_alias
 class_exists
 class_implements
@@ -355,7 +357,7 @@ classkit_method_rename
 class_parents
 clearstatcache
 clone
-clone
+__clone()
 closedir
 closelog
 collator
@@ -383,6 +385,7 @@ connection_timeout
 const
 constant
 construct
+__construct()
 continue
 convert_cyr_string
 convert_uudecode
@@ -705,8 +708,8 @@ defined
 define_syslog_variables
 deg2rad
 delete
+__destruct()
 dgettext
-die
 die
 dio_close
 dio_fcntl
@@ -718,6 +721,7 @@ dio_tcsetattr
 dio_truncate
 dio_write
 dir
+__DIR__
 directoryiterator
 dirname
 diskfreespace
@@ -834,10 +838,8 @@ each
 easter_date
 easter_days
 echo
-echo
 else
 elseif
-empty
 empty
 emptyiterator
 enchant_broker_describe
@@ -877,7 +879,6 @@ error_reporting
 escapeshellarg
 escapeshellcmd
 eval
-eval
 event_add
 event_base_free
 event_base_loop
@@ -908,7 +909,6 @@ exif_imagetype
 exif_read_data
 exif_tagname
 exif_thumbnail
-exit
 exit
 exp
 expect_expectl
@@ -1033,6 +1033,7 @@ fgetcsv
 fgets
 fgetss
 file
+__FILE__
 fileatime
 filectime
 file_exists
@@ -1130,6 +1131,7 @@ func_get_arg
 func_get_args
 func_num_args
 function
+__FUNCTION__
 function_exists
 fwrite
 gc_collect_cycles
@@ -1156,6 +1158,7 @@ geoip_record_by_name
 geoip_region_by_name
 geoip_region_name_by_code
 geoip_time_zone_by_country_and_region
+__get()
 getallheaders
 get_browser
 get_called_class
@@ -2659,8 +2662,6 @@ implode
 import_request_variables
 in_array
 include
-include
-include_once
 include_once
 inclued_get_data
 inet_ntop
@@ -2722,6 +2723,7 @@ intl_is_failure
 intval
 invalidargumentexception
 invoke
+__invoke()
 invokeargs
 ip2long
 iptcembed
@@ -2759,7 +2761,7 @@ is_real
 is_resource
 is_scalar
 isset
-isset
+__isset()
 is_soap_fault
 is_string
 issubclassof
@@ -2871,9 +2873,9 @@ libxml_get_last_error
 libxml_set_streams_context
 libxml_use_internal_errors
 limititerator
+__LINE__
 link
 linkinfo
-list
 list
 locale
 localeconv
@@ -3117,6 +3119,7 @@ memory_get_peak_usage
 memory_get_usage
 messageformatter
 metaphone
+__METHOD__
 method_exists
 m_getcell
 m_getcellbynum
@@ -3395,6 +3398,7 @@ mysql_tablename
 mysql_thread_id
 mysql_unbuffered_query
 namespace
+__NAMESPACE__
 natcasesort
 natsort
 ncurses_addch
@@ -4368,7 +4372,6 @@ preg_replace_callback
 preg_split
 prev
 print
-print
 printer_abort
 printer_close
 printer_create_brush
@@ -4628,8 +4631,6 @@ register_tick_function
 rename
 rename_function
 require
-require
-require_once
 require_once
 reset
 resetValue
@@ -4637,7 +4638,6 @@ resourcebundle
 restore_error_handler
 restore_exception_handler
 restore_include_path
-return
 return
 rewind
 rewinddir
@@ -4813,6 +4813,7 @@ session_start
 session_unregister
 session_unset
 session_write_close
+__set()
 setcookie
 setCounterClass
 set_error_handler
@@ -4824,6 +4825,7 @@ set_magic_quotes_runtime
 setproctitle
 setrawcookie
 set_socket_blocking
+__set_state()
 setstaticpropertyvalue
 setthreadtitle
 set_time_limit
@@ -4857,6 +4859,7 @@ sin
 sinh
 sizeof
 sleep
+__sleep()
 snmp
 snmp2_get
 snmp2_getnext
@@ -5602,6 +5605,7 @@ tokyotyrant
 tokyotyrantquery
 tokyotyranttable
 tostring
+__toString()
 touch
 transliterator
 traversable
@@ -5646,7 +5650,7 @@ unpack
 unregister_tick_function
 unserialize
 unset
-unset
+__unset()
 urldecode
 urlencode
 use
@@ -5715,6 +5719,7 @@ w32api_init_dtype
 w32api_invoke_function
 w32api_register_function
 w32api_set_call_method
+__wakeup()
 wddx_add_vars
 wddx_deserialize
 wddx_packet_end
