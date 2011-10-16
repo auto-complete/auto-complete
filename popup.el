@@ -257,11 +257,16 @@ See also `popup-item-propertize'."
 (defsubst popup-item-selection-face (item)      (popup-item-property item 'selection-face))
 (defsubst popup-item-document (item)            (popup-item-property item 'document))
 (defsubst popup-item-summary (item)             (popup-item-property item 'summary))
-(defsubst popup-item-symbol (item)              (popup-item-property item 'symbol))
 (defsubst popup-item-sublist (item)             (popup-item-property item 'sublist))
 
 (defun popup-item-documentation (item)
   (let ((doc (popup-item-document item)))
+    (if (functionp doc)
+        (setq doc (funcall doc (popup-item-value-or-self item))))
+    doc))
+
+(defun popup-item-symbol (item)
+  (let ((doc (popup-item-property item 'symbol)))
     (if (functionp doc)
         (setq doc (funcall doc (popup-item-value-or-self item))))
     doc))
