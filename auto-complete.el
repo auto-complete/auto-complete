@@ -922,7 +922,7 @@ You can not use it in source definition like (prefix . `NAME')."
                 (setq point nil))
             (if point
                 (setq prefix-def prefix))))
-        
+
         if (equal prefix prefix-def) do (push source sources)
 
         finally return
@@ -1410,7 +1410,7 @@ that have been made before in this function."
       (ac-complete)
     (when (and (ac-inline-live-p)
                ac-common-part)
-      (ac-inline-hide) 
+      (ac-inline-hide)
       (ac-expand-string ac-common-part (eq last-command this-command))
       (setq ac-common-part nil)
       t)))
@@ -1909,7 +1909,8 @@ completion menu. This workaround stops that annoying behavior."
 (defvar ac-filename-cache nil)
 
 (defun ac-filename-candidate ()
-  (unless (file-regular-p ac-prefix)
+  (unless (or (string-match comment-start-skip ac-prefix)
+              (file-regular-p ac-prefix))
     (ignore-errors
       (loop with dir = (file-name-directory ac-prefix)
             with files = (or (assoc-default dir ac-filename-cache)
