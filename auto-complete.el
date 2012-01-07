@@ -182,7 +182,7 @@
     c-mode cc-mode c++-mode
     java-mode malabar-mode clojure-mode scala-mode
     scheme-mode
-    ocaml-mode tuareg-mode haskell-mode
+    ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
     perl-mode cperl-mode python-mode ruby-mode
     ecmascript-mode javascript-mode js-mode js2-mode php-mode css-mode
     makefile-mode sh-mode fortran-mode f90-mode ada-mode
