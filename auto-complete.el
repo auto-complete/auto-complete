@@ -1785,7 +1785,8 @@ completion menu. This workaround stops that annoying behavior."
          ((fboundp symbol)
           ;; import help-xref-following
           (require 'help-mode)
-          (let ((help-xref-following t))
+          (let ((help-xref-following t)
+                (major-mode 'help-mode)) ; avoid error in Emacs 24
             (describe-function-1 symbol))
           (buffer-string))
          ((boundp symbol)
