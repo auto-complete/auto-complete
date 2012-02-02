@@ -1783,10 +1783,7 @@ completion menu. This workaround stops that annoying behavior."
         (princ " is ")
         (cond
          ((fboundp symbol)
-          ;; import help-xref-following
-          (require 'help-mode)
-          (let ((help-xref-following t))
-            (describe-function-1 symbol))
+          (describe-function-1 symbol)
           (buffer-string))
          ((boundp symbol)
           (let ((file-name  (ac-symbol-file symbol 'defvar)))
