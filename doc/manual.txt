@@ -18,15 +18,15 @@ Auto Complete Mode User Manual
 Introduction
 ------------
 
-Auto Complete Mode (aka `auto-complete.el`, `auto-complete-mode`) is a extension that automates and advances completion-system of [GNU Emacs][]. This is superior than old system:
+Auto Complete Mode (aka `auto-complete.el`, `auto-complete-mode`) is an extension that automates and advances the completion-system of [GNU Emacs][]. This is superior to the old system:
 
 * Visual interface
 * Reduce overhead of completion by using statistic method
 * Extensibility
 
-This user manual covers from how to install and how to use to how to extend. Please contact me if you have question.
+This user manual covers from how to install and how to use to how to extend. Please contact me if you have any questions.
 
-Auto Complete Mode is licensed under the term of [GPLv3][]. And this document is licensed under the term of [GFDL][].
+Auto Complete Mode is licensed under the terms of [GPLv3][]. And this document is licensed under the term of [GFDL][].
 
 Downloads
 ---------
@@ -44,7 +44,7 @@ Installation
 
 ### Installation Script ###
 
-It is easy to install by using a installation script called `etc/install.el` that is located in the package directory.
+It is easy to install by using an installation script called `etc/install.el` that is located in the package directory.
 
 Type `M-x load-file RET` in the running Emacs or newly launched Emacs. Note that if you want to upgrade `auto-complete-mode`, you have to install in **a newly launched Emacs with `-q` option**. Then input a file name to load which is a path string with adding `/etc/install.el` to the package directory. For example, if the package directory is `~/tmp/auto-complete-1.2`, the file name will be `~/tmp/auto-complete-1.2/etc/install.el`.
 
@@ -75,7 +75,7 @@ If you don't have GNU Make, run emacs like:
 
 ### Manual Installation ###
 
-It is also possible to install manually if you follow a directory configuration. First, do byte-compile all `.el` files in the package directory. You may use `Makefile` in UNIX OS.
+It is also possible to install manually if you follow a directory configuration. First, byte-compile all `.el` files in the package directory. You may use `Makefile` in UNIX OS.
 
     $ make byte-compile
 
@@ -101,7 +101,7 @@ If you haven't added the directory to `load-path`, you need to add the following
 
 ### Check ###
 
-Type some characters in \*scratch\* buffer in a restarted Emacs or newly launched Emacs. It is successful if you see completion menu. If you have error or no completion is started, it is failure maybe. Please contact me in such case with confirmation following:
+Type some characters in \*scratch\* buffer in a restarted Emacs or newly launched Emacs. Installation has been successful if you see a completion menu. If you have error or no completion is started, it is failure maybe. Please contact me in such case with confirmation following:
 
 * Using correct `load-path`?
 
