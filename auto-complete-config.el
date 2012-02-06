@@ -368,7 +368,7 @@
   "Current editing property.")
 
 (defun ac-css-prefix ()
-  (when (save-excursion (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:.*\\=" nil t))
+  (when (save-excursion (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\=" nil t))
     (setq ac-css-property (match-string 1))
     (or (ac-prefix-symbol) (point))))
 
