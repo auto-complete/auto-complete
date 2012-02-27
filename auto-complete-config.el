@@ -412,9 +412,10 @@
 ;; ropemacs
 
 (defun ac-ropemacs-candidates ()
-  (mapcar (lambda (completion)
-      (concat ac-prefix completion))
-    (rope-completions)))
+  (when (ac-ropemacs-project-available)
+    (mapcar (lambda (completion)
+              (concat ac-prefix completion))
+            (rope-completions))))
 
 (ac-define-source nropemacs
   '((candidates . ac-ropemacs-candidates)
@@ -433,11 +434,12 @@
 ;; extended ropemacs
 
 (defun ac-eropemacs-candidates ()
-  (mapcar (lambda (proposal)
-          (destructuring-bind (name doc type) proposal
-            (list (concat ac-prefix name) doc
-                  (if type (substring type 0 1) nil))))
-        (rope-extended-completions)))
+  (when (ac-ropemacs-project-available)
+    (mapcar (lambda (proposal)
+              (destructuring-bind (name doc type) proposal
+                (list (concat ac-prefix name) doc
+                      (if type (substring type 0 1) nil))))
+            (rope-extended-completions))))
 
 (defun ac-eropemacs-document (item) (car  item))
 (defun ac-eropemacs-symbol   (item) (cadr item))
@@ -462,6 +464,15 @@
   (if (functionp 'rope-extended-completions)
       (ac-eropemacs-setup)
     (ac-nropemacs-setup)))
+
+(defun ac-ropemacs-project-available ()
+  "Check if ropemacs is available.
+
+It returns non-nil if project is opened. If currently running
+ropemacs does not support `rope-get-project-root', it returns
+non-nil always."
+  (or (not (fboundp 'rope-get-project-root))
+      (rope-get-project-root)))
 
 ;;;; Not maintained sources
 
