@@ -597,7 +597,7 @@ If there is no common part, this will be nil.")
         (ignore-errors
           (with-temp-buffer
             (insert-file-contents filename)
-            (setq result (split-string (buffer-string) "\n"))))
+            (setq result (split-string (buffer-string) "\n" t))))
         (puthash filename result ac-file-dictionary)
         result))))
 
