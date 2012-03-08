@@ -180,7 +180,7 @@
   '(emacs-lisp-mode lisp-mode lisp-interaction-mode
     slime-repl-mode
     c-mode cc-mode c++-mode
-    java-mode malabar-mode clojure-mode scala-mode
+    java-mode malabar-mode clojure-mode clojurescript-mode  scala-mode
     scheme-mode
     ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
     perl-mode cperl-mode python-mode ruby-mode
