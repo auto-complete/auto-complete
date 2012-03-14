@@ -1152,20 +1152,22 @@ that have been made before in this function."
              (or ac-triggered
                  force)
              (not isearch-mode))
-    (ac-put-prefix-overlay)
-    (setq ac-candidates (ac-candidates))
-    (let ((preferred-width (popup-preferred-width ac-candidates)))
-      ;; Reposition if needed
-      (when (or (null ac-menu)
-                (>= (popup-width ac-menu) preferred-width)
-                (<= (popup-width ac-menu) (- preferred-width 10))
-                (and (> (popup-direction ac-menu) 0)
-                     (ac-menu-at-wrapper-line-p)))
-        (ac-inline-hide) ; Hide overlay to calculate correct column
-        (ac-menu-delete)
-        (ac-menu-create ac-point preferred-width ac-menu-height)))
-    (ac-update-candidates 0 0)
-    t))
+    (if (< (length ac-prefix) ac-auto-start)
+        (ac-abort)
+      (ac-put-prefix-overlay)
+      (setq ac-candidates (ac-candidates))
+      (let ((preferred-width (popup-preferred-width ac-candidates)))
+        ;; Reposition if needed
+        (when (or (null ac-menu)
+                  (>= (popup-width ac-menu) preferred-width)
+                  (<= (popup-width ac-menu) (- preferred-width 10))
+                  (and (> (popup-direction ac-menu) 0)
+                       (ac-menu-at-wrapper-line-p)))
+          (ac-inline-hide) ; Hide overlay to calculate correct column
+          (ac-menu-delete)
+          (ac-menu-create ac-point preferred-width ac-menu-height)))
+      (ac-update-candidates 0 0)
+      t)))
 
 (defun ac-update-greedy (&optional force)
   (let (result)
