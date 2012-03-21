@@ -992,10 +992,13 @@ You can not use it in source definition like (prefix . `NAME')."
         with case-fold-search = completion-ignore-case
         with prefix-len = (length ac-prefix)
         for source in ac-current-sources
+        if (assq 'allow-dups source) sum 1 into allow-dups
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
-          (delete-dups candidates)
+          (if (zerop allow-dups)
+              (delete-dups candidates))
+
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
