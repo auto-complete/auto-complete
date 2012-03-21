@@ -998,6 +998,7 @@ See also `popup-item-propertize'."
                      (isearch-cursor-color popup-isearch-cursor-color)
                      (isearch-keymap popup-isearch-keymap)
                      isearch-callback
+		     (initial-offset 0)
                      &aux menu event)
   (and (eq margin t) (setq margin 1))
   (or margin-left (setq margin-left margin))
@@ -1020,7 +1021,13 @@ See also `popup-item-propertize'."
       (progn
         (popup-set-list menu list)
         (popup-draw menu)
-        (popup-menu-event-loop menu keymap fallback prompt help-delay isearch
+	(when initial-offset
+	  (popup-select menu
+			(let ((end-offset (- (length list) 1)))
+			  (if (< end-offset initial-offset)
+			      end-offset
+			    initial-offset))))
+	(popup-menu-event-loop menu keymap fallback prompt help-delay isearch
                                isearch-cursor-color isearch-keymap isearch-callback))
     (popup-delete menu)))
 
