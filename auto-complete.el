@@ -138,7 +138,14 @@
   :group 'auto-complete)
 (defvaralias 'ac-user-dictionary-files 'ac-dictionary-files)
 
-(defcustom ac-dictionary-directories nil
+(defcustom ac-dictionary-directories
+  (ignore-errors
+    (when load-file-name
+      (let ((installed-dir (file-name-directory load-file-name)))
+        (loop for name in '("ac-dict" "dict")
+              for dir = (concat installed-dir name)
+              if (file-directory-p dir)
+              collect dir))))
   "Dictionary directories."
   :type '(repeat string)
   :group 'auto-complete)

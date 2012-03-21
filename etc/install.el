@@ -36,7 +36,7 @@ Add the following code to your .emacs:
                              (format "(add-to-list 'load-path \"%s\")\n" todir)
                            "")
                          "(require 'auto-complete-config)\n"
-                         (format "(add-to-list 'ac-dictionary-directories \"%s\")\n" todictdir)
+                         ;(format "(add-to-list 'ac-dictionary-directories \"%s\")\n" todictdir)
                          "(ac-config-default)\n")))
         (if noninteractive
             (princ-list msg)
