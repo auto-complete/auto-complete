@@ -1351,6 +1351,7 @@ that have been made before in this function."
 
 ;;;; Auto completion commands
 
+;;;###autoload
 (defun auto-complete (&optional sources)
   "Start auto-completion at current point."
   (interactive)
