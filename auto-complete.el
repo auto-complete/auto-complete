@@ -46,7 +46,15 @@
 (eval-when-compile
   (require 'cl))
 
-(require 'popup)
+(eval-and-compile
+  (or (require 'popup nil t)
+      (let ((load-path (cons (expand-file-name
+			      (file-name-as-directory "fallback-libs")
+			      (file-name-directory
+			       (locate-library "auto-complete")))
+			     load-path)))
+	(require 'popup))))
+
 
 ;;;; Global stuff
 
@@ -1379,7 +1387,13 @@ that have been made before in this function."
 (defun ac-fuzzy-complete ()
   "Start fuzzy completion at current point."
   (interactive)
-  (when (require 'fuzzy nil)
+  (when (or (require 'fuzzy nil t)
+	    (let ((load-path (cons (expand-file-name
+				    (file-name-as-directory "fallback-libs")
+				    (file-name-directory
+				     (locate-library "auto-complete")))
+				   load-path)))
+	      (require 'fuzzy)))
     (unless (ac-menu-live-p)
       (ac-start))
     (let ((ac-match-function 'fuzzy-all-completions))
