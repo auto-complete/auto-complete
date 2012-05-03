@@ -344,7 +344,9 @@ a prefix doen't contain any upper case letters."
 
 (defvar ac-prefix nil
   "Prefix string.")
-(defvaralias 'ac-target 'ac-prefix)
+
+(defvar ac-end nil
+  "Last point of target string.")
 
 (defvar ac-selected-candidate nil
   "Last selected candidate.")
@@ -357,8 +359,8 @@ If there is no common part, this will be nil.")
   "Common part string of whole candidates.
 If there is no common part, this will be nil.")
 
-(defvar ac-prefix-overlay nil
-  "Overlay for prefix string.")
+(defvar ac-target-overlay nil
+  "Overlay for the target string.")
 
 (defvar ac-timer nil
   "Completion idle timer.")
@@ -454,6 +456,10 @@ If there is no common part, this will be nil.")
     (c-dot . ac-prefix-c-dot)
     (c-dot-ref . ac-prefix-c-dot-ref))
   "Prefix definitions for common use.")
+
+(defvar ac-end-definitions
+  '((symbol . ac-end-symbol))
+  "Target end position function definitions.")
 
 (defvar ac-sources '(ac-source-words-in-same-mode-buffers)
   "Sources for completion.")
@@ -656,10 +662,17 @@ If there is no common part, this will be nil.")
           (member word (ac-buffer-dictionary)))))
 
 (defun ac-prefix-symbol ()
-  "Default prefix definition function."
+  "Start position of symbol at point."
   (require 'thingatpt)
   (car-safe (bounds-of-thing-at-point 'symbol)))
+
+(defun ac-end-symbol ()
+  "End position of symbol at point."
+  (require 'thingatpt)
+  (cdr-safe (bounds-of-thing-at-point 'symbol)))
+
 (defalias 'ac-prefix-default 'ac-prefix-symbol)
+(defalias 'ac-end-default 'ac-end-symbol)
 
 (defun ac-prefix-file ()
   "File prefix."
@@ -692,8 +705,13 @@ If there is no common part, this will be nil.")
 
 (defun ac-define-prefix (name prefix)
   "Define new prefix definition.
-You can not use it in source definition like (prefix . `NAME')."
+You can use it in source definition like (prefix . `NAME')."
   (push (cons name prefix) ac-prefix-definitions))
+
+(defun ac-define-end (name end)
+  "Define new target end definition.
+You can use it in source definition like (end . `NAME')."
+  (push (cons name end) ac-end-definitions))
 
 (defun ac-match-substring (prefix candidates)
   (loop with regexp = (regexp-quote prefix)
@@ -742,6 +760,14 @@ You can not use it in source definition like (prefix . `NAME')."
               (add-attribute 'prefix real))
              ((null prefix)
               (add-attribute 'prefix 'ac-prefix-default))))
+          ;; end
+          (let* ((end (assoc 'end source))
+                 (real (assoc-default (cdr end) ac-end-definitions)))
+            (cond
+             (real
+              (add-attribute 'end real))
+             ((null end)
+              (add-attribute 'end 'ac-end-default))))
           ;; match
           (let ((match (assq 'match source)))
             (cond
@@ -823,7 +849,7 @@ You can not use it in source definition like (prefix . `NAME')."
         (setq overlay (make-overlay point (+ point length)))
         (setf (nth 0 ac-inline)  overlay)
         (overlay-put overlay 'priority 9999)
-        ;; Help prefix-overlay in some cases
+        ;; Help target-overlay in some cases
         (overlay-put overlay 'keymap ac-current-map))
       ;; TODO no width but char
       (if (eq length 0)
@@ -864,29 +890,29 @@ You can not use it in source definition like (prefix . `NAME')."
           (ac-inline-delete)))
     (ac-inline-delete)))
 
-(defun ac-put-prefix-overlay ()
-  (unless ac-prefix-overlay
+(defun ac-put-target-overlay ()
+  (unless ac-target-overlay
     (let (newline)
       ;; Insert newline to make sure that cursor always on the overlay
-      (when (and (eq ac-point (point-max))
-                 (eq ac-point (point)))
+      (when (eq ac-end (point-max))
         (popup-save-buffer-state
+          (goto-char ac-end)
           (insert "\n"))
         (setq newline t))
-      (setq ac-prefix-overlay (make-overlay ac-point (1+ (point)) nil t t))
-      (overlay-put ac-prefix-overlay 'priority 9999)
-      (overlay-put ac-prefix-overlay 'keymap (make-sparse-keymap))
-      (overlay-put ac-prefix-overlay 'newline newline))))
+      (setq ac-target-overlay (make-overlay ac-point (1+ ac-end) nil t t))
+      (overlay-put ac-target-overlay 'priority 9999)
+      (overlay-put ac-target-overlay 'keymap (make-sparse-keymap))
+      (overlay-put ac-target-overlay 'newline newline))))
 
-(defun ac-remove-prefix-overlay ()
-  (when ac-prefix-overlay
-    (when (overlay-get ac-prefix-overlay 'newline)
+(defun ac-remove-target-overlay ()
+  (when ac-target-overlay
+    (when (overlay-get ac-target-overlay 'newline)
       ;; Remove inserted newline
       (popup-save-buffer-state
         (goto-char (point-max))
         (if (eq (char-before) ?\n)
             (delete-char -1))))
-    (delete-overlay ac-prefix-overlay)))
+    (delete-overlay ac-target-overlay)))
 
 (defun ac-activate-completing-map ()
   (if (and ac-show-menu ac-use-menu-map)
@@ -894,16 +920,16 @@ You can not use it in source definition like (prefix . `NAME')."
   (when (and ac-use-overriding-local-map
              (null overriding-terminal-local-map))
     (setq overriding-terminal-local-map ac-current-map))
-  (when ac-prefix-overlay
-    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) ac-current-map)))
+  (when ac-target-overlay
+    (set-keymap-parent (overlay-get ac-target-overlay 'keymap) ac-current-map)))
 
 (defun ac-deactivate-completing-map ()
   (set-keymap-parent ac-current-map ac-completing-map)
   (when (and ac-use-overriding-local-map
              (eq overriding-terminal-local-map ac-current-map))
     (setq overriding-terminal-local-map nil))
-  (when ac-prefix-overlay
-    (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
+  (when ac-target-overlay
+    (set-keymap-parent (overlay-get ac-target-overlay 'keymap) nil)))
 
 (defsubst ac-selected-candidate ()
   (if ac-menu
@@ -912,10 +938,12 @@ You can not use it in source definition like (prefix . `NAME')."
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)
         with point
+        with end
         with prefix-def
         with sources
         for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
+        for end-def = (assoc-default 'end source)
         for req = (or (assoc-default 'requires source) requires 1)
 
         if (null prefix-def)
@@ -930,24 +958,25 @@ You can not use it in source definition like (prefix . `NAME')."
                                (or (match-beginning 1) (match-beginning 0))))
                          ((stringp (car-safe prefix))
                           (let ((regexp (nth 0 prefix))
-                                (end (nth 1 prefix))
+                                (endp (nth 1 prefix))
                                 (group (nth 2 prefix)))
                             (and (re-search-backward (concat regexp "\\=") nil t)
-                                 (funcall (if end 'match-end 'match-beginning)
+                                 (funcall (if endp 'match-end 'match-beginning)
                                           (or group 0)))))
                          (t
                           (eval prefix))))
             (if (and point
                      (integerp req)
                      (< (- current point) req))
-                (setq point nil))
-            (if point
-                (setq prefix-def prefix))))
+                (setq point nil)))
+          (when point
+            (setq prefix-def prefix)
+            (setq end (funcall end-def))))
         
         if (equal prefix prefix-def) do (push source sources)
 
         finally return
-        (and point (list prefix-def point (nreverse sources)))))
+        (and point (list prefix-def point end (nreverse sources)))))
 
 (defun ac-init ()
   "Initialize current sources to start completion."
@@ -1082,7 +1111,7 @@ You can not use it in source definition like (prefix . `NAME')."
                            (- ac-last-point ac-point)
                          (length ac-prefix)))))
   (ac-deactivate-completing-map)
-  (ac-remove-prefix-overlay)
+  (ac-remove-target-overlay)
   (ac-remove-quick-help)
   (ac-inline-delete)
   (ac-menu-delete)
@@ -1097,7 +1126,8 @@ You can not use it in source definition like (prefix . `NAME')."
         ac-point nil
         ac-last-point nil
         ac-prefix nil
-        ac-prefix-overlay nil
+        ac-target-overlay nil
+        ac-end nil
         ac-selected-candidate nil
         ac-common-part nil
         ac-whole-common-part nil
@@ -1116,10 +1146,10 @@ You can not use it in source definition like (prefix . `NAME')."
   "Abort completion."
   (ac-cleanup))
 
-(defun ac-expand-string (string &optional remove-undo-boundary)
+(defun ac-expand-string (string &optional repeated-invocation)
   "Expand `STRING' into the buffer and update `ac-prefix' to `STRING'.
 This function records deletion and insertion sequences by `undo-boundary'.
-If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
+If `REPEATED-INVOCATION' is non-nil, this function also removes `undo-boundary'
 that have been made before in this function."
   (when (not (equal string (buffer-substring ac-point (point))))
     (undo-boundary)
@@ -1127,20 +1157,20 @@ that have been made before in this function."
     ;; groups, divided by boundaries.
     ;; We don't want boundary between deletion and insertion.
     ;; So do it manually.
-    ;; Delete region silently for undo:
-    (if remove-undo-boundary
+    ;; Delete the word at point silently for undo:
+    (if repeated-invocation
         (progn
           (let (buffer-undo-list)
             (save-excursion
               (delete-region ac-point (point))))
           (setq buffer-undo-list
                 (nthcdr 2 buffer-undo-list)))
-      (delete-region ac-point (point)))
+      (delete-region ac-point ac-end))
     (insert string)
     ;; Sometimes, possible when omni-completion used, (insert) added
     ;; to buffer-undo-list strange record about position changes.
     ;; Delete it here:
-    (when (and remove-undo-boundary
+    (when (and repeated-invocation
                (integerp (cadr buffer-undo-list)))
       (setcdr buffer-undo-list (nthcdr 2 buffer-undo-list)))
     (undo-boundary)
@@ -1173,7 +1203,7 @@ that have been made before in this function."
              (or ac-triggered
                  force)
              (not isearch-mode))
-    (ac-put-prefix-overlay)
+    (ac-put-target-overlay)
     (setq ac-candidates (ac-candidates))
     (let ((preferred-width (popup-preferred-width ac-candidates)))
       ;; Reposition if needed
@@ -1475,7 +1505,8 @@ that have been made before in this function."
     (let* ((info (ac-prefix requires ac-ignoring-prefix-def))
            (prefix-def (nth 0 info))
            (point (nth 1 info))
-           (sources (nth 2 info))
+           (end (nth 2 info))
+           (sources (nth 3 info))
            prefix
            (init (or force-init (not (eq ac-point point)))))
       (if (or (null point)
@@ -1491,15 +1522,16 @@ that have been made before in this function."
               ac-buffer (current-buffer)
               ac-point point
               ac-prefix prefix
+              ac-end end
               ac-limit ac-candidate-limit
               ac-triggered t
               ac-current-prefix-def prefix-def)
-        (when (or init (null ac-prefix-overlay))
+        (when (or init (null ac-target-overlay))
           (ac-init))
         (ac-set-timer)
         (ac-set-show-menu-timer)
         (ac-set-quick-help-timer)
-        (ac-put-prefix-overlay)))))
+        (ac-put-target-overlay)))))
 
 (defun ac-stop ()
   "Stop completiong."

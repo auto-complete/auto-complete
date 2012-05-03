@@ -169,7 +169,7 @@ On other side, buffer help will not be shown without any instructions from users
 
 ### Summary ###
 
-Completion will be started by inserting characters. After completion is started, operations in the following table will be enabled temporarily. After completion is finished, these operations will be disable.
+Completion will be started by inserting characters. After completion is started, operations in the following table will be enabled temporarily. After completion is finished, these operations will be disabled.
 
 | Key       | Command     | Description               |
 |-----------|-------------|---------------------------|
@@ -178,6 +178,8 @@ Completion will be started by inserting characters. After completion is started,
 | down, M-n | ac-next     | Select next candidate     |
 | up, M-p   | ac-previous | Select previous candidate |
 | C-?, f1   | ac-help     | Show buffer help          |
+
+When a candidate is selected, the target string under the point is replaced with the candidate.
 
 To stop completion, use `C-g` simply.
 
@@ -886,7 +888,7 @@ It is also possible to clear cache periodically. Use `ac-clear-variable-every-mi
 
 ### Omni Completion ###
 
-*Omni Completion* is a type of completion which regards of a context of editing. A file name completion which completes with slashed detected and a member name completion in C/C++ with dots detected are omni completions. To make a source support for omni completion, use `prefix` property. A result of evaluation of `prefix` property must be a beginning point of completion target string. Retuning `nil` means the source is disabled within the context.
+*Omni Completion* is a type of completion which regards of a context of editing. A file name completion which completes with slashed detected and a member name completion in C/C++ with dots detected are omni completions. To make a source support for omni completion, use `prefix` property (and, optionally, `end` property). A result of evaluation of `prefix` property must be a beginning point of completion target string. Retuning `nil` means the source is disabled within the context.
 
 Consider a source that completes mail addresses only after "To: ". First of all, define a mail address completion source as same as above.
 
@@ -949,7 +951,11 @@ Specify a function, an expression, or a variable to calculate candidates. Candid
 
 #### `prefix` ####
 
-Specify a regexp, a function, or an expression to find a point of completion target string for [omni completion](#Omni_Completion). This source will be ignored when `nil` returned. If a regexp is specified, a start point of group 1 or group 2 will be used as a value.
+Specify a regexp, a function, or an expression to find the start of completion target string for [omni completion](#Omni_Completion). This source will be ignored when `nil` returned. If a regexp is specified, a start point of group 1 or group 2 will be used as a value.
+
+#### `end` ####
+
+Specify a function to find the end of completion target string for [omni completion](#Omni_Completion). This field is used in tandem with `prefix`: it must not return `nil` if `prefix` returns a valid value.
 
 #### `requires` ####
 
@@ -1014,23 +1020,27 @@ Here is a list of often used variables.
 
 #### `ac-buffer` ####
 
-A buffer where completion started.
+The buffer where completion started.
 
 #### `ac-point` ####
 
-A start point of completion target string.
+The start position of completion target string.
+
+#### `ac-end` ####
+
+The end position of completion target string.
 
 #### `ac-prefix` ####
 
-A string of completion target.
+The part of completion target string between its start and the point.
 
 #### `ac-limit` ####
 
-A limit of candidates. Its value may be one of [`ac-candidate-limit`](#) and [`limit`](#) property.
+The limit on the number of candidates. Its value may be one of [`ac-candidate-limit`](#) and [`limit`](#) property.
 
 #### `ac-candidates` ####
 
-A list of candidates.
+The list of candidates.
 
 Trouble Shooting
 ----------------
