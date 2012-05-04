@@ -143,7 +143,11 @@
   (with-no-warnings
     (if (fboundp 'yas/get-snippet-tables)
         ;; >0.6.0
-        (apply 'append (mapcar 'ac-yasnippet-candidate-1 (yas/get-snippet-tables major-mode)))
+        (if (null (help-function-arglist 'yas/get-snippet-tables))
+            ;; >0.7.0
+            (apply 'append (mapcar 'ac-yasnippet-candidate-1 (yas/get-snippet-tables)))
+          ;; 0.6.0 < x < 0.7.0
+          (apply 'append (mapcar 'ac-yasnippet-candidate-1 (yas/get-snippet-tables major-mode))))
       (let ((table
              (if (fboundp 'yas/snippet-table)
                  ;; <0.6.0
