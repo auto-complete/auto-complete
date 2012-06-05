@@ -1592,6 +1592,13 @@ that have been made before in this function."
   (and (symbolp command)
        (string-match ac-compatible-packages-regexp (symbol-name command))))
 
+(defun ac-point-in-yas/field ()
+  (when (fboundp 'yas/field-contains-point-p)
+    (let ((field (and yas/active-field-overlay
+                      (overlay-buffer yas/active-field-overlay)
+                      (overlay-get yas/active-field-overlay 'yas/field))))
+      (and field (yas/field-contains-point-p field)))))
+
 (defun ac-handle-pre-command ()
   (condition-case var
       (if (or (setq ac-triggered (and (not ac-fuzzy-enable) ; ignore key storkes in fuzzy mode
@@ -1599,7 +1606,8 @@ that have been made before in this function."
                                           (ac-trigger-command-p this-command)
                                           (and ac-completing
                                                (memq this-command ac-trigger-commands-on-completing)))
-                                      (not (ac-cursor-on-diable-face-p))))
+                                      (not (ac-cursor-on-diable-face-p))
+                                      (not (ac-point-in-yas/field))))
               (ac-compatible-package-command-p this-command))
           (progn
             (if (or (not (symbolp this-command))
