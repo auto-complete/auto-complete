@@ -1581,7 +1581,12 @@ that have been made before in this function."
 (defun ac-fallback-command (&optional except-command)
   (let* ((auto-complete-mode nil)
          (keys (this-command-keys-vector))
-         (command (if keys (key-binding keys))))
+         (command (and keys
+                       (or (key-binding keys)
+                           (and (equal keys [return])
+                                (key-binding "\r"))
+                           (and (equal keys [tab])
+                                (key-binding "\t"))))))
     (when (and (commandp command)
                (not (eq command except-command)))
       (setq this-command command)
