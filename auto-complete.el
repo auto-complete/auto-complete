@@ -939,7 +939,8 @@ You can not use it in source definition like (prefix . `NAME')."
                           (eval prefix))))
             (if (and point
                      (integerp req)
-                     (< (- current point) req))
+                     (< (- current point)
+                        (or (and requires (max req requires)) req)))
                 (setq point nil))
             (if point
                 (setq prefix-def prefix))))
