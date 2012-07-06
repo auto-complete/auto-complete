@@ -47,6 +47,7 @@
   (require 'cl))
 
 (require 'popup)
+(require 'help-mode)
 
 ;;;; Global stuff
 
