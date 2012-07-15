@@ -139,7 +139,7 @@
                 (append candidates (ac-yasnippet-candidate-1 parent))))
       candidates)))
 
-(defun ac-yasnippet-candidates ()
+(defun ac-yasnippet-candidates-old ()
   (with-no-warnings
     (if (fboundp 'yas/get-snippet-tables)
         ;; >0.6.0
@@ -152,6 +152,23 @@
                (yas/current-snippet-table))))
         (if table
             (ac-yasnippet-candidate-1 table))))))
+
+(defun ac-yasnippet-candidates-new ()
+  (let ((yas/buffer-local-condition t))
+    (all-completions
+     ac-prefix
+     (mapcar (lambda (tmpl)
+               (replace-regexp-in-string
+                "\\.yasnippet$" ""
+                (file-name-nondirectory (yas/template-file tmpl))))
+             (yas/all-templates (yas/get-snippet-tables))))))
+
+(defun ac-yasnippet-candidates ()
+  (if (and (fboundp 'yas/all-templates)
+           (fboundp 'yas/get-snippet-tables))
+      ;; >=0.6.1
+      (ac-yasnippet-candidates-new)
+    (ac-yasnippet-candidates-old)))
 
 (ac-define-source yasnippet
   '((depends yasnippet)
