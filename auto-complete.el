@@ -98,7 +98,7 @@
   :type 'boolean
   :group 'auto-complete)
 
-(defcustom ac-use-fuzzy t
+(defcustom ac-use-fuzzy (and (locate-library "fuzzy") t)
   "Non-nil means use fuzzy matching."
   :type 'boolean
   :group 'auto-complete)
@@ -1352,6 +1352,7 @@ that have been made before in this function."
 
 ;;;; Auto completion commands
 
+;;;###autoload
 (defun auto-complete (&optional sources)
   "Start auto-completion at current point."
   (interactive)
@@ -1380,7 +1381,7 @@ that have been made before in this function."
 (defun ac-fuzzy-complete ()
   "Start fuzzy completion at current point."
   (interactive)
-  (when (require 'fuzzy nil)
+  (when (require 'fuzzy nil t)
     (unless (ac-menu-live-p)
       (ac-start))
     (let ((ac-match-function 'fuzzy-all-completions))
