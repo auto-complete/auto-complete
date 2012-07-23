@@ -18,13 +18,13 @@ Auto Complete Mode User Manual
 Introduction
 ------------
 
-Auto Complete Mode (aka `auto-complete.el`, `auto-complete-mode`) is an extension that automates and advances the completion-system of [GNU Emacs][]. This is superior to the old system:
+Auto Complete Mode (aka `auto-complete.el`, `auto-complete-mode`) is an extension that automates and advances the completion-system of [GNU Emacs][]. It is superior to the old system. Features include:
 
 * Visual interface
-* Reduce overhead of completion by using statistic method
+* Reduce overhead of completion by using a statistical method
 * Extensibility
 
-This user manual covers from how to install and how to use to how to extend. Please contact me if you have any questions.
+This user manual covers from how to install and use to how to extend. Please contact me if you have any questions.
 
 Auto Complete Mode is licensed under the terms of [GPLv3][]. And this document is licensed under the term of [GFDL][].
 
@@ -46,7 +46,7 @@ Installation
 
 It is easy to install by using an installation script called `etc/install.el` that is located in the package directory.
 
-Type `M-x load-file RET` in the running Emacs or newly launched Emacs. Note that if you want to upgrade `auto-complete-mode`, you have to install in **a newly launched Emacs with `-q` option**. Then input a file name to load which is a path string with adding `/etc/install.el` to the package directory. For example, if the package directory is `~/tmp/auto-complete-1.2`, the file name will be `~/tmp/auto-complete-1.2/etc/install.el`.
+Type `M-x load-file RET` in a running or newly-launched Emacs. Note that if you want to upgrade `auto-complete-mode`, you have to install in **a newly launched Emacs with the `-q` option**. Then input a file name to load which is a path string with adding `/etc/install.el` to the package directory. For example, if the package directory is `~/tmp/auto-complete-1.2`, the file name will be `~/tmp/auto-complete-1.2/etc/install.el`.
 
 Then input a directory where Auto Complete will be installed. You need to add a directory to `load-path` later if `load-path` doesn't include the directory. The directory is to be `~/.emacs.d` by default.
 
@@ -85,11 +85,11 @@ Then copy all `.el` files and `.elc` files to a directory which is added to `loa
 
     $ cp *.el *.elc ~/.emacs.d
 
-And then install dictionary files. They are optional to run Auto Complete Mode, but you should install if you don't have any reason. Dictionary files are located in called `dict` directory, it is needed that they are installed to a directory which is `auto-complete.el` has been installed. If you installed `auto-complete.el` to a directory called `~/.emacs.d`, you also have to install dictionary files to `~/.emacs.d`. Please be careful not to overwrite existed files. It may be rare case, but the installation script above avoids overwrite by renaming `dict` directory to `ac-dict` directory.
+And then install dictionary files. They are optional to run Auto Complete Mode, but you should install if you don't have any reason. Dictionary files are located in called `dict` directory, it is needed that they are installed to a directory which is `auto-complete.el` has been installed. If you installed `auto-complete.el` to a directory called `~/.emacs.d`, you also have to install dictionary files to `~/.emacs.d`. Please be careful not to overwrite existed files. It may be a rare case, but the installation script above avoids overwrite by renaming `dict` directory to `ac-dict` directory.
 
     $ cp -r dict ~/.emacs.d
 
-Finally add the following code to `.emacs`.
+Finally add the following code to `.emacs`:
 
     (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
     (require 'auto-complete-config)
@@ -101,7 +101,7 @@ If you haven't added the directory to `load-path`, you need to add the following
 
 ### Check ###
 
-Type some characters in \*scratch\* buffer in a restarted Emacs or newly launched Emacs. Installation has been successful if you see a completion menu. If you have error or no completion is started, it is failure maybe. Please contact me in such case with confirmation following:
+Type some characters in \*scratch\* buffer in a restarted or newly-launched Emacs. Installation has been successful if you see a completion menu. If you have an error or no completion is started, it could be a failure. Please contact me in such case with confirmation following:
 
 * Using correct `load-path`?
 
@@ -118,11 +118,11 @@ Type some characters in \*scratch\* buffer in a restarted Emacs or newly launche
 Basic Usage
 -----------
 
-First, in a meaning, `auto-complete-mode` has no "usage". Because `auto-complete-mode` is designed to fade into Emacs editing system. Users will be received a highly-developed completion-system automatically without any difficulty. Ultimately, a goal of `auto-complete-mode` is to provide a system that does what users want without any command, but it is impossible to accomplish 100% accuracy actually. So there is "usage" to cover that points.
+First, in a meaning, `auto-complete-mode` has no "usage". Because `auto-complete-mode` is designed to fade into the Emacs editing system. Users will receive a highly-developed completion system automatically without any difficulty. Ultimately, a goal of `auto-complete-mode` is to provide a system that does what users want without any command, but it is impossible to accomplish 100% accuracy actually. So there is "usage" to cover those points.
 
 ### Input Characters ###
 
-Inputting characters is basic. Any completion will never be shown without any character. So when completion will be started, in other others, what character causes completion to be started? It is good question but it is difficult to answer here. In simple words, completion will be started when just character is inserted. See [`ac-trigger-commands`](#) for more details.
+Inputting characters is basic. Completions will never be shown without any character. So when completion will be started, what character causes completion to be started? It is a good question but it is difficult to answer here. In simple words, completion will be started when a character is inserted. See [`ac-trigger-commands`](#) for more details.
 
 ![Inputting Characters](ac.png)
 
@@ -132,17 +132,17 @@ After completion is started, completion by TAB will be enabled temporarily. Comp
 
 * Case that only one candidate remains
 
-  If only on candidate remains, the candidate will be used to complete.
+  If only one candidate remains, the candidate will be used to complete.
 
-* Case that there is common part among candidates
+* Case that there is a common part among candidates
 
-  For example, if all candidates start with "set", it means they have common part "set". So TAB completes "set" at first.
+  For example, if all candidates start with "set", it means they have a common part "set". So TAB completes "set" at first.
 
 * Otherwise
 
   Otherwise, select candidates in cycle by typing TAB.
 
-It may be different a little according to settings, but basically completion by TAB works as we wrote above. A reason why TAB has several meanings is that we want users to do anything with TAB.
+It may be a little different according to settings, but basically completion by TAB works as we wrote above. A reason why TAB has several meanings is that we want users to do anything with TAB.
 
 ### Completion by RET ###
 
@@ -155,21 +155,21 @@ It is necessary to type TAB a few times for completion by TAB. Completion by RET
 
 ### Candidate Selection ###
 
-Following `auto-complete-mode` philosophy, it is not recommended to select candidates. Because, it means it has been failed to guess completion, and also it requires for users to do candidate selection which is a high cost operation. We think there is so many cases that requires to do candidate selection, because completion by TAB will help candidate selection somehow and in recent version, a statistic method contributes to make a candidate suggestion more accurate. However, actually, this is such cases. So we also think it is not bad idea to remember how to select candidates.
+Following the `auto-complete-mode` philosophy, it is not recommended to manually select candidates. That means it has been failed to guess the completion, and also it requires users to do candidate selection which is a high cost operation. We think there are so many cases that requires to do candidate selection, because completion by TAB will help candidate selection somehow and in recent versions, a statistical method contributes to make a candidate suggestion more accurate. However, actually, this is such cases. So we also think it is not bad idea to remember how to select candidates.
 
-Selecting candidates is not a complex operation. You can select candidates forward or backward by cursor key or `M-p` and `M-n`. According to setting, a behavior of completion by TAB will be changed as a behavior of completion by RET. See [`ac-dwim`](#) for more details.
+Selecting candidates is not a complex operation. You can select candidates forward or backward by cursor key or `M-p` and `M-n`. According to settings, a behavior of completion by TAB will be changed as a behavior of completion by RET. See [`ac-dwim`](#) for more details.
 
-There is other ways to select candidates. `M-1` to select candidate 1, `M-2` to select candidate 2, and so on.
+There are other ways to select candidates. `M-1` to select candidate 1, `M-2` to select candidate 2, and so on.
 
 ### Help ###
 
-`auto-complete-mode` has two type of help functionalities called *Quick Help* and *Buffer Help*. They are different in a point of displaying. Quick help will appear at the side of completion menu, so you can easily see that, but there is a problem if there is no space to displaying the help. Quick help will be shown automatically. To use quick help, you need to set [`ac-use-quick-help`](#) to `t`. Delay time show quick help is given by [`ac-quick-help-delay`](#).
+`auto-complete-mode` has two types of help functionalities called *Quick Help* and *Buffer Help*. They are different in a point of displaying. Quick help will appear at the side of completion menu, so you can easily see that, but there is a problem if there is no space to display the help. Quick help will be shown automatically. To use quick help, you need to set [`ac-use-quick-help`](#) to `t`. Delay time to show quick help is given by [`ac-quick-help-delay`](#).
 
-On other side, buffer help will not be shown without any instructions from users. Buffer help literally display a help in a buffer of other window. It costs much to see than quick help, but it has more readability. To show buffer help, press `C-?` or `f1`. By pressing `C-M-v` or `C-M-S-v` after showing buffer help, you can scroll forward or backward for help buffer. Other commands will be fallbacked and buffer help will be closed.
+On the other side, buffer help will not be shown without any instructions from users. Buffer help literally displays help in a buffer in another window. It costs more to see than quick help, but it has more readability. To show buffer help, press `C-?` or `f1`. By pressing `C-M-v` or `C-M-S-v` after showing buffer help, you can scroll forward or backward through the help buffer. Other commands will be fallbacked and buffer help will be closed.
 
 ### Summary ###
 
-Completion will be started by inserting characters. After completion is started, operations in the following table will be enabled temporarily. After completion is finished, these operations will be disable.
+Completion will be started by inserting characters. After completion is started, operations in the following table will be enabled temporarily. After completion is finished, these operations will be disabled.
 
 | Key       | Command     | Description               |
 |-----------|-------------|---------------------------|
@@ -179,14 +179,14 @@ Completion will be started by inserting characters. After completion is started,
 | up, M-p   | ac-previous | Select previous candidate |
 | C-?, f1   | ac-help     | Show buffer help          |
 
-To stop completion, use `C-g` simply.
+To stop completion, simply use `C-g`.
 
 Advanced Usage
 --------------
 
 ### `auto-complete` command ###
 
-Basically there is assumption that `auto-complete-mode` will be started automatically, but there is also exception. For example, that is a case that an user wants to complete without inserting any character or a case not to start `auto-complete-mode` automatically by settings. A command called `auto-complete` is useful in such cases, which is used with key binding in general. The following code changes a default completion command to more advanced feature that `auto-complete-mode` provides.
+Basically there is an assumption that `auto-complete-mode` will be started automatically, but there is also exception. For example, that is a case that an user wants to complete without inserting any character or a case not to start `auto-complete-mode` automatically by settings. A command called `auto-complete` is useful in such cases, which is used with key binding in general. The following code changes a default completion command to more advanced feature that `auto-complete-mode` provides.
 
     (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
 
