@@ -206,13 +206,13 @@ So, as of `auto-complete` command, it is a little different from an original aut
 
 ### Completion by Fuzzy Matching ###
 
-In a case that there is no candidates by `auto-complete` command or a case that `ac-fuzzy-complete` command is executed, `auto-complete-mode` attempts to complete with fuzzy matching instead of usual exact matching. Parameters of fuzzy matching has already been optimized for use, so users don't need to change them. However if you want to know the internals, see `fuzzy.el`. Using completion by fuzzy matching, typo will be fixed as a series of completion. For instance, input "messaeg" in a buffer, and then do `M-x auto-complete` or `M-x ac-fuzzy-complete`. The cursor color will be changed to red if completion has been successful, and then you can continue to complete with regarding of "messaeg" as "message". It is not bad idea to bind `auto-complete` command to some key in a meaning of handling such cases.
+In a case that there are no candidates by `auto-complete` command or the case where `ac-fuzzy-complete` command is executed, `auto-complete-mode` attempts to complete with fuzzy matching instead of the usual exact matching. Parameters of fuzzy matching have already been optimized for use, so users don't need to change them. However if you want to know the internals, see `fuzzy.el`. Using completion by fuzzy matching, typos will be fixed as a series of completion. For instance, input "messaeg" in a buffer, and then do `M-x auto-complete` or `M-x ac-fuzzy-complete`. The cursor color will be changed to red if completion has been successful, and then you can continue to complete, regarding "messaeg" as "message". It is not a bad idea to bind `auto-complete` command to some key to handle such cases.
 
 ![Fuzzy matching](ac-fuzzy.png)
 
 ### Filtering Completion Candidates ###
 
-You can start filtering by `C-s`. The cursor color will be changed to blue. Then input characters to filter. It is possible to do completion by TAB or select candidates, which changes the cursor color to original so that telling filtering completion candidates has done. The filtering string will be restored when `C-s` again. To delete the filter string, press `DEL` or `C-h`. Other general operations is not allowed there.
+You can start filtering by `C-s`. The cursor color will change to blue. Then input characters to filter. It is possible to do completion by TAB or select candidates, which changes the cursor color to original so that telling filtering completion candidates has done. The filtering string will be restored when `C-s` again. To delete the filter string, press `DEL` or `C-h`. Other general operations is not allowed there.
 
 ![Filtering](ac-isearch.png)
 
@@ -275,15 +275,15 @@ As same as user defined dictionary, after editing and adding dictionary, you sho
 Source
 ------
 
-*Source* is a concept that insures a extensibility of `auto-complete-mode`. Simply saying, source is a description about:
+*Source* is a concept that ensures the extensibility of `auto-complete-mode`. Simply saying, source is a description of:
 
 * How to generate completion candidates
 * How to complete
 * How to show
 
-Anybody who know about Emacs Lisp a little can define a source easily. See [extend](#Extend) for how to define a source. Here we can explain how to use builtin sources.
+Anybody who knows a little Emacs Lisp  can define a source easily. See [extend](#Extend) for how to define a source. Here we will explain how to use built-in sources.
 
-Usually a name of source starts with `ac-source-`. So you can list up sources with `apropos` (`M-x apropos RET ^ac-source-`). You may see `ac-source-filename` and `ac-source-dictionary` which are entities of sources.
+Usually a source name starts with `ac-source-`. So you can list sources with `apropos` (`M-x apropos RET ^ac-source-`). You may see `ac-source-filename` and `ac-source-dictionary` which are entities of sources.
 
 ### Using Source ###
 
@@ -302,7 +302,7 @@ If you wrote `(ac-config-default)` in your `.emacs`, it is rare to change a sour
 
 As you see, `ac-sources` in \*scratch\* buffer has six sources. We explain each source for detail, you can guess meanings of sources. It is worth to remember that `ac-sources` is a buffer local variable, which means each `ac-sources` for buffers will be different.
 
-Here is an example. Think you are at \*scratch\* buffer. As we said, this buffer has many sources. Some people think it is too many. So try to change `ac-sources` to reduce functionalities. It is easy to change. Just evaluate the following code in \*scratch\* buffer or with `M-:`:
+Here is an example. Imagine you are at the \*scratch\* buffer. As we said, this buffer has many sources. Some people think there are too many. So try to change `ac-sources` to reduce functionality. It is easy to change. Just evaluate the following code in the \*scratch\* buffer or with `M-:`:
 
     (setq ac-sources '(ac-source-symbols ac-source-words-in-same-mode-buffers))
 
@@ -313,7 +313,7 @@ This example changes `ac-source` setting and enable only symbol completion and w
     
     (add-hook 'emacs-lisp-mode-hook 'my-ac-emacs-lisp-mode)
 
-If a code `(ac-config-default)` is written in `.emacs`, the code above may not be worked correctly. It is because of `(ac-config-default)` will overwrite the setting. In such case, you can redefine a function which is used in `(ac-config-default)`. The function name is `ac-emacs-lisp-mode-setup` in `emacs-lisp-mode`. See `auto-complete-config.el` for more details.
+If the code `(ac-config-default)` is written in `.emacs`, the code above may not work correctly. This is because `(ac-config-default)` will overwrite the setting. In such case, you can redefine a function which is used in `(ac-config-default)`. The function name is `ac-emacs-lisp-mode-setup` in `emacs-lisp-mode`. See `auto-complete-config.el` for more details.
 
     (defun ac-emacs-lisp-mode-setup ()
       (setq ac-sources '(ac-source-symbols ac-source-words-in-same-mode-buffers)))
@@ -327,7 +327,7 @@ By the way, how can we change a setting for all buffers? We use `setq-default` t
 
     (setq-default ac-sources '(ac-source-words-in-all-buffer))
 
-There is other ways to do that. `(ac-config-default)` changes the default value of `ac-sources` by registering a hook for `auto-complete-mode`. The registered function is `ac-common-setup` that adds `ac-source-filename` to the first of `ac-sources` by default. So all `auto-complete-mode` enabled buffer will have `ac-source-filename` at the first of `ac-sources`. A reason why adding to the first is relating to [omni completion](#Omni_Completion). Anyway you don't care about it here. So if you want to change `ac-sources` of all buffer, you can redefine `ac-common-setup` function to do that.
+There are other ways to do that. `(ac-config-default)` changes the default value of `ac-sources` by registering a hook for `auto-complete-mode`. The registered function is `ac-common-setup` that adds `ac-source-filename` to the first of `ac-sources` by default. So all `auto-complete-mode` enabled buffer will have `ac-source-filename` at the first of `ac-sources`. A reason why adding to the first is relating to [omni completion](#Omni_Completion). Anyway you don't care about it here. So if you want to change `ac-sources` of all buffer, you can redefine `ac-common-setup` function to do that.
 
     ;; Add ac-source-dictionary to ac-sources of all buffer
     (defun ac-common-setup ()
