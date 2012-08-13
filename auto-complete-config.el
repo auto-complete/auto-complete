@@ -170,7 +170,9 @@
 (defun ac-semantic-candidates (prefix)
   (with-no-warnings
     (delete ""            ; semantic sometimes returns an empty string
-            (mapcar 'semantic-tag-name
+            (mapcar '(lambda (elem)
+                       (cons (semantic-tag-name elem)
+                             (semantic-tag-clone elem)))
                     (ignore-errors
                       (or (semantic-analyze-possible-completions
                            (semantic-analyze-current-context))
