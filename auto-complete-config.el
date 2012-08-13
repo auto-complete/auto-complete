@@ -178,10 +178,19 @@
                            (semantic-analyze-current-context))
                           (senator-find-tag-for-completion prefix)))))))
 
+(defun ac-semantic-doc (symbol)
+  (let* ((proto (semantic-format-tag-summarize-with-file symbol nil t))
+         (doc (semantic-documentation-for-tag symbol))
+         (res proto))
+    (when doc
+      (setq res (concat res "\n\n" doc)))
+    res))
+
 (ac-define-source semantic
   '((available . (or (require 'semantic-ia nil t)
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
+    (document . ac-semantic-doc)
     (prefix . c-dot-ref)
     (requires . 0)
     (symbol . "m")))
@@ -190,6 +199,7 @@
   '((available . (or (require 'semantic-ia nil t)
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
+    (document . ac-semantic-doc)
     (symbol . "s")))
 
 ;; eclim
