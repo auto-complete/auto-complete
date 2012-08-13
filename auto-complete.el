@@ -623,10 +623,10 @@ If there is no common part, this will be nil.")
 (defun ac-mode-dictionary (mode)
   (loop for name in (cons (symbol-name mode)
                           (ignore-errors (list (file-name-extension (buffer-file-name)))))
-        for dir in ac-dictionary-directories
-        for file = (concat dir "/" name)
-        if (file-exists-p file)
-        append (ac-file-dictionary file)))
+        append (loop for dir in ac-dictionary-directories
+                     for file = (concat dir "/" name)
+                     if (file-exists-p file)
+                     append (ac-file-dictionary file))))
 
 (defun ac-buffer-dictionary (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
