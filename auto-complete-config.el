@@ -193,11 +193,34 @@
         (setq res (concat res "\n\n" doc)))
       res)))
 
+(defun ac-semantic-action ()
+  (when (and (boundp 'yas/minor-mode) yas/minor-mode)
+    (let* ((tag (car (last (oref (semantic-analyze-current-context) prefix))))
+           (class (semantic-tag-class tag))
+           (args))
+      (when (eq class 'function)
+        (setq args (semantic-tag-function-arguments tag))
+        (yas/expand-snippet
+         (concat "("
+                 (mapconcat
+                  (lambda (arg)
+                    (let ((arg-type (semantic-format-tag-type arg nil))
+                          (arg-name (semantic-format-tag-name arg nil)))
+                      (concat "${"
+                              (if (string= arg-name "")
+                                  arg-type
+                                (concat arg-type " " arg-name))
+                              "}")))
+                  args
+                  ", ")
+                 ")$0"))))))
+
 (ac-define-source semantic
   '((available . (or (require 'semantic-ia nil t)
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
     (document . ac-semantic-doc)
+    (action . ac-semantic-action)
     (prefix . cc-member)
     (requires . 0)
     (symbol . "m")))
@@ -207,6 +230,7 @@
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
     (document . ac-semantic-doc)
+    (action . ac-semantic-action)
     (symbol . "s")))
 
 ;; eclim
