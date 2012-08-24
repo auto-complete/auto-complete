@@ -129,7 +129,7 @@ in
 iterator?
 lambda
 load
-local_varaibles
+local_variables
 loop
 module
 next
