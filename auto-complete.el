@@ -98,7 +98,7 @@
   :type 'boolean
   :group 'auto-complete)
 
-(defcustom ac-use-fuzzy t
+(defcustom ac-use-fuzzy (and (locate-library "fuzzy") t)
   "Non-nil means use fuzzy matching."
   :type 'boolean
   :group 'auto-complete)
@@ -194,7 +194,8 @@
     ecmascript-mode javascript-mode js-mode js2-mode php-mode css-mode
     makefile-mode sh-mode fortran-mode f90-mode ada-mode
     xml-mode sgml-mode
-    ts-mode)
+    ts-mode
+    sclang-mode)
   "Major modes `auto-complete-mode' can run on."
   :type '(repeat symbol)
   :group 'auto-complete)
@@ -622,10 +623,10 @@ If there is no common part, this will be nil.")
 (defun ac-mode-dictionary (mode)
   (loop for name in (cons (symbol-name mode)
                           (ignore-errors (list (file-name-extension (buffer-file-name)))))
-        for dir in ac-dictionary-directories
-        for file = (concat dir "/" name)
-        if (file-exists-p file)
-        append (ac-file-dictionary file)))
+        append (loop for dir in ac-dictionary-directories
+                     for file = (concat dir "/" name)
+                     if (file-exists-p file)
+                     append (ac-file-dictionary file))))
 
 (defun ac-buffer-dictionary (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
@@ -943,7 +944,7 @@ You can not use it in source definition like (prefix . `NAME')."
                 (setq point nil))
             (if point
                 (setq prefix-def prefix))))
-        
+
         if (equal prefix prefix-def) do (push source sources)
 
         finally return
@@ -1351,6 +1352,7 @@ that have been made before in this function."
 
 ;;;; Auto completion commands
 
+;;;###autoload
 (defun auto-complete (&optional sources)
   "Start auto-completion at current point."
   (interactive)
@@ -1379,7 +1381,7 @@ that have been made before in this function."
 (defun ac-fuzzy-complete ()
   "Start fuzzy completion at current point."
   (interactive)
-  (when (require 'fuzzy nil)
+  (when (require 'fuzzy nil t)
     (unless (ac-menu-live-p)
       (ac-start))
     (let ((ac-match-function 'fuzzy-all-completions))
@@ -1435,7 +1437,7 @@ that have been made before in this function."
       (ac-complete)
     (when (and (ac-inline-live-p)
                ac-common-part)
-      (ac-inline-hide) 
+      (ac-inline-hide)
       (ac-expand-string ac-common-part (eq last-command this-command))
       (setq ac-common-part nil)
       t)))
@@ -1955,7 +1957,8 @@ completion menu. This workaround stops that annoying behavior."
 
 (defun ac-filename-candidate ()
   (let (file-name-handler-alist)
-    (unless (or (string-match comment-start-skip ac-prefix)
+    (unless (or (and comment-start-skip
+                     (string-match comment-start-skip ac-prefix))
                 (file-regular-p ac-prefix))
       (ignore-errors
         (loop with dir = (file-name-directory ac-prefix)
