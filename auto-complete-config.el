@@ -143,7 +143,11 @@
   (with-no-warnings
     (if (fboundp 'yas/get-snippet-tables)
         ;; >0.6.0
-        (apply 'append (mapcar 'ac-yasnippet-candidate-1 (yas/get-snippet-tables major-mode)))
+        (apply 'append (mapcar 'ac-yasnippet-candidate-1
+                               (condition-case nil
+                                   (yas/get-snippet-tables major-mode)
+                                 (wrong-number-of-arguments
+                                  (yas/get-snippet-tables)))))
       (let ((table
              (if (fboundp 'yas/snippet-table)
                  ;; <0.6.0
@@ -166,16 +170,27 @@
 (defun ac-semantic-candidates (prefix)
   (with-no-warnings
     (delete ""            ; semantic sometimes returns an empty string
-            (mapcar 'semantic-tag-name
+            (mapcar '(lambda (elem)
+                       (cons (semantic-tag-name elem)
+                             (semantic-tag-clone elem)))
                     (ignore-errors
                       (or (semantic-analyze-possible-completions
                            (semantic-analyze-current-context))
                           (senator-find-tag-for-completion prefix)))))))
 
+(defun ac-semantic-doc (symbol)
+  (let* ((proto (semantic-format-tag-summarize-with-file symbol nil t))
+         (doc (semantic-documentation-for-tag symbol))
+         (res proto))
+    (when doc
+      (setq res (concat res "\n\n" doc)))
+    res))
+
 (ac-define-source semantic
   '((available . (or (require 'semantic-ia nil t)
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
+    (document . ac-semantic-doc)
     (prefix . c-dot-ref)
     (requires . 0)
     (symbol . "m")))
@@ -184,6 +199,7 @@
   '((available . (or (require 'semantic-ia nil t)
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
+    (document . ac-semantic-doc)
     (symbol . "s")))
 
 ;; eclim
