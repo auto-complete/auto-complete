@@ -283,6 +283,11 @@ a prefix doen't contain any upper case letters."
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-disable-inline nil
+  "Non-nil disable inline completion visibility"
+  :type 'boolean
+  :group 'auto-complete)
+
 (defface ac-completion-face
   '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
@@ -1049,7 +1054,8 @@ You can not use it in source definition like (prefix . `NAME')."
         (ac-activate-completing-map))
     (setq ac-completing nil)
     (ac-deactivate-completing-map))
-  (ac-inline-update)
+  (unless ac-disable-inline
+    (ac-inline-update))
   (popup-set-list ac-menu ac-candidates)
   (if (and (not ac-fuzzy-enable)
            (<= (length ac-candidates) 1))
@@ -1620,7 +1626,8 @@ that have been made before in this function."
                  (not isearch-mode))
         (setq ac-last-point (point))
         (ac-start :requires (unless ac-completing ac-auto-start))
-        (ac-inline-update))
+	(unless ac-disable-inline
+	  (ac-inline-update)))
     (error (ac-error var))))
 
 (defun ac-setup ()
