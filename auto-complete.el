@@ -230,7 +230,8 @@
   "Non-nil means `auto-complete' will start by typing this key.
 If you specify this TAB, for example, `auto-complete' will start by typing TAB,
 and if there is no completions, an original command will be fallbacked."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 (string :tag "Key"))
   :group 'auto-complete
   :set (lambda (symbol value)
          (set-default symbol value)
