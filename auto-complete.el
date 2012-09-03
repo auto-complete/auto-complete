@@ -221,7 +221,12 @@
 (defcustom ac-trigger-commands-on-completing
   '(delete-backward-char
     backward-delete-char
-    backward-delete-char-untabify)
+    backward-delete-char-untabify
+    ;; autopair
+    autopair-backspace
+    ;; paredit
+    paredit-backward-delete
+    paredit-backward-delete-word)
   "Trigger commands that specify whether `auto-complete' should continue or not."
   :type '(repeat symbol)
   :group 'auto-complete)
