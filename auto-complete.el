@@ -1587,10 +1587,16 @@ that have been made before in this function."
            (string-match "self-insert-command" (symbol-name command))
            (string-match "electric" (symbol-name command)))))
 
+(defun ac-fallback-key-sequence ()
+  (setq unread-command-events
+        (append (this-single-command-raw-keys)
+                unread-command-events))
+  (read-key-sequence-vector ""))
+
 (defun ac-fallback-command (&optional except-command)
   (let* ((auto-complete-mode nil)
-         (keys (this-command-keys-vector))
-         (command (if keys (key-binding keys))))
+         (keys (ac-fallback-key-sequence))
+         (command (and keys (key-binding keys))))
     (when (and (commandp command)
                (not (eq command except-command)))
       (setq this-command command)
