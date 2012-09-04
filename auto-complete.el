@@ -1306,7 +1306,9 @@ that have been made before in this function."
   (interactive)
   ;; TODO don't use FORCE
   (when (and (or force
-                 (called-interactively-p)
+                 (with-no-warnings
+                   ;; called-interactively-p can take no args
+                   (called-interactively-p))
                  ;; ac-isearch'ing
                  (null this-command))
              (ac-menu-live-p)
