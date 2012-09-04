@@ -464,7 +464,8 @@ If there is no common part, this will be nil.")
     (file . ac-prefix-file)
     (valid-file . ac-prefix-valid-file)
     (c-dot . ac-prefix-c-dot)
-    (c-dot-ref . ac-prefix-c-dot-ref))
+    (c-dot-ref . ac-prefix-c-dot-ref)
+    (cc-member . ac-prefix-cc-member))
   "Prefix definitions for common use.")
 
 (defvar ac-sources '(ac-source-words-in-same-mode-buffers)
@@ -701,6 +702,11 @@ If there is no common part, this will be nil.")
   "C-like languages dot(.) and reference(->) prefix."
   (if (re-search-backward "\\(?:\\.\\|->\\)\\(\\(?:[a-zA-Z0-9][_a-zA-Z0-9]*\\)?\\)\\=" nil t)
       (match-beginning 1)))
+
+(defun ac-prefix-cc-member ()
+  "C-like languages member(.)(->)(::) prefix."
+  (when (re-search-backward "\\(?:\\.\\|->\\|::\\)\\(\\(?:[a-zA-Z0-9][_a-zA-Z0-9]*\\)?\\)\\=" nil t)
+    (match-beginning 1)))
 
 (defun ac-define-prefix (name prefix)
   "Define new prefix definition.

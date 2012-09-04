@@ -191,7 +191,7 @@
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
     (document . ac-semantic-doc)
-    (prefix . c-dot-ref)
+    (prefix . cc-member)
     (requires . 0)
     (symbol . "m")))
 
