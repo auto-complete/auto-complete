@@ -409,7 +409,6 @@ If there is no common part, this will be nil.")
     (define-key map "\r" 'ac-complete)
     (define-key map [return] 'ac-complete)
     (define-key map (kbd "M-TAB") 'auto-complete)
-    (define-key map "\C-s" 'ac-isearch)
 
     (define-key map "\M-n" 'ac-next)
     (define-key map "\M-p" 'ac-previous)
@@ -444,6 +443,7 @@ If there is no common part, this will be nil.")
     (set-keymap-parent map ac-completing-map)
     (define-key map "\C-n" 'ac-next)
     (define-key map "\C-p" 'ac-previous)
+    (define-key map "\C-s" 'ac-isearch)
     (define-key map [mouse-1] 'ac-mouse-1)
     (define-key map [down-mouse-1] 'ac-ignore)
     (define-key map [mouse-4] 'ac-mouse-4)
@@ -794,7 +794,7 @@ You can not use it in source definition like (prefix . `NAME')."
                       :symbol t
                       :scroll-bar t
                       :margin-left 1
-                      :keymap ac-menu-map ; for mouse bindings
+                      :keymap ac-menu-map
                       )))
 
 (defun ac-menu-delete ()
