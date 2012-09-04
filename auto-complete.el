@@ -668,11 +668,20 @@ If there is no common part, this will be nil.")
       (if ac-use-dictionary-as-stop-words
           (member word (ac-buffer-dictionary)))))
 
+(defun ac-prefix-default ()
+  "Same as `ac-prefix-symbol' but ignore a number prefix."
+  (let ((start (ac-prefix-symbol)))
+    (when start
+      (loop with end = (point)
+            for pos from start below end
+            for c = (char-after pos)
+            if (not (and (<= ?0 c) (<= c ?9)))
+            return start))))
+
 (defun ac-prefix-symbol ()
   "Default prefix definition function."
   (require 'thingatpt)
   (car-safe (bounds-of-thing-at-point 'symbol)))
-(defalias 'ac-prefix-default 'ac-prefix-symbol)
 
 (defun ac-prefix-file ()
   "File prefix."
