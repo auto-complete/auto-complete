@@ -1392,7 +1392,7 @@ that have been made before in this function."
       (if (or ac-show-menu-immediately-on-auto-complete
               inline-live)
           (setq ac-show-menu t))
-      (ac-start))
+      (ac-start :triggered 'explicit))
     (when (ac-update-greedy t)
       ;; TODO Not to cause inline completion to be disrupted.
       (if (ac-inline-live-p)
@@ -1498,7 +1498,8 @@ that have been made before in this function."
 
 (defun* ac-start (&key
                   requires
-                  force-init)
+                  force-init
+                  (triggered (or ac-triggered t)))
   "Start completion."
   (interactive)
   (if (not auto-complete-mode)
@@ -1512,7 +1513,8 @@ that have been made before in this function."
       (if (or (null point)
               (progn
                 (setq prefix (buffer-substring-no-properties point (point)))
-                (ac-stop-word-p prefix)))
+                (and (not (eq triggered 'explicit))
+                     (ac-stop-word-p prefix))))
           (prog1 nil
             (ac-abort))
         (unless ac-cursor-color
@@ -1523,7 +1525,7 @@ that have been made before in this function."
               ac-point point
               ac-prefix prefix
               ac-limit ac-candidate-limit
-              ac-triggered t
+              ac-triggered triggered
               ac-current-prefix-def prefix-def)
         (when (or init (null ac-prefix-overlay))
           (ac-init))
