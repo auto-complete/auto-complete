@@ -186,7 +186,7 @@
 (defcustom ac-modes
   '(emacs-lisp-mode lisp-mode lisp-interaction-mode
     slime-repl-mode
-    c-mode cc-mode c++-mode
+    c-mode cc-mode c++-mode go-mode
     java-mode malabar-mode clojure-mode clojurescript-mode  scala-mode
     scheme-mode
     ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
