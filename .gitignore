@@ -1,1 +1,5 @@
 *.elc
+*.tar
+*.tar.gz
+*.tar.bz2
+/auto-complete-*/
