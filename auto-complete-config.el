@@ -164,15 +164,15 @@
 	  ;; it is expanded
 	  (insert symbol)
 	  ;; expand to potentially multiple options and show each
-	  (let* ((templates-and-pos (yas/current-key))
+	  (let* ((templates-and-pos (yas--current-key))
 		 (templates (first templates-and-pos))
 		 (start (second templates-and-pos))
 		 (end (third templates-and-pos)))
 	    (dolist (template templates)
-	      (let ((yas/current-template (cdr template)))
+	      (let ((yas--current-template (cdr template)))
 		;; using start and end ensures the original symbol is
 		;; removed from the buffer once it is expanded
-		(yas/expand-snippet (yas/template-content yas/current-template)
+		(yas/expand-snippet (yas--template-content yas--current-template)
 				    start end)
 		;; set start and end to nil since after the first
 		;; expansion we will have then deleted the original
@@ -180,7 +180,7 @@
 		;; each additional expansion
 		(setq start nil
 		      end nil)
-		(yas/exit-all-snippets)
+		(yas-exit-all-snippets)
 		;; go to end of buffer to expand next snippet
 		;; following this one
 		(goto-char (point-max))
