@@ -936,6 +936,12 @@ You can not use it in source definition like (prefix . `NAME')."
   (if ac-menu
       (popup-selected-item ac-menu)))
 
+(defmacro ac-maybe-with-syntax-table (table &rest body)
+  (declare (debug t) (indent 1))
+  `(if (syntax-table-p ,table)
+       (with-syntax-table ,table ,@body)
+     (progn ,@body)))
+
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)
         with point
@@ -944,32 +950,38 @@ You can not use it in source definition like (prefix . `NAME')."
         for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
         for req = (or (assoc-default 'requires source) requires 1)
+        for table = (assoc-default 'table source)
 
         if (null prefix-def)
         do
         (unless (member prefix ignore-list)
-          (save-excursion
-            (setq point (cond
-                         ((symbolp prefix)
-                          (funcall prefix))
-                         ((stringp prefix)
-                          (and (re-search-backward (concat prefix "\\=") nil t)
-                               (or (match-beginning 1) (match-beginning 0))))
-                         ((stringp (car-safe prefix))
-                          (let ((regexp (nth 0 prefix))
-                                (end (nth 1 prefix))
-                                (group (nth 2 prefix)))
-                            (and (re-search-backward (concat regexp "\\=") nil t)
-                                 (funcall (if end 'match-end 'match-beginning)
-                                          (or group 0)))))
-                         (t
-                          (eval prefix))))
-            (if (and point
-                     (integerp req)
-                     (< (- current point) req))
-                (setq point nil))
-            (if point
-                (setq prefix-def prefix))))
+          (ac-maybe-with-syntax-table (cond ((functionp table)
+                                             (funcall table))
+                                            (t
+                                             (eval table)))
+            (save-excursion
+              (setq point
+                    (cond
+                     ((symbolp prefix)
+                      (funcall prefix))
+                     ((stringp prefix)
+                      (and (re-search-backward (concat prefix "\\=") nil t)
+                           (or (match-beginning 1) (match-beginning 0))))
+                     ((stringp (car-safe prefix))
+                      (let ((regexp (nth 0 prefix))
+                            (end (nth 1 prefix))
+                            (group (nth 2 prefix)))
+                        (and (re-search-backward (concat regexp "\\=") nil t)
+                             (funcall (if end 'match-end 'match-beginning)
+                                      (or group 0)))))
+                     (t
+                      (eval prefix))))
+              (if (and point
+                       (integerp req)
+                       (< (- current point) req))
+                  (setq point nil))
+              (if point
+                  (setq prefix-def prefix)))))
 
         if (equal prefix prefix-def) do (push source sources)
 
