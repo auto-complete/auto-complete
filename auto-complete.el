@@ -317,7 +317,8 @@ a prefix doen't contain any upper case letters."
 (defvar auto-complete-mode-hook nil
   "Hook for `auto-complete-mode'.")
 
-
+(defvar auto-complete-version '(1 4)
+  "Conteins list with version of auto-compelete. Format (major minor)")
 
 ;;;; Internal variables
 
