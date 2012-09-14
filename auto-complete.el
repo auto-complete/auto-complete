@@ -320,6 +320,14 @@ a prefix doen't contain any upper case letters."
 (defvar auto-complete-version '(1 4)
   "Conteins list with version of auto-compelete. Format (major minor)")
 
+(defun auto-complete-version-major ()
+  "Return major number version of auto-complete"
+  (first auto-complete-version))
+
+(defun auto-complete-version-mainor ()
+  "Return major number version of auto-complete"
+  (second auto-complete-version))
+
 ;;;; Internal variables
 
 (defvar auto-complete-mode nil
