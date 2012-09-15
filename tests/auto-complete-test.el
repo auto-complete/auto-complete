@@ -6,7 +6,6 @@
 (defmacro auto-complete-test:common (&rest body)
   (declare (indent 0) (debug t))
   `(save-excursion
-     ;; (with-current-buffer "*scratch*"
      (with-temp-buffer
        (switch-to-buffer (current-buffer))
        (auto-complete-mode 1)
@@ -48,5 +47,3 @@
     (should (popup-live-p ac-menu))
     (should (equal (popup-list ac-menu) '("FooBar")))
     ))
-
-(ert-run-tests-interactively t)
