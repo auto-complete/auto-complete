@@ -3,6 +3,8 @@
 (require 'auto-complete)
 (require 'auto-complete-config)
 
+(ac-config-default)
+
 (defmacro auto-complete-test:common (&rest body)
   (declare (indent 0) (debug t))
   `(save-excursion
