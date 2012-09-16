@@ -5,7 +5,7 @@
 
 (ac-config-default)
 
-(defmacro auto-complete-test:common (&rest body)
+(defmacro ac-test-with-common-setup (&rest body)
   (declare (indent 0) (debug t))
   `(save-excursion
      (with-temp-buffer
@@ -17,7 +17,7 @@
        )))
 
 (ert-deftest auto-complete-test ()
-  (auto-complete-test:common
+  (ac-test-with-common-setup
     (defvar ac-source-test
       '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
     (defvar ac-source-action-test
@@ -33,7 +33,7 @@
     ))
 
 (ert-deftest auto-complete-test2 ()
-  (auto-complete-test:common
+  (ac-test-with-common-setup
     (defvar ac-source-test
       '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
     (defvar ac-source-action-test
