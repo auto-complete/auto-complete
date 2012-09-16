@@ -11,4 +11,4 @@ env:
   - EMACS=emacs
   - EMACS=emacs-snapshot
 script:
-  $EMACS -batch -Q -l tests/run-test.el
+  make travis-ci EMACS=$EMACS
