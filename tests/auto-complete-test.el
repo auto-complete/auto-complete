@@ -18,34 +18,34 @@
 
 (ert-deftest auto-complete-test ()
   (ac-test-with-common-setup
-    (defvar ac-source-test
-      '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
-    (defvar ac-source-action-test
-      '((candidates list "Action1" "Action2")
-        (action . (lambda () (message "Done!")))))
-    (setq ac-sources '(ac-source-test ac-source-action-test))
-    (should-not (popup-live-p ac-menu))
-    (should (eq ac-menu nil))
-    (insert "Foo")
-    (auto-complete)
-    (should (popup-live-p ac-menu))
-    (should (equal (popup-list ac-menu) '("Foo" "FooBar")))
-    ))
+    (let ((ac-source-test
+           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
+          (ac-source-action-test
+           '((candidates list "Action1" "Action2")
+             (action . (lambda () (message "Done!"))))))
+      (setq ac-sources '(ac-source-test ac-source-action-test))
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (insert "Foo")
+      (auto-complete)
+      (should (popup-live-p ac-menu))
+      (should (equal (popup-list ac-menu) '("Foo" "FooBar")))
+      )))
 
 (ert-deftest auto-complete-test2 ()
   (ac-test-with-common-setup
-    (defvar ac-source-test
-      '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
-    (defvar ac-source-action-test
-      '((candidates list "Action1" "Action2")
-        (action . (lambda () (message "Done!")))))
-    (setq ac-sources '(ac-source-test ac-source-action-test))
-    (should-not (popup-live-p ac-menu))
-    (should (eq ac-menu nil))
-    (insert "Foo")
-    (auto-complete)
-    (execute-kbd-macro "B")
-    (ac-update-greedy)
-    (should (popup-live-p ac-menu))
-    (should (equal (popup-list ac-menu) '("FooBar")))
-    ))
+    (let ((ac-source-test
+           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
+          (ac-source-action-test
+           '((candidates list "Action1" "Action2")
+             (action . (lambda () (message "Done!"))))))
+      (setq ac-sources '(ac-source-test ac-source-action-test))
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (insert "Foo")
+      (auto-complete)
+      (execute-kbd-macro "B")
+      (ac-update-greedy)
+      (should (popup-live-p ac-menu))
+      (should (equal (popup-list ac-menu) '("FooBar")))
+      )))
