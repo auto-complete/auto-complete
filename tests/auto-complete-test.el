@@ -31,6 +31,31 @@
       (should (equal (popup-list ac-menu) '("Foo" "FooBar")))
       )))
 
+(ert-deftest ac-test-single-candidate ()
+  (ac-test-with-common-setup
+    (let ((ac-source-test
+           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine"))))
+      (setq ac-sources '(ac-source-test))
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (insert "FooB")
+      (auto-complete)
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (should (string= (buffer-string) "FooBar"))
+      )))
+
+(ert-deftest ac-test-complete-common-part ()
+  (ac-test-with-common-setup
+    (let ((ac-source-test
+           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine"))))
+      (setq ac-sources '(ac-source-test))
+      (insert "Fo")
+      (auto-complete)
+      (ac-stop)
+      (should (string= (buffer-string) "Foo"))
+      )))
+
 (ert-deftest ac-test-simple-update ()
   (ac-test-with-common-setup
     (let ((ac-source-test
@@ -44,4 +69,34 @@
       (ac-update-greedy)
       (should (popup-live-p ac-menu))
       (should (equal (popup-list ac-menu) '("FooBar")))
+      )))
+
+(ert-deftest ac-test-update-no-candidate ()
+  (ac-test-with-common-setup
+    (let ((ac-source-test
+           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine"))))
+      (setq ac-sources '(ac-source-test))
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (insert "Foo")
+      (auto-complete)
+      (execute-kbd-macro "A")
+      (ac-update-greedy)
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (should (string= (buffer-string) "FooA"))
+      )))
+
+(ert-deftest ac-test-default-selection ()
+  (ac-test-with-common-setup
+    (let ((ac-source-test
+           '((candidates list "Action1" "Action2" "Action3"))))
+      (setq ac-sources '(ac-source-test))
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (insert "Action")
+      (auto-complete)
+      (should (popup-live-p ac-menu))
+      (should (equal (popup-list ac-menu) '("Action1" "Action2" "Action3")))
+      (should (equal (ac-selected-candidate) "Action1"))
       )))
