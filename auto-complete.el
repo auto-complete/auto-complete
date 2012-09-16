@@ -317,7 +317,20 @@ a prefix doen't contain any upper case letters."
 (defvar auto-complete-mode-hook nil
   "Hook for `auto-complete-mode'.")
 
-
+(defconst ac-version-components '(1 4)
+  "Conteins list with version of auto-compelete. List format (major minor micro)")
+
+(defconst ac-major-version ()
+  "Major number version of auto-complete"
+  (first auto-complete-version))
+
+(defconst ac-minor-version ()
+  "Minor number version of auto-complete"
+  (second auto-complete-version))
+
+(defconst ac-version ()
+  "Version of auto-complete in string format. Format `major.minor.micro'"
+  (apply #'format "%d.%d.%d" ac-version-components))
 
 ;;;; Internal variables
 
