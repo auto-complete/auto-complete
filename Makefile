@@ -3,10 +3,10 @@ PACKAGE=auto-complete-${VERSION}
 EMACS=emacs
 
 byte-compile:
-	emacs -Q -L . -batch -f batch-byte-compile auto-complete.el auto-complete-config.el
+	${EMACS} -Q -L . -batch -f batch-byte-compile auto-complete.el auto-complete-config.el
 
 install:
-	emacs -Q -L . -batch -l etc/install ${DIR}
+	${EMACS} -Q -L . -batch -l etc/install ${DIR}
 
 clean:
 	rm -f *.elc
