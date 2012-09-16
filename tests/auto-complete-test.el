@@ -3,6 +3,8 @@
 (require 'auto-complete)
 (require 'auto-complete-config)
 
+;; Move this into test case or setup macro once we start testing with
+;; non-default config.
 (ac-config-default)
 
 (defmacro ac-test-with-common-setup (&rest body)
