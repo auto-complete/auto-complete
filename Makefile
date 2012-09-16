@@ -28,4 +28,5 @@ package.zip: package
 	zip -r ${PACKAGE}.zip ${PACKAGE}
 
 travis-ci:
+	${EMACS} --version
 	${EMACS} -batch -Q -l tests/run-test.el
