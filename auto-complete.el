@@ -57,6 +57,10 @@
     (auto-complete-mode -1)
     var))
 
+(defconst ac-version "1.4beta"
+  "Version of auto-complete in string format.
+Use `version-to-list' to get version component.")
+
 
 
 ;;;; Customization

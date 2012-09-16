@@ -18,6 +18,9 @@
        (ac-menu-delete)
        )))
 
+(ert-deftest ac-test-version-variable ()
+  (should-not (null ac-version)))
+
 (ert-deftest ac-test-simple-invocation ()
   (ac-test-with-common-setup
     (let ((ac-source-test
