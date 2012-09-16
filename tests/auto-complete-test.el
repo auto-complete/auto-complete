@@ -21,11 +21,8 @@
 (ert-deftest ac-test-simple-invocation ()
   (ac-test-with-common-setup
     (let ((ac-source-test
-           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
-          (ac-source-action-test
-           '((candidates list "Action1" "Action2")
-             (action . (lambda () (message "Done!"))))))
-      (setq ac-sources '(ac-source-test ac-source-action-test))
+           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine"))))
+      (setq ac-sources '(ac-source-test))
       (should-not (popup-live-p ac-menu))
       (should (eq ac-menu nil))
       (insert "Foo")
@@ -37,11 +34,8 @@
 (ert-deftest ac-test-simple-update ()
   (ac-test-with-common-setup
     (let ((ac-source-test
-           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
-          (ac-source-action-test
-           '((candidates list "Action1" "Action2")
-             (action . (lambda () (message "Done!"))))))
-      (setq ac-sources '(ac-source-test ac-source-action-test))
+           '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine"))))
+      (setq ac-sources '(ac-source-test))
       (should-not (popup-live-p ac-menu))
       (should (eq ac-menu nil))
       (insert "Foo")
