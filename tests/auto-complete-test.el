@@ -22,8 +22,8 @@
            '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
           (ac-source-action-test
            '((candidates list "Action1" "Action2")
-             (action . (lambda () (message "Done!"))))))
-      (setq ac-sources '(ac-source-test ac-source-action-test))
+             (action . (lambda () (message "Done!")))))
+          (ac-sources '(ac-source-test ac-source-action-test)))
       (should-not (popup-live-p ac-menu))
       (should (eq ac-menu nil))
       (insert "Foo")
@@ -38,8 +38,8 @@
            '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
           (ac-source-action-test
            '((candidates list "Action1" "Action2")
-             (action . (lambda () (message "Done!"))))))
-      (setq ac-sources '(ac-source-test ac-source-action-test))
+             (action . (lambda () (message "Done!")))))
+          (ac-sources '(ac-source-test ac-source-action-test)))
       (should-not (popup-live-p ac-menu))
       (should (eq ac-menu nil))
       (insert "Foo")
