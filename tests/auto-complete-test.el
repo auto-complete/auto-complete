@@ -12,8 +12,10 @@
        (switch-to-buffer (current-buffer))
        (auto-complete-mode 1)
        (emacs-lisp-mode)
-       ,@body
-       (ac-menu-delete)
+       (unwind-protect
+           (progn ,@body)
+         (when ac-menu
+           (ac-menu-delete)))
        )))
 
 (ert-deftest ac-test-simple-invocation ()
