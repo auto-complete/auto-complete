@@ -16,7 +16,7 @@
        (ac-menu-delete)
        )))
 
-(ert-deftest auto-complete-test ()
+(ert-deftest ac-test-simple-invocation ()
   (ac-test-with-common-setup
     (let ((ac-source-test
            '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
@@ -32,7 +32,7 @@
       (should (equal (popup-list ac-menu) '("Foo" "FooBar")))
       )))
 
-(ert-deftest auto-complete-test2 ()
+(ert-deftest ac-test-simple-update ()
   (ac-test-with-common-setup
     (let ((ac-source-test
            '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
