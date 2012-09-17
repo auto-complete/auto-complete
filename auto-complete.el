@@ -61,6 +61,12 @@
   "Version of auto-complete in string format.
 Use `version-to-list' to get version component.")
 
+(defconst ac-version-major (first (version-to-list ac-version))
+  "Major version number of auto-complete")
+
+(defconst ac-version-minor (second (version-to-list ac-version))
+  "Minor version number of auto-complete")
+
 
 
 ;;;; Customization
