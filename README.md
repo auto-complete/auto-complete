@@ -1,6 +1,8 @@
 Auto Complete Mode
 ==================
 
+[![Build Status](https://secure.travis-ci.org/auto-complete/auto-complete.png)](http://travis-ci.org/auto-complete/auto-complete)
+
 Documentation
 -------------
 
