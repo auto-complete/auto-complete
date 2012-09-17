@@ -1392,7 +1392,7 @@ that have been made before in this function."
       (if (or ac-show-menu-immediately-on-auto-complete
               inline-live)
           (setq ac-show-menu t))
-      (ac-start :triggered 'explicit))
+      (ac-start :triggered 'manual))
     (when (ac-update-greedy t)
       ;; TODO Not to cause inline completion to be disrupted.
       (if (ac-inline-live-p)
@@ -1513,7 +1513,7 @@ that have been made before in this function."
       (if (or (null point)
               (progn
                 (setq prefix (buffer-substring-no-properties point (point)))
-                (and (not (eq triggered 'explicit))
+                (and (not (eq triggered 'manual))
                      (ac-stop-word-p prefix))))
           (prog1 nil
             (ac-abort))
