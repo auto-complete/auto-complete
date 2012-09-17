@@ -50,7 +50,7 @@
     (let ((ac-source-test
            '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine"))))
       (setq ac-sources '(ac-source-test))
-      (insert "Fo")
+      (execute-kbd-macro "Fo")
       (auto-complete)
       (ac-stop)
       (should (string= (buffer-string) "Foo"))
