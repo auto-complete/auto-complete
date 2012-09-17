@@ -1,0 +1,9 @@
+[submodule "lib/fuzzy"]
+	path = lib/fuzzy
+	url = git://github.com/auto-complete/fuzzy-el.git
+[submodule "lib/popup"]
+	path = lib/popup
+	url = git://github.com/auto-complete/popup-el.git
+[submodule "lib/ert"]
+	path = lib/ert
+	url = git://github.com/ohler/ert.git

@@ -1286,7 +1286,7 @@ that have been made before in this function."
                           (and menu
                                (popup-child-point menu parent-offset))
                           (point))
-                      nil 0
+                      nil 300
                       popup-tip-max-width
                       nil nil
                       (and (not around) 0))
@@ -1339,7 +1339,7 @@ that have been made before in this function."
           (point (marker-position (car ac-last-completion))))
       (when (stringp doc)
         (if (ac-quick-help-use-pos-tip-p)
-            (with-no-warnings (pos-tip-show doc nil point nil 0))
+            (with-no-warnings (pos-tip-show doc nil point nil 300))
           (popup-tip doc
                      :point point
                      :around t
