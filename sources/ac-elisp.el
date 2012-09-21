@@ -180,4 +180,4 @@
   (add-to-list ac-sources 'ac-source-variables)
   (add-to-list ac-sources 'ac-source-symbols))
 
-(require 'ac-elisp)
+(provide 'ac-elisp)
