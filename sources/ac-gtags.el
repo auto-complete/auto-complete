@@ -37,3 +37,5 @@
     (selection-face . ac-gtags-selection-face)
     (requires . 3)
     (symbol . "s")))
+
+(provide 'ac-gtags)

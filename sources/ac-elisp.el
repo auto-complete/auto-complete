@@ -1,8 +1,9 @@
 ;;; ac-elisp.el --- auto-complete source for elisp
 
-;; Copyright (C) 2008, 2009, 2010, 2011, 2012  Tomohiro Matsuyama
+;; Copyright (C) 2012  Tomohiro Matsuyama, Christopher Monsanto
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
+;;         Christopher Monsanto <chris@monsanto>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -17,7 +18,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Lisp symbols source
+;; elisp symbols source
+;;
+
+(require 'help-mode)
+
 (defvar ac-symbols-cache nil)
 (ac-clear-variable-every-10-minutes 'ac-symbols-cache)
 
@@ -63,8 +68,6 @@
         (princ " is ")
         (cond
          ((fboundp symbol)
-          ;; import help-xref-following
-          (require 'help-mode)
           (let ((help-xref-following t)
                 (major-mode 'help-mode)) ; avoid error in Emacs 24
             (describe-function-1 symbol))
@@ -115,9 +118,27 @@
     (symbol . "s")
     (cache)))
 
-;; Lisp functions source
+;; elisp functions source
+;;
+
 (defvar ac-functions-cache nil)
 (ac-clear-variable-every-10-minutes 'ac-functions-cache)
+
+(defun ac-function-action ()
+  (let* ((arglist (help-function-arglist (intern candidate) t))
+         flag
+         (template (apply 'concat
+                          (loop for x in arglist
+                                if (member x '(&optional &rest))
+                                do (setq flag x)
+                                unless (member x '(&optional &rest))
+                                collect (let ((name (symbol-name x)))
+                                          (format " ${%s}"
+                                                  (cond
+                                                    ((eq flag '&optional) (format "[%s]" name))
+                                                    ((eq flag '&rest) (format "[%s...]" name))
+                                                    (t name))))))))
+    (yas-expand-snippet template)))
 
 (defun ac-function-candidates ()
   (or ac-functions-cache
@@ -133,7 +154,17 @@
     (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
     (cache)))
 
-;; Lisp variables source
+(ac-define-source functions-yas
+  '((candidates . ac-function-candidates)
+    (document . ac-symbol-documentation)
+    (action . ac-function-action)
+    (symbol . "f")
+    (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
+    (cache)))
+
+;; elisp variables source
+;;
+
 (defvar ac-variables-cache nil)
 (ac-clear-variable-every-10-minutes 'ac-variables-cache)
 
@@ -150,7 +181,9 @@
     (symbol . "v")
     (cache)))
 
-;; Lisp features source
+;; elisp features source
+;;
+
 (defvar ac-emacs-lisp-features nil)
 (ac-clear-variable-every-10-minutes 'ac-emacs-lisp-features)
 
@@ -175,9 +208,9 @@
 (defvaralias 'ac-source-emacs-lisp-features 'ac-source-features)
 
 (defun ac-emacs-lisp-mode-setup ()
-  (add-to-list ac-sources 'ac-source-features)
-  (add-to-list ac-sources 'ac-source-functions)
+  (add-to-list ac-sources 'ac-source-symbols)
   (add-to-list ac-sources 'ac-source-variables)
-  (add-to-list ac-sources 'ac-source-symbols))
+  (add-to-list ac-sources 'ac-source-functions)
+  (add-to-list ac-sources 'ac-source-features))
 
 (provide 'ac-elisp)
