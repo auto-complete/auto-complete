@@ -99,72 +99,6 @@
     (requires . 3)
     (symbol . "s")))
 
-;; yasnippet
-
-(defface ac-yasnippet-candidate-face
-  '((t (:background "sandybrown" :foreground "black")))
-  "Face for yasnippet candidate."
-  :group 'auto-complete)
-
-(defface ac-yasnippet-selection-face
-  '((t (:background "coral3" :foreground "white")))
-  "Face for the yasnippet selected candidate."
-  :group 'auto-complete)
-
-(defun ac-yasnippet-table-hash (table)
-  (cond
-   ((fboundp 'yas/snippet-table-hash)
-    (yas/snippet-table-hash table))
-   ((fboundp 'yas/table-hash)
-    (yas/table-hash table))))
-
-(defun ac-yasnippet-table-parent (table)
-  (cond
-   ((fboundp 'yas/snippet-table-parent)
-    (yas/snippet-table-parent table))
-   ((fboundp 'yas/table-parent)
-    (yas/table-parent table))))
-
-(defun ac-yasnippet-candidate-1 (table)
-  (with-no-warnings
-    (let ((hashtab (ac-yasnippet-table-hash table))
-          (parent (ac-yasnippet-table-parent table))
-          candidates)
-      (maphash (lambda (key value)
-                 (push key candidates))
-               hashtab)
-      (setq candidates (all-completions ac-prefix (nreverse candidates)))
-      (if parent
-          (setq candidates
-                (append candidates (ac-yasnippet-candidate-1 parent))))
-      candidates)))
-
-(defun ac-yasnippet-candidates ()
-  (with-no-warnings
-    (if (fboundp 'yas/get-snippet-tables)
-        ;; >0.6.0
-        (apply 'append (mapcar 'ac-yasnippet-candidate-1
-                               (condition-case nil
-                                   (yas/get-snippet-tables major-mode)
-                                 (wrong-number-of-arguments
-                                  (yas/get-snippet-tables)))))
-      (let ((table
-             (if (fboundp 'yas/snippet-table)
-                 ;; <0.6.0
-                 (yas/snippet-table major-mode)
-               ;; 0.6.0
-               (yas/current-snippet-table))))
-        (if table
-            (ac-yasnippet-candidate-1 table))))))
-
-(ac-define-source yasnippet
-  '((depends yasnippet)
-    (candidates . ac-yasnippet-candidates)
-    (action . yas/expand)
-    (candidate-face . ac-yasnippet-candidate-face)
-    (selection-face . ac-yasnippet-selection-face)
-    (symbol . "a")))
-
 ;; semantic
 
 (defun ac-semantic-candidates (prefix)
@@ -490,10 +424,10 @@
   )
 
 (defun ac-emacs-lisp-mode-setup ()
-  (setq ac-sources (append '(ac-source-features ac-source-functions ac-source-yasnippet ac-source-variables ac-source-symbols) ac-sources)))
+  (setq ac-sources (append '(ac-source-features ac-source-functions ac-source-variables ac-source-symbols) ac-sources)))
 
 (defun ac-cc-mode-setup ()
-  (setq ac-sources (append '(ac-source-yasnippet ac-source-gtags) ac-sources)))
+  (setq ac-sources (append '(ac-source-gtags) ac-sources)))
 
 (defun ac-ruby-mode-setup ())
 
