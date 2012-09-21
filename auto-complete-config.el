@@ -427,43 +427,6 @@
 
 ;;;; Not maintained sources
 
-;; ropemacs
-
-(defvar ac-ropemacs-loaded nil)
-(defun ac-ropemacs-require ()
-  (with-no-warnings
-    (unless ac-ropemacs-loaded
-      (pymacs-load "ropemacs" "rope-")
-      (if (boundp 'ropemacs-enable-autoimport)
-          (setq ropemacs-enable-autoimport t))
-      (setq ac-ropemacs-loaded t))))
-
-(defun ac-ropemacs-setup ()
-  (ac-ropemacs-require)
-  ;(setq ac-sources (append (list 'ac-source-ropemacs) ac-sources))
-  (setq ac-omni-completion-sources '(("\\." ac-source-ropemacs))))
-
-(defun ac-ropemacs-initialize ()
-  (autoload 'pymacs-apply "pymacs")
-  (autoload 'pymacs-call "pymacs")
-  (autoload 'pymacs-eval "pymacs" nil t)
-  (autoload 'pymacs-exec "pymacs" nil t)
-  (autoload 'pymacs-load "pymacs" nil t)
-  (add-hook 'python-mode-hook 'ac-ropemacs-setup)
-  t)
-
-(defvar ac-ropemacs-completions-cache nil)
-(defvar ac-source-ropemacs
-  '((init
-     . (lambda ()
-         (setq ac-ropemacs-completions-cache
-               (mapcar
-                (lambda (completion)
-                  (concat ac-prefix completion))
-                (ignore-errors
-                  (rope-completions))))))
-    (candidates . ac-ropemacs-completions-cache)))
-
 ;; rcodetools
 
 (defvar ac-source-rcodetools
