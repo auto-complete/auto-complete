@@ -15,6 +15,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(require 'yasnippet)
+
 (defface ac-yasnippet-candidate-face
   '((t (:background "sandybrown" :foreground "black")))
   "Face for yasnippet candidate."
