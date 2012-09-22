@@ -117,7 +117,6 @@
   '((candidates . ac-symbol-candidates)
     (document . ac-symbol-documentation)
     (symbol . "s")
-    (prefix . "'\\(\\(?:\\sw\\|\\s_\\)+\\)")
     (cache)))
 
 ;; elisp functions source
