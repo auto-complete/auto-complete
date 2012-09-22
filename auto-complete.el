@@ -912,43 +912,45 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)
-        with point
-        with prefix-def
+        with point = (point-max)
+        with last-point
+        with last-prefix
         with sources
         for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
         for req = (or (assoc-default 'requires source) requires 1)
 
-        if (null prefix-def)
-        do
-        (unless (member prefix ignore-list)
-          (save-excursion
-            (setq point (cond
-                         ((symbolp prefix)
-                          (funcall prefix))
-                         ((stringp prefix)
-                          (and (re-search-backward (concat prefix "\\=") nil t)
-                               (or (match-beginning 1) (match-beginning 0))))
-                         ((stringp (car-safe prefix))
-                          (let ((regexp (nth 0 prefix))
-                                (end (nth 1 prefix))
-                                (group (nth 2 prefix)))
-                            (and (re-search-backward (concat regexp "\\=") nil t)
-                                 (funcall (if end 'match-end 'match-beginning)
-                                          (or group 0)))))
-                         (t
-                          (eval prefix))))
-            (if (and point
-                     (integerp req)
-                     (< (- current point) req))
-                (setq point nil))
-            (if point
-                (setq prefix-def prefix))))
+        if (not (equal prefix last-prefix))
+        do (unless (member prefix ignore-list)
+             (save-excursion
+               (setq last-point (cond
+                                 ((symbolp prefix)
+                                  (funcall prefix))
+                                 ((stringp prefix)
+                                  (and (re-search-backward (concat prefix "\\=") nil t)
+                                       (or (match-beginning 1) (match-beginning 0))))
+                                 ((stringp (car-safe prefix))
+                                  (let ((regexp (nth 0 prefix))
+                                        (end (nth 1 prefix))
+                                        (group (nth 2 prefix)))
+                                    (and (re-search-backward (concat regexp "\\=") nil t)
+                                    (funcall (if end 'match-end 'match-beginning)
+                                             (or group 0)))))
+                                 (t
+                                  (eval prefix))))
+               (when (and last-point
+                          (integerp req)
+                          (< (- current last-point) req))
+                 (setq last-point nil))
 
-        if (equal prefix prefix-def) do (push source sources)
+               (when last-point
+                 (setq point (min point last-point))
+                 (setq last-prefix prefix))))
+
+        if (equal prefix last-prefix) do (push source sources)
 
         finally return
-        (and point (list prefix-def point (nreverse sources)))))
+        (and (<= point current) (list last-prefix point (nreverse sources)))))
 
 (defun ac-init ()
   "Initialize current sources to start completion."
