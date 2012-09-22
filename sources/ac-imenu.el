@@ -17,6 +17,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(require 'auto-complete)
+
 (defvar ac-imenu-index nil)
 
 (ac-clear-variable-every-10-minutes 'ac-imenu-index)

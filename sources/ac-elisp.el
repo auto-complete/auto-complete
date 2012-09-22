@@ -21,6 +21,7 @@
 ;; elisp symbols source
 ;;
 
+(require 'auto-complete)
 (require 'help-mode)
 
 (defvar ac-symbols-cache nil)
@@ -125,22 +126,6 @@
 (defvar ac-functions-cache nil)
 (ac-clear-variable-every-10-minutes 'ac-functions-cache)
 
-(defun ac-function-action ()
-  (let* ((arglist (help-function-arglist (intern candidate) t))
-         flag
-         (template (apply 'concat
-                          (loop for x in arglist
-                                if (member x '(&optional &rest))
-                                do (setq flag x)
-                                unless (member x '(&optional &rest))
-                                collect (let ((name (symbol-name x)))
-                                          (format " ${%s}"
-                                                  (cond
-                                                    ((eq flag '&optional) (format "[%s]" name))
-                                                    ((eq flag '&rest) (format "[%s...]" name))
-                                                    (t name))))))))
-    (yas-expand-snippet template)))
-
 (defun ac-function-candidates ()
   (or ac-functions-cache
       (setq ac-functions-cache
@@ -155,8 +140,26 @@
     (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
     (cache)))
 
+
+(defun ac-function-action ()
+  (let* ((arglist (help-function-arglist (intern candidate) t))
+         flag
+         (template (apply 'concat
+                          (loop for x in arglist
+                                if (member x '(&optional &rest))
+                                do (setq flag x)
+                                unless (member x '(&optional &rest))
+                                collect (let ((name (symbol-name x)))
+                                          (format " ${%s}"
+                                                  (cond
+                                                   ((eq flag '&optional) (format "[%s]" name))
+                                                   ((eq flag '&rest) (format "[%s...]" name))
+                                                   (t name))))))))
+    (yas-expand-snippet template)))
+
 (ac-define-source functions-yas
-  '((candidates . ac-function-candidates)
+  '((depends yasnippet)
+    (candidates . ac-function-candidates)
     (document . ac-symbol-documentation)
     (action . ac-function-action)
     (symbol . "f")

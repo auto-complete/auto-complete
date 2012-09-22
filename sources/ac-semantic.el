@@ -17,12 +17,14 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(require 'auto-complete)
+
 (defun ac-semantic-candidates (prefix)
   (with-no-warnings
     (delete ""            ; semantic sometimes returns an empty string
-            (mapcar '(lambda (elem)
-                       (cons (semantic-tag-name elem)
-                             (semantic-tag-clone elem)))
+            (mapcar #'(lambda (elem)
+                        (cons (semantic-tag-name elem)
+                              (semantic-tag-clone elem)))
                     (ignore-errors
                       (or (semantic-analyze-possible-completions
                            (semantic-analyze-current-context))

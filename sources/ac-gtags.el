@@ -17,6 +17,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(require 'auto-complete)
+
 (defface ac-gtags-candidate-face
   '((t (:background "lightgray" :foreground "navy")))
   "Face for gtags candidate"
