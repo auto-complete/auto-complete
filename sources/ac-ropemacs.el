@@ -17,6 +17,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(require 'auto-complete)
+
 (defun ac-ropemacs-candidates ()
   (save-match-data 
     (loop for (name doc type) in (ignore-errors (rope-extended-completions))
