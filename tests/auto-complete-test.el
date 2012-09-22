@@ -51,3 +51,16 @@
       (should (popup-live-p ac-menu))
       (should (equal (popup-list ac-menu) '("FooBar")))
       )))
+
+(ert-deftest ac-test-complete-common-part-when-buffer-undo-list-is-t ()
+  (ac-test-with-common-setup
+   (let ((ac-source-test
+          '((candidates list "Foo" "FooBar" "Bar" "Baz" "LongLongLine")))
+         (ac-sources '(ac-source-test)))
+     (execute-kbd-macro "Fo")
+     (let ((last-command this-command)
+           (buffer-undo-list t))
+       (auto-complete))
+     (ac-stop)
+     (should (string= (buffer-string) "Foo"))
+     )))
