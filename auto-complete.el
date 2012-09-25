@@ -1148,7 +1148,10 @@ You can not use it in source definition like (prefix . `NAME')."
   "Expand `STRING' into the buffer and update `ac-prefix' to `STRING'.
 This function records deletion and insertion sequences by `undo-boundary'.
 If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
-that have been made before in this function."
+that have been made before in this function.  When `buffer-undo-list' is
+`t', `remove-undo-boundary' has no effect."
+  (when (eq buffer-undo-list t)
+    (setq remove-undo-boundary nil))
   (when (not (equal string (buffer-substring ac-point (point))))
     (undo-boundary)
     ;; We can't use primitive-undo since it undoes by
