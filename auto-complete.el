@@ -1733,8 +1733,11 @@ completion menu. This workaround stops that annoying behavior."
   "Source definition macro. It defines a complete command also."
   (declare (indent 1))
   `(progn
-     (defvar ,(intern (format "ac-source-%s" name))
-       ,source)
+     (defvar ,(intern (format "ac-source-%s" name)))
+     ;; Use `setq' to reset ac-source-NAME every time
+     ;; `ac-define-source' is called.  This is useful, for example
+     ;; when evaluating `ac-define-source' using C-M-x (`eval-defun').
+     (setq ,(intern (format "ac-source-%s" name)) ,source)
      (defun ,(intern (format "ac-complete-%s" name)) ()
        (interactive)
        (auto-complete '(,(intern (format "ac-source-%s" name)))))))
