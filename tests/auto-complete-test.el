@@ -70,15 +70,15 @@
    (let ((ac-source-test
           '((candidates
              ;;  (name . value) format -- see `ac-candidates-1'
-             . '(("FooFoo - foo and foo" . "FooFoo")
-                 ("FooBar - foo and bar" . "FooBar")))))
+             . '(("[foo and foo] FooFoo" . "FooFoo")
+                 ("[foo and bar] FooBar" . "FooBar")))))
          (ac-sources '(ac-source-test)))
      (insert "Fo")
      (auto-complete)
      ;; name part of the candidates are shown in popup list
      (should (equal (popup-list ac-menu)
-                    '("FooFoo - foo and foo"
-                      "FooBar - foo and bar")))
+                    '("[foo and foo] FooFoo"
+                      "[foo and bar] FooBar")))
      (should (popup-live-p ac-menu))     ; popup shown
      (execute-kbd-macro [return])        ; complete!
      (should-not (popup-live-p ac-menu)) ; popup disappears
@@ -89,8 +89,8 @@
   (ac-test-with-common-setup
    (let ((ac-source-test
           '((candidates
-             . '(("FooFoo - foo and foo" . "FooFoo")
-                 ("FooBar - foo and bar" . "FooBar")))))
+             . '(("[foo and foo] FooFoo" . "FooFoo")
+                 ("[foo and bar] FooBar" . "FooBar")))))
          (ac-sources '(ac-source-test)))
      (insert "Fo")
      (auto-complete)
