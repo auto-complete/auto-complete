@@ -1015,9 +1015,26 @@ You can not use it in source definition like (prefix . `NAME')."
                                candidates))
       (when do-cache
         (push (cons source candidates) ac-candidates-cache)))
-    (setq candidates (funcall (or (assoc-default 'match source)
-                                  ac-match-function)
-                              ac-prefix candidates))
+    (setq candidates
+          (let ((match (assoc-default 'match source)))
+            (if match
+                ;; Match function is specified by source.
+                ;; Let it handle popup item directly.
+                (funcall match ac-prefix candidates)
+              ;; Use default `ac-match-function'.  Compare against
+              ;; popup value property (if defined), rather than popup
+              ;; item directly.
+              (let ((values (mapcar
+                             ;; Escape original popup itme in a property.
+                             (lambda (c)
+                               (propertize (popup-item-value-or-self c)
+                                           'popup-item c))
+                             candidates)))
+                (mapcar
+                 ;; Then get back the original popup item from the
+                 ;; matched candidates.
+                 (lambda (c) (get-text-property 0 'popup-item c))
+                 (funcall ac-match-function ac-prefix values))))))
     ;; Remove extra items regarding to ac-limit
     (if (and (integerp ac-limit) (> ac-limit 1) (> (length candidates) ac-limit))
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
