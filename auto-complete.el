@@ -1055,14 +1055,13 @@ You can not use it in source definition like (prefix . `NAME')."
                     (setq ac-common-part (try-completion ac-prefix result))
                     (setq ac-whole-common-part (try-completion ac-prefix candidates))
                     (if cons (setcdr cons cdr))
-                    result)
+                    (setq candidates result))
                 (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
                 (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
-                (setq ac-whole-common-part (try-completion ac-prefix candidates))
-                candidates)
+                (setq ac-whole-common-part (try-completion ac-prefix candidates)))
             (setq ac-common-part (try-completion ac-prefix candidates))
-            (setq ac-whole-common-part ac-common-part)
-            candidates))))
+            (setq ac-whole-common-part ac-common-part))
+          candidates)))
 
 (defun ac-update-candidates (cursor scroll-top)
   "Update candidates of menu to `ac-candidates' and redraw it."
