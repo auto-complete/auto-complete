@@ -1061,6 +1061,8 @@ You can not use it in source definition like (prefix . `NAME')."
                 (setq ac-whole-common-part (try-completion ac-prefix candidates)))
             (setq ac-common-part (try-completion ac-prefix candidates))
             (setq ac-whole-common-part ac-common-part))
+          (setq ac-common-part (popup-item-value-or-self ac-common-part))
+          (setq ac-whole-common-part (popup-item-value-or-self ac-whole-common-part))
           candidates)))
 
 (defun ac-update-candidates (cursor scroll-top)
