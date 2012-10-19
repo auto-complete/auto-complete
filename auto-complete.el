@@ -934,7 +934,7 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defsubst ac-selected-candidate ()
   (if ac-menu
-      (popup-selected-item ac-menu)))
+      (popup-item-value-or-self (popup-selected-item ac-menu))))
 
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)
