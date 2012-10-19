@@ -1042,7 +1042,10 @@ You can not use it in source definition like (prefix . `NAME')."
         for source in ac-current-sources
         append (ac-candidates-1 source) into candidates
         finally return
-        (progn
+        (let ((complete
+               (lambda (cs)
+                 (try-completion ac-prefix
+                                 (mapcar #'popup-item-value-or-self cs)))))
           (delete-dups candidates)
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
@@ -1052,17 +1055,16 @@ You can not use it in source definition like (prefix . `NAME')."
                          (cons (if (> n 0) (nthcdr (1- n) result)))
                          (cdr (cdr cons)))
                     (if cons (setcdr cons nil))
-                    (setq ac-common-part (try-completion ac-prefix result))
-                    (setq ac-whole-common-part (try-completion ac-prefix candidates))
+                    (setq ac-common-part (funcall complete result))
+                    (setq ac-whole-common-part (funcall complete candidates))
                     (if cons (setcdr cons cdr))
                     (setq candidates result))
                 (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
-                (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
-                (setq ac-whole-common-part (try-completion ac-prefix candidates)))
-            (setq ac-common-part (try-completion ac-prefix candidates))
+                (setq ac-common-part
+                      (if candidates (popup-item-value-or-self (popup-x-to-string (car candidates)))))
+                (setq ac-whole-common-part (funcall complete candidates)))
+            (setq ac-common-part (funcall complete candidates))
             (setq ac-whole-common-part ac-common-part))
-          (setq ac-common-part (popup-item-value-or-self ac-common-part))
-          (setq ac-whole-common-part (popup-item-value-or-self ac-whole-common-part))
           candidates)))
 
 (defun ac-update-candidates (cursor scroll-top)
