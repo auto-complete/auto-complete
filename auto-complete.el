@@ -1027,7 +1027,8 @@ You can not use it in source definition like (prefix . `NAME')."
               (let ((values (mapcar
                              ;; Escape original popup itme in a property.
                              (lambda (c)
-                               (propertize (popup-item-value-or-self c)
+                               (propertize (popup-x-to-string
+                                            (popup-item-value-or-self c))
                                            'popup-item c))
                              candidates)))
                 (mapcar
