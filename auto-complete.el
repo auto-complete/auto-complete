@@ -1063,7 +1063,11 @@ You can not use it in source definition like (prefix . `NAME')."
         (let ((complete
                (lambda (cs)
                  (try-completion ac-prefix
-                                 (mapcar #'popup-item-value-or-self cs)))))
+                                 (mapcar
+                                  (lambda (x)
+                                    (popup-x-to-string
+                                     (popup-item-value-or-self x)))
+                                  cs)))))
           (delete-dups candidates)
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
@@ -1079,7 +1083,7 @@ You can not use it in source definition like (prefix . `NAME')."
                     (setq candidates result))
                 (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
                 (setq ac-common-part
-                      (if candidates (popup-item-value-or-self (popup-x-to-string (car candidates)))))
+                      (if candidates (popup-x-to-string (popup-item-value-or-self (car candidates)))))
                 (setq ac-whole-common-part (funcall complete candidates)))
             (setq ac-common-part (funcall complete candidates))
             (setq ac-whole-common-part ac-common-part))
