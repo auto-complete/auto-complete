@@ -295,6 +295,11 @@ a prefix doen't contain any upper case letters."
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-minimum-candidates-len 1
+  "Number of candidates required to display menu"
+  :type 'integer
+  :group 'auto-complete)
+
 (defface ac-completion-face
   '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
@@ -1080,7 +1085,7 @@ You can not use it in source definition like (prefix . `NAME')."
     (ac-inline-update))
   (popup-set-list ac-menu ac-candidates)
   (if (and (not ac-fuzzy-enable)
-           (<= (length ac-candidates) 1))
+           (<= (length ac-candidates) ac-minimum-candidates-len))
       (popup-hide ac-menu)
     (if ac-show-menu
         (popup-draw ac-menu))))
@@ -1661,8 +1666,8 @@ that have been made before in this function.  When `buffer-undo-list' is
                  (not isearch-mode))
         (setq ac-last-point (point))
         (ac-start :requires (unless ac-completing ac-auto-start))
-	(unless ac-disable-inline
-	  (ac-inline-update)))
+        (unless ac-disable-inline
+          (ac-inline-update)))
     (error (ac-error var))))
 
 (defun ac-setup ()
