@@ -295,7 +295,7 @@ a prefix doen't contain any upper case letters."
   :type 'boolean
   :group 'auto-complete)
 
-(defcustom ac-minimum-candidates-len 1
+(defcustom ac-candidate-menu-min 1
   "Number of candidates required to display menu"
   :type 'integer
   :group 'auto-complete)
@@ -1085,7 +1085,7 @@ You can not use it in source definition like (prefix . `NAME')."
     (ac-inline-update))
   (popup-set-list ac-menu ac-candidates)
   (if (and (not ac-fuzzy-enable)
-           (<= (length ac-candidates) ac-minimum-candidates-len))
+           (<= (length ac-candidates) ac-candidate-menu-min))
       (popup-hide ac-menu)
     (if ac-show-menu
         (popup-draw ac-menu))))
