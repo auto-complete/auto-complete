@@ -266,6 +266,11 @@ If you specify `nil', never be started automatically."
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-trigger-on-stop-words-when-manually t
+  "Non-nil means start completion on stop words when triggerred manually."
+  :type 'boolean
+  :group 'auto-complete)
+
 (defcustom ac-ignore-case 'smart
   "Non-nil means auto-complete ignores case.
 If this value is `smart', auto-complete ignores case only when
@@ -1517,7 +1522,7 @@ that have been made before in this function.  When `buffer-undo-list' is
       (if (or (null point)
               (progn
                 (setq prefix (buffer-substring-no-properties point (point)))
-                (and (not (eq triggered 'manual))
+                (and (not (and ac-trigger-on-stop-words-when-manually (eq triggered 'manual)))
                      (ac-stop-word-p prefix))))
           (prog1 nil
             (ac-abort))
