@@ -266,6 +266,26 @@ If you specify `nil', never be started automatically."
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-use-stop-words t
+  "How to use stop words.
+
+t - Default behavior that only observes stop words when auto
+    completion is enabled. It means the completion is stopped
+    after stop words, but completion still can be triggered after
+    stop words through `ac-trigger-key'.
+
+nil - Never use stop words. Auto completion is not stopped after
+      stop words, and completion can be triggered after stop
+      words through `ac-trigger-key'.
+
+'always - Always use stop words. Auto completion is stopped after
+          stop words, and completion cannot be triggered after
+          stop words through `ac-trigger-key'."
+  :type '(choice (const :tag "Yes" t)
+                 (const :tag "Never" nil)
+                 (const :tag "Always" 'always))
+  :group 'auto-complete)
+
 (defcustom ac-ignore-case 'smart
   "Non-nil means auto-complete ignores case.
 If this value is `smart', auto-complete ignores case only when
@@ -665,9 +685,28 @@ If there is no common part, this will be nil.")
              (line-beginning-position)))))
 
 (defun ac-stop-word-p (word)
+  "Test whether the word is a stop word."
   (or (member word ac-stop-words)
       (if ac-use-dictionary-as-stop-words
           (member word (ac-buffer-dictionary)))))
+
+(defun ac-active-stop-word-p (word &optional triggered)
+  "Test whether the word is a stop word, and stop words are active in current context.
+
+When `ac-use-stop-words' is nil, stop words are always inactive.
+
+When `ac-use-stop-words' is t, stop words are active only if TRIGGERED is not 'manual.
+
+When `ac-use-stop-words' is 'always, stop words are always active."
+
+  (and
+   (ac-stop-word-p word)
+   (if (eq 'always ac-use-stop-words) t
+     (if ac-use-stop-words
+         (not (eq triggered 'manual))
+       nil))))
+
+(setq ac-use-stop-words "always")
 
 (defun ac-prefix-default ()
   "Same as `ac-prefix-symbol' but ignore a number prefix."
@@ -1517,8 +1556,7 @@ that have been made before in this function.  When `buffer-undo-list' is
       (if (or (null point)
               (progn
                 (setq prefix (buffer-substring-no-properties point (point)))
-                (and (not (eq triggered 'manual))
-                     (ac-stop-word-p prefix))))
+                (ac-active-stop-word-p prefix triggered)))
           (prog1 nil
             (ac-abort))
         (unless ac-cursor-color
