@@ -64,3 +64,21 @@
      (ac-stop)
      (should (string= (buffer-string) "Foo"))
      )))
+
+(ert-deftest ac-test-ac-active-stop-word-p ()
+  (let ((ac-stop-words '("fi")))
+
+    (let ((ac-use-stop-words t))
+      (should (not (ac-active-stop-word-p "if")))
+      (should (ac-active-stop-word-p "fi"))
+      (should (not (ac-active-stop-word-p "fi" 'manual))))
+
+    (let ((ac-use-stop-words 'always))
+      (should (not (ac-active-stop-word-p "if")))
+      (should (ac-active-stop-word-p "fi"))
+      (should (ac-active-stop-word-p "fi" 'manual)))
+
+    (let ((ac-use-stop-words nil))
+      (should (not (ac-active-stop-word-p "if")))
+      (should (not (ac-active-stop-word-p "fi")))
+      (should (not (ac-active-stop-word-p "fi" 'manual))))))
