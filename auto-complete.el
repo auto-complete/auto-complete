@@ -195,7 +195,8 @@
     makefile-mode sh-mode fortran-mode f90-mode ada-mode
     xml-mode sgml-mode
     ts-mode
-    sclang-mode)
+    sclang-mode
+    verilog-mode)
   "Major modes `auto-complete-mode' can run on."
   :type '(repeat symbol)
   :group 'auto-complete)
@@ -1148,7 +1149,10 @@ You can not use it in source definition like (prefix . `NAME')."
   "Expand `STRING' into the buffer and update `ac-prefix' to `STRING'.
 This function records deletion and insertion sequences by `undo-boundary'.
 If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
-that have been made before in this function."
+that have been made before in this function.  When `buffer-undo-list' is
+`t', `remove-undo-boundary' has no effect."
+  (when (eq buffer-undo-list t)
+    (setq remove-undo-boundary nil))
   (when (not (equal string (buffer-substring ac-point (point))))
     (undo-boundary)
     ;; We can't use primitive-undo since it undoes by
@@ -1738,8 +1742,11 @@ completion menu. This workaround stops that annoying behavior."
   "Source definition macro. It defines a complete command also."
   (declare (indent 1))
   `(progn
-     (defvar ,(intern (format "ac-source-%s" name))
-       ,source)
+     (defvar ,(intern (format "ac-source-%s" name)))
+     ;; Use `setq' to reset ac-source-NAME every time
+     ;; `ac-define-source' is called.  This is useful, for example
+     ;; when evaluating `ac-define-source' using C-M-x (`eval-defun').
+     (setq ,(intern (format "ac-source-%s" name)) ,source)
      (defun ,(intern (format "ac-complete-%s" name)) ()
        (interactive)
        (auto-complete '(,(intern (format "ac-source-%s" name)))))))
