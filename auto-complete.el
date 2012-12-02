@@ -1381,10 +1381,7 @@ that have been made before in this function."
 
 ;;;; Auto completion commands
 
-;;;###autoload
-(defun auto-complete (&optional sources)
-  "Start auto-completion at current point."
-  (interactive)
+(defun* auto-complete-1 (&key sources (triggered 'command))
   (let ((menu-live (ac-menu-live-p))
         (inline-live (ac-inline-live-p)))
     (ac-abort)
@@ -1392,7 +1389,7 @@ that have been made before in this function."
       (if (or ac-show-menu-immediately-on-auto-complete
               inline-live)
           (setq ac-show-menu t))
-      (ac-start :triggered 'manual))
+      (ac-start :triggered triggered))
     (when (ac-update-greedy t)
       ;; TODO Not to cause inline completion to be disrupted.
       (if (ac-inline-live-p)
@@ -1406,6 +1403,12 @@ that have been made before in this function."
                  ac-use-fuzzy
                  (null ac-candidates))
         (ac-fuzzy-complete)))))
+
+;;;###autoload
+(defun auto-complete (&optional sources)
+  "Start auto-completion at current point."
+  (interactive)
+  (auto-complete-1 :sources sources))
 
 (defun ac-fuzzy-complete ()
   "Start fuzzy completion at current point."
@@ -1513,7 +1516,7 @@ that have been made before in this function."
       (if (or (null point)
               (progn
                 (setq prefix (buffer-substring-no-properties point (point)))
-                (and (not (eq triggered 'manual))
+                (and (not (eq triggered 'command))
                      (ac-stop-word-p prefix))))
           (prog1 nil
             (ac-abort))
@@ -1560,7 +1563,7 @@ that have been made before in this function."
 (defun ac-trigger-key-command (&optional force)
   (interactive "P")
   (if (or force (ac-trigger-command-p last-command))
-      (auto-complete)
+      (auto-complete-1 :triggered 'trigger-key)
     (ac-fallback-command 'ac-trigger-key-command)))
 
 
