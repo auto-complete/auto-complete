@@ -1383,13 +1383,14 @@ that have been made before in this function."
 
 (defun* auto-complete-1 (&key sources (triggered 'command))
   (let ((menu-live (ac-menu-live-p))
-        (inline-live (ac-inline-live-p)))
+        (inline-live (ac-inline-live-p))
+        started)
     (ac-abort)
     (let ((ac-sources (or sources ac-sources)))
       (if (or ac-show-menu-immediately-on-auto-complete
               inline-live)
           (setq ac-show-menu t))
-      (ac-start :triggered triggered))
+      (setq started (ac-start :triggered triggered)))
     (when (ac-update-greedy t)
       ;; TODO Not to cause inline completion to be disrupted.
       (if (ac-inline-live-p)
@@ -1402,7 +1403,8 @@ that have been made before in this function."
                             (ac-expand-common))))
                  ac-use-fuzzy
                  (null ac-candidates))
-        (ac-fuzzy-complete)))))
+        (ac-fuzzy-complete)))
+    started))
 
 ;;;###autoload
 (defun auto-complete (&optional sources)
@@ -1535,7 +1537,8 @@ that have been made before in this function."
         (ac-set-timer)
         (ac-set-show-menu-timer)
         (ac-set-quick-help-timer)
-        (ac-put-prefix-overlay)))))
+        (ac-put-prefix-overlay)
+        t))))
 
 (defun ac-stop ()
   "Stop completiong."
@@ -1562,9 +1565,11 @@ that have been made before in this function."
 
 (defun ac-trigger-key-command (&optional force)
   (interactive "P")
-  (if (or force (ac-trigger-command-p last-command))
-      (auto-complete-1 :triggered 'trigger-key)
-    (ac-fallback-command 'ac-trigger-key-command)))
+  (let (started)
+    (when (or force (ac-trigger-command-p last-command))
+      (setq started (auto-complete-1 :triggered 'trigger-key)))
+    (unless started
+      (ac-fallback-command 'ac-trigger-key-command))))
 
 
 
