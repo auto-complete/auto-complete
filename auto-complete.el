@@ -1671,7 +1671,8 @@ that have been made before in this function.  When `buffer-undo-list' is
       (when (and ac-triggered
                  (or ac-auto-start
                      ac-completing)
-                 (not isearch-mode))
+                 (not isearch-mode)
+                 (looking-back "\\>"))
         (setq ac-last-point (point))
         (ac-start :requires (unless ac-completing ac-auto-start))
         (unless ac-disable-inline
