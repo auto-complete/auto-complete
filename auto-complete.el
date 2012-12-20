@@ -1456,22 +1456,32 @@ that have been made before in this function.  When `buffer-undo-list' is
     (if (eq this-command 'ac-previous)
         (setq ac-dwim-enable t))))
 
-(defun ac-expand ()
-  "Try expand, and if expanded twice, select next candidate."
-  (interactive)
+(defun ac-expand (arg)
+  "Try expand, and if expanded twice, select next candidate.
+If given a prefix argument, select the previous candidate."
+  (interactive "P")
   (unless (ac-expand-common)
     (let ((string (ac-selected-candidate)))
       (when string
         (when (equal ac-prefix string)
-          (ac-next)
+          (if (not arg)
+              (ac-next)
+            (ac-previous))
           (setq string (ac-selected-candidate)))
-        (ac-expand-string string (eq last-command this-command))
+        (ac-expand-string string
+                          (or (eq last-command 'ac-expand)
+                             (eq last-command 'ac-expand-previous)))
         ;; Do reposition if menu at long line
         (if (and (> (popup-direction ac-menu) 0)
-                 (ac-menu-at-wrapper-line-p))
+               (ac-menu-at-wrapper-line-p))
             (ac-reposition))
         (setq ac-show-menu t)
         string))))
+
+(defun ac-expand-previous (arg)
+  "Like `ac-expand', but select previous candidate."
+  (interactive "P")
+  (ac-expand (not arg)))
 
 (defun ac-expand-common ()
   "Try to expand meaningful common part."
