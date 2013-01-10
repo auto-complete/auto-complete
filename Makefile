@@ -2,8 +2,13 @@ VERSION=`perl -ne 'print $$1 if /;; Version: (.*)/' auto-complete.el`
 PACKAGE=auto-complete-${VERSION}
 EMACS=emacs
 
-byte-compile:
-	${EMACS} -Q -L . -batch -f batch-byte-compile auto-complete.el auto-complete-config.el
+byte-compile: lib
+	${EMACS} -Q -L . -L lib/popup -L lib/fuzzy -batch \
+		-f batch-byte-compile auto-complete.el auto-complete-config.el
+
+.PHONY: lib
+lib:
+	git submodule update --init
 
 install:
 	${EMACS} -Q -L . -batch -l etc/install ${DIR}
