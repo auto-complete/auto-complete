@@ -32,6 +32,6 @@ package.tar.bz2: tar
 package.zip: package
 	zip -r ${PACKAGE}.zip ${PACKAGE}
 
-travis-ci:
+travis-ci: lib
 	${EMACS} --version
 	${EMACS} -batch -Q -l tests/run-test.el
