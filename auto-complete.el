@@ -300,6 +300,13 @@ a prefix doen't contain any upper case letters."
   :type 'integer
   :group 'auto-complete)
 
+(defcustom ac-max-width nil
+  "Maximum width for auto-complete menu to have"
+  :type '(choice (const :tag "No limit" nil)
+                 (const :tag "Character Limit" 25)
+                 (const :tag "Window Ratio Limit" 0.5))
+  :group 'auto-complete)
+
 (defface ac-completion-face
   '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
@@ -322,8 +329,6 @@ a prefix doen't contain any upper case letters."
 
 (defvar auto-complete-mode-hook nil
   "Hook for `auto-complete-mode'.")
-
-
 
 ;;;; Internal variables
 
@@ -790,11 +795,12 @@ You can not use it in source definition like (prefix . `NAME')."
 (defsubst ac-menu-live-p ()
   (popup-live-p ac-menu))
 
-(defun ac-menu-create (point width height)
+(defun* ac-menu-create (point width height) 
   (setq ac-menu
         (popup-create point width height
                       :around t
                       :face 'ac-candidate-face
+                      :max-width ac-max-width
                       :mouse-face 'ac-candidate-mouse-face
                       :selection-face 'ac-selection-face
                       :symbol t
