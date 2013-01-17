@@ -306,17 +306,17 @@ a prefix doen't contain any upper case letters."
   :group 'auto-complete)
 
 (defface ac-candidate-face
-  '((t (:background "lightgray" :foreground "black")))
+  '((t (:inherit popup-face)))
   "Face for candidate."
   :group 'auto-complete)
 
 (defface ac-candidate-mouse-face
-  '((t (:background "blue" :foreground "white")))
+  '((t (:inherit popup-mouse-face)))
   "Mouse face for candidate."
   :group 'auto-complete)
 
 (defface ac-selection-face
-  '((t (:background "steelblue" :foreground "white")))
+  '((t (:inherit popup-menu-selection-face)))
   "Face for selected candidate."
   :group 'auto-complete)
 
