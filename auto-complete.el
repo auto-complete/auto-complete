@@ -292,6 +292,9 @@ a prefix doen't contain any upper case letters."
 (defvar auto-complete-mode-hook nil
   "Hook for `auto-complete-mode'.")
 
+(defvar ac-sarcasm-fork-version "0.1"
+  "Make this fork of auto-complete detectable.")
+
 
 
 ;;;; Internal variables
