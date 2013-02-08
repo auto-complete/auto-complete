@@ -295,23 +295,28 @@ a prefix doen't contain any upper case letters."
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-candidate-menu-min 1
+  "Number of candidates required to display menu"
+  :type 'integer
+  :group 'auto-complete)
+
 (defface ac-completion-face
   '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
   :group 'auto-complete)
 
 (defface ac-candidate-face
-  '((t (:background "lightgray" :foreground "black")))
+  '((t (:inherit popup-face)))
   "Face for candidate."
   :group 'auto-complete)
 
 (defface ac-candidate-mouse-face
-  '((t (:background "blue" :foreground "white")))
+  '((t (:inherit popup-mouse-face)))
   "Mouse face for candidate."
   :group 'auto-complete)
 
 (defface ac-selection-face
-  '((t (:background "steelblue" :foreground "white")))
+  '((t (:inherit popup-menu-selection-face)))
   "Face for selected candidate."
   :group 'auto-complete)
 
@@ -761,20 +766,19 @@ You can not use it in source definition like (prefix . `NAME')."
         if (ac-source-available-p source)
         do
         (setq source (ac-source-entity source))
-        (flet ((add-attribute (name value &optional append) (add-to-list 'source (cons name value) append)))
-          ;; prefix
-          (let* ((prefix (assoc 'prefix source))
-                 (real (assoc-default (cdr prefix) ac-prefix-definitions)))
-            (cond
-             (real
-              (add-attribute 'prefix real))
-             ((null prefix)
-              (add-attribute 'prefix 'ac-prefix-default))))
-          ;; match
-          (let ((match (assq 'match source)))
-            (cond
-             ((eq (cdr match) 'substring)
-              (setcdr match 'ac-match-substring)))))
+        ;; prefix
+        (let* ((prefix (assoc 'prefix source))
+               (real (assoc-default (cdr prefix) ac-prefix-definitions)))
+          (cond
+           (real
+            (add-to-list 'source (cons 'prefix real)))
+           ((null prefix)
+            (add-to-list 'source (cons 'prefix 'ac-prefix-default)))))
+        ;; match
+        (let ((match (assq 'match source)))
+          (cond
+           ((eq (cdr match) 'substring)
+            (setcdr match 'ac-match-substring))))
         and collect source))
 
 (defun ac-compiled-sources ()
@@ -1080,7 +1084,7 @@ You can not use it in source definition like (prefix . `NAME')."
     (ac-inline-update))
   (popup-set-list ac-menu ac-candidates)
   (if (and (not ac-fuzzy-enable)
-           (<= (length ac-candidates) 1))
+           (<= (length ac-candidates) ac-candidate-menu-min))
       (popup-hide ac-menu)
     (if ac-show-menu
         (popup-draw ac-menu))))
@@ -1671,8 +1675,8 @@ that have been made before in this function.  When `buffer-undo-list' is
                  (not isearch-mode))
         (setq ac-last-point (point))
         (ac-start :requires (unless ac-completing ac-auto-start))
-	(unless ac-disable-inline
-	  (ac-inline-update)))
+        (unless ac-disable-inline
+          (ac-inline-update)))
     (error (ac-error var))))
 
 (defun ac-setup ()
