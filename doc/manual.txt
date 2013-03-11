@@ -621,7 +621,7 @@ Any configuration item will be set in `.emacs` or with `M-x customize-group RET 
 
 ### `ac-delay` ###
 
-Delay time to start completion in real number seconds. It is a trade off of responsibility and performance.
+Delay time to start completion in real number seconds. It is a trade-off of responsiveness and performance.
 
 ### `ac-auto-show-menu` ###
 
