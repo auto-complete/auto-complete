@@ -1,11 +1,11 @@
 ;;; auto-complete.el --- Auto Completion for GNU Emacs
 
-;; Copyright (C) 2008, 2009, 2010, 2011, 2012  Tomohiro Matsuyama
+;; Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013  Tomohiro Matsuyama
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; URL: http://cx4a.org/software/auto-complete
 ;; Keywords: completion, convenience
-;; Version: 1.4
+;; Version: 1.4.0
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -42,6 +42,8 @@
 ;;; Code:
 
 
+
+(defconst ac-version "1.4.0")
 
 (eval-when-compile
   (require 'cl))
