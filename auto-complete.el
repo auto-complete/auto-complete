@@ -902,8 +902,7 @@ You can not use it in source definition like (prefix . `NAME')."
   (unless ac-prefix-overlay
     (let (newline)
       ;; Insert newline to make sure that cursor always on the overlay
-      (when (and (eq ac-point (point-max))
-                 (eq ac-point (point)))
+      (when (eobp)
         (popup-save-buffer-state
           (insert "\n"))
         (setq newline t))
