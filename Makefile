@@ -1,6 +1,7 @@
 VERSION=`perl -ne 'print $$1 if /;; Version: (.*)/' auto-complete.el`
 PACKAGE=auto-complete-${VERSION}
 EMACS=emacs
+SITE=../auto-complete.github.com
 
 lib/popup/popup.el:
 	@echo 'Please place popup.el in lib/popup or do "git submodule init; git submodule update".'
@@ -21,7 +22,17 @@ test: check-dependency
 install:
 	${EMACS} -Q -L . -batch -l etc/install ${DIR}
 
+README.html: README.md
+	pandoc --standalone --to html --output $@ $^
+
+site: README.html
+	(cd doc && make)
+	cp README.html $(SITE)/index.html
+	mkdir -p $(SITE)/doc
+	cp doc/*.png doc/*.html doc/*.css $(SITE)/doc
+
 clean:
+	rm -f README.html
 	rm -f *.elc
 	rm -f doc/*.html
 	rm -rf ${PACKAGE}
