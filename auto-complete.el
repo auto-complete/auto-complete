@@ -1382,9 +1382,16 @@ that have been made before in this function.  When `buffer-undo-list' is
   (interactive)
   (when (ac-menu-live-p)
     (ac-cancel-show-menu-timer)
-    (ac-cancel-quick-help-timer)
     (ac-show-menu)
-    (popup-isearch ac-menu :callback 'ac-isearch-callback)))
+    (if ac-use-quick-help
+        (let ((popup-menu-show-quick-help-function
+               (if (ac-quick-help-use-pos-tip-p)
+                   'ac-pos-tip-show-quick-help
+                 'popup-menu-show-quick-help)))
+          (popup-isearch ac-menu
+                         :callback 'ac-isearch-callback
+                         :help-delay ac-quick-help-delay))
+      (popup-isearch ac-menu :callback 'ac-isearch-callback))))
 
 
 
