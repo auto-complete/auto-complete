@@ -434,7 +434,7 @@ If there is no common part, this will be nil.")
     (define-key map "\C-\M-p" 'ac-quick-help-scroll-up)
 
     (dotimes (i 9)
-      (let ((symbol (intern (format "ac-complete-%d" (1+ i)))))
+      (let ((symbol (intern (format "ac-complete-select-%d" (1+ i)))))
         (fset symbol
               `(lambda ()
                  (interactive)
