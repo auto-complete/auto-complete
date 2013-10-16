@@ -20,6 +20,7 @@ test: check-dependency
 	${EMACS} -batch -Q -l tests/run-test.el
 
 install:
+	DIR=$(patsubst %\, %, $(DIR))
 	${EMACS} -Q -L . -batch -l etc/install ${DIR}
 
 README.html: README.md
