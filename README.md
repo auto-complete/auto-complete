@@ -31,7 +31,7 @@ work.
 
 # User Manual
 
-[Auto-Complete User Manual](doc/manual.html)
+[Auto-Complete User Manual](doc/manual.md)
 
 # Development
 
