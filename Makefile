@@ -19,7 +19,7 @@ byte-compile: check-dependency
 test: check-dependency
 	${EMACS} -batch -Q -l tests/run-test.el
 
-install:
+install: byte-compile
 	${EMACS} -Q -L . -batch -l etc/install ${DIR}
 
 README.html: README.md
