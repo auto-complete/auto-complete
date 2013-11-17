@@ -1431,7 +1431,8 @@ that have been made before in this function.  When `buffer-undo-list' is
 (defun ac-fuzzy-complete ()
   "Start fuzzy completion at current point."
   (interactive)
-  (when (require 'fuzzy nil t)
+  (if (not (require 'fuzzy nil t))
+      (message "Please install fuzzy.el if you use fuzzy completion")
     (unless (ac-menu-live-p)
       (ac-start))
     (let ((ac-match-function 'fuzzy-all-completions))
