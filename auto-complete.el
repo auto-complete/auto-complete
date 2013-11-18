@@ -288,7 +288,7 @@ a prefix doen't contain any upper case letters."
   :group 'auto-complete)
 
 (defcustom ac-use-overriding-local-map nil
-  "Non-nil means `overriding-local-map' will be used to hack for overriding key events on auto-copletion."
+  "Non-nil means `overriding-local-map' will be used to hack for overriding key events on auto-completion."
   :type 'boolean
   :group 'auto-complete)
 
