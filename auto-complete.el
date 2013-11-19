@@ -666,10 +666,10 @@ If there is no common part, this will be nil.")
 (defun ac-menu-at-wrapper-line-p ()
   "Return non-nil if current line is long and wrapped to next visual line."
   (and (not truncate-lines)
-       (eq (line-beginning-position)
-           (save-excursion
-             (vertical-motion 1)
-             (line-beginning-position)))))
+       (= (line-beginning-position)
+          (save-excursion
+            (vertical-motion 1)
+            (line-beginning-position)))))
 
 (defun ac-stop-word-p (word)
   (or (member word ac-stop-words)
@@ -830,7 +830,7 @@ You can not use it in source definition like (prefix . `NAME')."
         (while (and (not (eolp))
                     (< width string-width)
                     (setq c (char-after))
-                    (not (eq c ?\t)))   ; special case for tab
+                    (not (= c ?\t)))   ; special case for tab
         (incf width (char-width c))
         (incf length)
         (forward-char)))
@@ -860,7 +860,7 @@ You can not use it in source definition like (prefix . `NAME')."
         ;; Help prefix-overlay in some cases
         (overlay-put overlay 'keymap ac-current-map))
       ;; TODO no width but char
-      (if (eq length 0)
+      (if (= length 0)
           ;; Case: End-of-line
           (progn
             (put-text-property 0 1 'cursor t string)
@@ -917,7 +917,7 @@ You can not use it in source definition like (prefix . `NAME')."
       ;; Remove inserted newline
       (popup-save-buffer-state
         (goto-char (point-max))
-        (if (eq (char-before) ?\n)
+        (if (= (char-before) ?\n)
             (delete-char -1))))
     (delete-overlay ac-prefix-overlay)))
 
@@ -1376,7 +1376,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 ;;;; Auto completion isearch
 
 (defun ac-isearch-callback (list)
-  (setq ac-dwim-enable (eq (length list) 1)))
+  (setq ac-dwim-enable (= (length list) 1)))
 
 (defun ac-isearch ()
   (interactive)
@@ -1619,7 +1619,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 (defun ac-clear-variables-every-minute ()
   (incf ac-minutes-counter)
   (dolist (pair ac-clear-variables-every-minute)
-    (if (eq (% ac-minutes-counter (cdr pair)) 0)
+    (if (= (% ac-minutes-counter (cdr pair)) 0)
         (set (car pair) nil))))
 
 
