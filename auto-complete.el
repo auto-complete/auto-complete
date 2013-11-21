@@ -1173,7 +1173,7 @@ that have been made before in this function.  When `buffer-undo-list' is
           (setq buffer-undo-list
                 (nthcdr 2 buffer-undo-list)))
       (delete-region ac-point (point)))
-    (insert string)
+    (insert (substring-no-properties string))
     ;; Sometimes, possible when omni-completion used, (insert) added
     ;; to buffer-undo-list strange record about position changes.
     ;; Delete it here:
