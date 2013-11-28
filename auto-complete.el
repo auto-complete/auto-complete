@@ -210,7 +210,8 @@
   :group 'auto-complete)
 
 (defcustom ac-non-trigger-commands
-  '(*table--cell-self-insert-command)
+  '(*table--cell-self-insert-command
+    electric-buffer-list)
   "Commands that can't be used as triggers of `auto-complete'."
   :type '(repeat symbol)
   :group 'auto-complete)
