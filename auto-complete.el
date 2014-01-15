@@ -806,6 +806,7 @@ You can not use it in source definition like (prefix . `NAME')."
                       )))
 
 (defun ac-menu-delete ()
+  (ac-remove-quick-help)
   (when ac-menu
     (popup-delete ac-menu)
     (setq ac-menu)))
