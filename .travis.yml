@@ -1,6 +1,7 @@
 language: emacs-lisp
 before_install:
   - git submodule update --init
+  - make tests/cl-lib.el
   - if [ "$EMACS" = 'emacs-snapshot' ]; then
       sudo add-apt-repository -y ppa:cassou/emacs &&
       sudo apt-get update -qq &&
