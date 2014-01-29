@@ -255,6 +255,11 @@ a prefix doen't contain any upper case letters."
   "Face for candidate."
   :group 'auto-complete)
 
+(defface ac-help-face
+  '((t (:background "lightgray" :foreground "black")))
+  "Face for quick help text"
+  :group 'auto-complete)
+
 (defface ac-selection-face
   '((t (:background "steelblue" :foreground "white")))
   "Face for selected candidate."
@@ -1184,6 +1189,7 @@ that have been made before in this function."
                      ac-menu nil
                      :point ac-point
                      :height ac-quick-help-height
+                     :face 'ac-help-face
                      :nowait t))))
 
 (defun ac-remove-quick-help ()
