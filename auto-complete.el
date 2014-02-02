@@ -1735,6 +1735,7 @@ that have been made before in this function.  When `buffer-undo-list' is
           ad-do-it))
     (ad-disable-advice 'flymake-on-timer-event 'around 'ac-flymake-stop-advice)))
 
+;;;###autoload
 (define-minor-mode auto-complete-mode
   "AutoComplete mode"
   :lighter " AC"
@@ -1758,6 +1759,7 @@ that have been made before in this function.  When `buffer-undo-list' is
            (memq major-mode ac-modes))
       (auto-complete-mode 1)))
 
+;;;###autoload
 (define-global-minor-mode global-auto-complete-mode
   auto-complete-mode auto-complete-mode-maybe
   :group 'auto-complete)
