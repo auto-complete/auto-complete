@@ -1254,6 +1254,7 @@ that have been made before in this function.  When `buffer-undo-list' is
                 (and (> (popup-direction ac-menu) 0)
                      (ac-menu-at-wrapper-line-p)))
         (ac-inline-hide) ; Hide overlay to calculate correct column
+        (ac-remove-quick-help)
         (ac-menu-delete)
         (ac-menu-create ac-point preferred-width ac-menu-height)))
     (ac-update-candidates 0 0)
