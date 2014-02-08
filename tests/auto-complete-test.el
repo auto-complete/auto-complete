@@ -121,38 +121,3 @@
       (should (equal (popup-list ac-menu) '("Action1" "Action2" "Action3")))
       (should (equal (ac-selected-candidate) "Action1"))
       )))
-
-(ert-deftest ac-test-candidates-in-cons-format ()
-  (ac-test-with-common-setup
-   (let ((ac-source-test
-          '((candidates
-             ;;  (name . value) format -- see `ac-candidates-1'
-             . '(("[foo and foo] FooFoo" . "FooFoo")
-                 ("[foo and bar] FooBar" . "FooBar")))))
-         (ac-sources '(ac-source-test)))
-     (insert "Fo")
-     (auto-complete)
-     ;; name part of the candidates are shown in popup list
-     (should (equal (popup-list ac-menu)
-                    '("[foo and foo] FooFoo"
-                      "[foo and bar] FooBar")))
-     (should (popup-live-p ac-menu))     ; popup shown
-     (execute-kbd-macro [return])        ; complete!
-     (should-not (popup-live-p ac-menu)) ; popup disappears
-     ;; what actually inserted must be value part of the candidates
-     (should (string= (buffer-string) "FooFoo")))))
-
-(ert-deftest ac-test-candidates-in-cons-format-common-part ()
-  (ac-test-with-common-setup
-   (let ((ac-source-test
-          '((candidates
-             . '(("[foo and foo] FooFoo" . "FooFoo")
-                 ("[foo and bar] FooBar" . "FooBar")))))
-         (ac-sources '(ac-source-test)))
-     (insert "Fo")
-     (auto-complete)
-     (should (popup-live-p ac-menu))     ; popup shown
-     (execute-kbd-macro "\C-e")          ; quit
-     (should-not (popup-live-p ac-menu)) ; popup disappears
-     ;; common part is already expanded
-     (should (string= (buffer-string) "Foo")))))

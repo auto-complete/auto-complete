@@ -949,7 +949,7 @@ You can not use it in source definition like (prefix . `NAME')."
 
 (defsubst ac-selected-candidate ()
   (if ac-menu
-      (popup-item-value-or-self (popup-selected-item ac-menu))))
+      (popup-selected-item ac-menu)))
 
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)
@@ -1030,27 +1030,9 @@ You can not use it in source definition like (prefix . `NAME')."
                                candidates))
       (when do-cache
         (push (cons source candidates) ac-candidates-cache)))
-    (setq candidates
-          (let ((match (assoc-default 'match source)))
-            (if match
-                ;; Match function is specified by source.
-                ;; Let it handle popup item directly.
-                (funcall match ac-prefix candidates)
-              ;; Use default `ac-match-function'.  Compare against
-              ;; popup value property (if defined), rather than popup
-              ;; item directly.
-              (let ((values (mapcar
-                             ;; Escape original popup item in a property.
-                             (lambda (c)
-                               (propertize (popup-x-to-string
-                                            (popup-item-value-or-self c))
-                                           'popup-item c))
-                             candidates)))
-                (mapcar
-                 ;; Then get back the original popup item from the
-                 ;; matched candidates.
-                 (lambda (c) (get-text-property 0 'popup-item c))
-                 (funcall ac-match-function ac-prefix values))))))
+    (setq candidates (funcall (or (assoc-default 'match source)
+                                  ac-match-function)
+                              ac-prefix candidates))
     ;; Remove extra items regarding to ac-limit
     (if (and (integerp ac-limit) (> ac-limit 1) (> (length candidates) ac-limit))
         (setcdr (nthcdr (1- ac-limit) candidates) nil))
@@ -1075,14 +1057,7 @@ You can not use it in source definition like (prefix . `NAME')."
         for source in ac-current-sources
         append (ac-candidates-1 source) into candidates
         finally return
-        (let ((complete
-               (lambda (cs)
-                 (try-completion ac-prefix
-                                 (mapcar
-                                  (lambda (x)
-                                    (popup-x-to-string
-                                     (popup-item-value-or-self x)))
-                                  cs)))))
+        (progn
           (delete-dups candidates)
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
@@ -1092,17 +1067,17 @@ You can not use it in source definition like (prefix . `NAME')."
                          (cons (if (> n 0) (nthcdr (1- n) result)))
                          (cdr (cdr cons)))
                     (if cons (setcdr cons nil))
-                    (setq ac-common-part (funcall complete result))
-                    (setq ac-whole-common-part (funcall complete candidates))
+                    (setq ac-common-part (try-completion ac-prefix result))
+                    (setq ac-whole-common-part (try-completion ac-prefix candidates))
                     (if cons (setcdr cons cdr))
-                    (setq candidates result))
+                    result)
                 (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
-                (setq ac-common-part
-                      (if candidates (popup-x-to-string (popup-item-value-or-self (car candidates)))))
-                (setq ac-whole-common-part (funcall complete candidates)))
-            (setq ac-common-part (funcall complete candidates))
-            (setq ac-whole-common-part ac-common-part))
-          candidates)))
+                (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
+                (setq ac-whole-common-part (try-completion ac-prefix candidates))
+                candidates)
+            (setq ac-common-part (try-completion ac-prefix candidates))
+            (setq ac-whole-common-part ac-common-part)
+            candidates))))
 
 (defun ac-update-candidates (cursor scroll-top)
   "Update candidates of menu to `ac-candidates' and redraw it."
