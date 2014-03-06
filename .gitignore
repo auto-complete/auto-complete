@@ -1,3 +1,4 @@
+*.dat
 *.elc
 *.tar
 *.tar.gz
