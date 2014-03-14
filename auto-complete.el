@@ -96,7 +96,7 @@
   :group 'auto-complete)
 
 (defcustom ac-stop-flymake-on-completing t
-  "Non-nil means disble flymake/flycheck temporarily on completing."
+  "Non-nil means disble flymake temporarily on completing."
   :type 'boolean
   :group 'auto-complete)
 
@@ -1706,15 +1706,10 @@ that have been made before in this function.  When `buffer-undo-list' is
   (unless ac-clear-variables-every-minute-timer
     (setq ac-clear-variables-every-minute-timer (run-with-timer 60 60 'ac-clear-variables-every-minute)))
   (if ac-stop-flymake-on-completing
-      (progn
-        (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
-          (unless ac-completing
-            ad-do-it))
-        (defadvice flycheck-handle-idle-change (around ac-flycheck-stop-advice activate)
-          (unless ac-completing
-            ad-do-it)))
-    (ad-disable-advice 'flymake-on-timer-event 'around 'ac-flymake-stop-advice)
-    (ad-disable-advice 'flycheck-handle-idle-change 'around 'ac-flycheck-stop-advice)))
+      (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
+        (unless ac-completing
+          ad-do-it))
+    (ad-disable-advice 'flymake-on-timer-event 'around 'ac-flymake-stop-advice)))
 
 ;;;###autoload
 (define-minor-mode auto-complete-mode
