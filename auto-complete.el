@@ -1703,12 +1703,13 @@ that have been made before in this function.  When `buffer-undo-list' is
           (ac-inline-update)))
     (error (ac-error var))))
 
-(defvar-local ac-flycheck-poll-completion-end-timer nil
+(defvar ac-flycheck-poll-completion-end-timer nil
   "Timer to poll end of completion.")
 
 (defun ac-syntax-checker-workaround ()
   (if ac-stop-flymake-on-completing
       (progn
+	(make-variable-buffer-local ac-flycheck-poll-completion-end-timer)
 	(when (require 'flymake nil t)
 	  (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
 	    (unless ac-completing
