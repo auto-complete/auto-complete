@@ -100,6 +100,11 @@
   :type 'boolean
   :group 'auto-complete)
 
+(defcustom ac-flycheck-poll-completion-end-interval 0.5
+  "Polling interval to restart automatically flycheck's checking after completion is end."
+  :type 'float
+  :group 'auto-complete)
+
 (defcustom ac-use-fuzzy (and (locate-library "fuzzy") t)
   "Non-nil means use fuzzy matching."
   :type 'boolean
@@ -1698,6 +1703,29 @@ that have been made before in this function.  When `buffer-undo-list' is
           (ac-inline-update)))
     (error (ac-error var))))
 
+(defvar-local ac-flycheck-poll-completion-end-timer nil
+  "Timer to poll end of completion.")
+
+(defun ac-syntax-checker-workaround ()
+  (if ac-stop-flymake-on-completing
+      (progn
+	(when (require 'flymake nil t)
+	  (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
+	    (unless ac-completing
+	      ad-do-it)))
+	(when (require 'flycheck nil t)
+	  (defadvice flycheck-handle-idle-change (around ac-flycheck-stop-advice activate)
+	    (if ac-completing
+		(setq ac-flycheck-poll-completion-end-timer
+		      (run-at-time ac-flycheck-poll-completion-end-interval
+				   nil
+				   #'flycheck-handle-idle-change))
+	      ad-do-it))))
+    (when (featurep 'flymake)
+      (ad-disable-advice 'flymake-on-timer-event 'around 'ac-flymake-stop-advice))
+    (when (featurep 'flycheck)
+      (ad-disable-advice 'flycheck-handle-idle-change 'around 'ac-flycheck-stop-advice))))
+
 (defun ac-setup ()
   (if ac-trigger-key
       (ac-set-trigger-key ac-trigger-key))
@@ -1705,16 +1733,7 @@ that have been made before in this function.  When `buffer-undo-list' is
       (ac-comphist-init))
   (unless ac-clear-variables-every-minute-timer
     (setq ac-clear-variables-every-minute-timer (run-with-timer 60 60 'ac-clear-variables-every-minute)))
-  (if ac-stop-flymake-on-completing
-      (progn
-        (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
-          (unless ac-completing
-            ad-do-it))
-        (defadvice flycheck-handle-idle-change (around ac-flycheck-stop-advice activate)
-          (unless ac-completing
-            ad-do-it)))
-    (ad-disable-advice 'flymake-on-timer-event 'around 'ac-flymake-stop-advice)
-    (ad-disable-advice 'flycheck-handle-idle-change 'around 'ac-flycheck-stop-advice)))
+  (ac-syntax-checker-workaround))
 
 ;;;###autoload
 (define-minor-mode auto-complete-mode
