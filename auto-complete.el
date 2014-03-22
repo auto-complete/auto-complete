@@ -321,7 +321,7 @@ a prefix doen't contain any upper case letters."
   :group 'auto-complete)
 
 (defface ac-candidate-mouse-face
-  '((t (:inherit popup-mouse-face)))
+  '((t (:inherit popup-menu-mouse-face)))
   "Mouse face for candidate."
   :group 'auto-complete)
 
