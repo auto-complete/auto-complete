@@ -121,3 +121,27 @@
       (should (equal (popup-list ac-menu) '("Action1" "Action2" "Action3")))
       (should (equal (ac-selected-candidate) "Action1"))
       )))
+
+(ert-deftest ac-test-delete-duplicate-candidates ()
+  (ac-test-with-common-setup
+    (let ((ac-source-test
+           '((candidates list "Action1" "Action1" "Action2"))))
+      (setq ac-sources '(ac-source-test))
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (insert "Action")
+      (auto-complete)
+      (should (equal (popup-list ac-menu) '("Action1" "Action2")))
+      )))
+
+(ert-deftest ac-test-duplicate-candidates-but-different-properties ()
+  (ac-test-with-common-setup
+    (let ((ac-source-test
+           '((candidates list "Action1" (propertize "Action1" 'document t)))))
+      (setq ac-sources '(ac-source-test))
+      (should-not (popup-live-p ac-menu))
+      (should (eq ac-menu nil))
+      (insert "Action")
+      (auto-complete)
+      (should (equal (popup-list ac-menu) '("Action1" "Action1")))
+      )))
