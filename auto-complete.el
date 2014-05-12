@@ -1675,7 +1675,8 @@ that have been made before in this function.  When `buffer-undo-list' is
                                           (ac-trigger-command-p this-command)
                                           (and ac-completing
                                                (memq this-command ac-trigger-commands-on-completing)))
-                                      (not (ac-cursor-on-diable-face-p))))
+                                      (not (ac-cursor-on-diable-face-p))
+                                      (or ac-triggered t)))
               (ac-compatible-package-command-p this-command))
           (progn
             (if (or (not (symbolp this-command))
