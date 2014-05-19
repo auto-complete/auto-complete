@@ -704,6 +704,10 @@ If there is no common part, this will be nil.")
   (let ((point (re-search-backward "[\"<>' \t\r\n]" nil t)))
     (if point (1+ point))))
 
+(defsubst ac-windows-remote-file-p (file)
+  (and (memq system-type '(ms-dos windows-nt cygwin))
+       (string-match-p "\\`\\(?://\\|\\\\\\\\\\)" file)))
+
 (defun ac-prefix-valid-file ()
   "Existed (or to be existed) file prefix."
   (let* ((line-beg (line-beginning-position))
@@ -716,7 +720,8 @@ If there is no common part, this will be nil.")
                       (and (setq file (and (string-match "^[^/]*/" file)
                                            (match-string 0 file)))
                            (file-directory-p file))))
-        start)))
+        (unless (ac-windows-remote-file-p file)
+          start))))
 
 (defun ac-prefix-c-dot ()
   "C-like languages dot(.) prefix."
