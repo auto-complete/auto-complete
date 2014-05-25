@@ -1557,7 +1557,7 @@ function with `&rest' args."
              (funcall action selected-name))
             (t (funcall action))))
      (fallback
-      (ac-fallbgack-command)))
+      (ac-fallback-command)))
     candidate))
 
 (defun ac-complete ()
