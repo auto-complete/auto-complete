@@ -198,7 +198,8 @@
     xml-mode sgml-mode
     ts-mode
     sclang-mode
-    verilog-mode)
+    verilog-mode
+    qml-mode)
   "Major modes `auto-complete-mode' can run on."
   :type '(repeat symbol)
   :group 'auto-complete)
