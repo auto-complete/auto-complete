@@ -1,4 +1,7 @@
 auto
+_Alignas
+_Alignof
+_Atomic
 _Bool
 break
 case
@@ -15,11 +18,13 @@ extern
 float
 for
 goto
+_Generic
 if
 _Imaginary
 inline
 int
 long
+_Noreturn
 register
 restrict
 return
@@ -29,7 +34,9 @@ sizeof
 static
 struct
 switch
+_Static_assert
 typedef
+_Thread_local
 union
 unsigned
 void
