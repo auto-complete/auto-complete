@@ -1716,19 +1716,19 @@ that have been made before in this function.  When `buffer-undo-list' is
 (defun ac-syntax-checker-workaround ()
   (if ac-stop-flymake-on-completing
       (progn
-	(make-variable-buffer-local 'ac-flycheck-poll-completion-end-timer)
-	(when (require 'flymake nil t)
-	  (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
-	    (unless ac-completing
-	      ad-do-it)))
-	(when (require 'flycheck nil t)
-	  (defadvice flycheck-handle-idle-change (around ac-flycheck-stop-advice activate)
-	    (if ac-completing
-		(setq ac-flycheck-poll-completion-end-timer
-		      (run-at-time ac-flycheck-poll-completion-end-interval
-				   nil
-				   #'flycheck-handle-idle-change))
-	      ad-do-it))))
+        (make-local-variable 'ac-flycheck-poll-completion-end-timer)
+        (when (require 'flymake nil t)
+          (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
+            (unless ac-completing
+              ad-do-it)))
+        (when (require 'flycheck nil t)
+          (defadvice flycheck-handle-idle-change (around ac-flycheck-stop-advice activate)
+            (if ac-completing
+                (setq ac-flycheck-poll-completion-end-timer
+                      (run-at-time ac-flycheck-poll-completion-end-interval
+                                   nil
+                                   #'flycheck-handle-idle-change))
+              ad-do-it))))
     (when (featurep 'flymake)
       (ad-disable-advice 'flymake-on-timer-event 'around 'ac-flymake-stop-advice))
     (when (featurep 'flycheck)
