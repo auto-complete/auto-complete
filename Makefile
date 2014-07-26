@@ -1,26 +1,22 @@
 VERSION=`perl -ne 'print $$1 if /;; Version: (.*)/' auto-complete.el`
 PACKAGE=auto-complete-${VERSION}
-EMACS=emacs
+EMACS ?= emacs
+CASK ?= cask
 SITE=../auto-complete.github.com
 
-lib/popup/popup.el:
-	@echo 'Please place popup.el in lib/popup or do "git submodule init; git submodule update".'
-	@exit 1
+ELPA_DIR = \
+	.cask/$(shell $(EMACS) -Q --batch --eval '(princ emacs-version)')/elpa
 
-lib/fuzzy/fuzzy.el:
-	@echo 'Please place fuzzy.el in lib/fuzzy or do "git submodule init; git submodule update".'
-	@exit 1
+test: elpa
+	$(CASK) exec $(EMACS) -batch -Q -L . \
+		-l tests/run-test.el \
+		-f ert-run-tests-batch-and-exit
 
-check-dependency: lib/popup/popup.el lib/fuzzy/fuzzy.el
-
-byte-compile: check-dependency
-	${EMACS} -Q -L . -L lib/popup -L lib/fuzzy -batch -f batch-byte-compile auto-complete.el auto-complete-config.el
-
-test: check-dependency
-	${EMACS} -batch -Q -l tests/run-test.el
+byte-compile: elpa
+	$(CASK) exec $(EMACS) -Q -L . -batch -f batch-byte-compile auto-complete.el auto-complete-config.el
 
 install: byte-compile
-	${EMACS} -Q -L . -batch -l etc/install ${DIR}
+	$(CASK) exec $(EMACS) -Q -L . -batch -l etc/install ${DIR}
 
 README.html: README.md
 	pandoc --standalone --to html --output $@ $^
@@ -51,9 +47,7 @@ package.tar.bz2: tar
 package.zip: package
 	zip -r ${PACKAGE}.zip ${PACKAGE}
 
-travis-ci:
-	${EMACS} --version
-	${EMACS} -batch -Q -l tests/run-test.el
-
-tests/cl-lib.el:
-	wget "http://elpa.gnu.org/packages/cl-lib-0.3.el" -O $@
+elpa: $(ELPA_DIR)
+$(ELPA_DIR): Cask
+	$(CASK) install
+	touch $@
