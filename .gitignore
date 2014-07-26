@@ -6,3 +6,4 @@
 README.html
 doc/*.html
 /auto-complete-*/
+/.cask/
