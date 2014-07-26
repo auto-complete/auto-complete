@@ -1716,7 +1716,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 (defun ac-syntax-checker-workaround ()
   (if ac-stop-flymake-on-completing
       (progn
-	(make-variable-buffer-local 'ac-flycheck-poll-completion-end-timer)
+        (make-local-variable 'ac-flycheck-poll-completion-end-timer)
 	(when (require 'flymake nil t)
 	  (defadvice flymake-on-timer-event (around ac-flymake-stop-advice activate)
 	    (unless ac-completing
