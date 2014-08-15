@@ -316,6 +316,12 @@ a prefix doen't contain any upper case letters."
                  (const :tag "Window Ratio Limit" 0.5))
   :group 'auto-complete)
 
+(defcustom ac-second-expand-completion nil
+  "Non-nil means to use completion on second expansion instead of
+selection of the next candidate."
+  :type 'boolean
+  :group 'auto-complete)
+
 (defface ac-completion-face
   '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
@@ -1488,21 +1494,24 @@ that have been made before in this function.  When `buffer-undo-list' is
         (setq ac-dwim-enable t))))
 
 (defun ac-expand ()
-  "Try expand, and if expanded twice, select next candidate."
+  "Try expand, and if expanded twice, complete or select next
+candidate depending on `ac-second-expand-completion' value."
   (interactive)
   (unless (ac-expand-common)
     (let ((string (ac-selected-candidate)))
       (when string
-        (when (equal ac-prefix string)
-          (ac-next)
-          (setq string (ac-selected-candidate)))
-        (ac-expand-string string (eq last-command this-command))
-        ;; Do reposition if menu at long line
-        (if (and (> (popup-direction ac-menu) 0)
-                 (ac-menu-at-wrapper-line-p))
-            (ac-reposition))
-        (setq ac-show-menu t)
-        string))))
+        (if (and ac-second-expand-completion (equal ac-prefix string))
+            (ac-complete)
+          (when (equal ac-prefix string)
+            (ac-next)
+            (setq string (ac-selected-candidate)))
+          (ac-expand-string string (eq last-command this-command))
+          ;; Do reposition if menu at long line
+          (if (and (> (popup-direction ac-menu) 0)
+                   (ac-menu-at-wrapper-line-p))
+              (ac-reposition))
+          (setq ac-show-menu t)
+          string)))))
 
 (defun ac-expand-common ()
   "Try to expand meaningful common part."
