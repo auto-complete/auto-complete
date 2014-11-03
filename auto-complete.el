@@ -200,7 +200,7 @@
     perl-mode cperl-mode python-mode ruby-mode lua-mode tcl-mode
     ecmascript-mode javascript-mode js-mode js2-mode php-mode css-mode less-css-mode
     makefile-mode sh-mode fortran-mode f90-mode ada-mode
-    xml-mode sgml-mode
+    xml-mode sgml-mode web-mode
     ts-mode
     sclang-mode
     verilog-mode
