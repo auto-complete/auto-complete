@@ -278,7 +278,7 @@ If you specify `nil', never be started automatically."
 (defcustom ac-ignore-case 'smart
   "Non-nil means auto-complete ignores case.
 If this value is `smart', auto-complete ignores case only when
-a prefix doen't contain any upper case letters."
+a prefix doesn't contain any upper case letters."
   :type '(choice (const :tag "Yes" t)
                  (const :tag "Smart" smart)
                  (const :tag "No" nil))
