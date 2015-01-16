@@ -1170,6 +1170,22 @@ You can not use it in source definition like (prefix . `NAME')."
   "Abort completion."
   (ac-cleanup))
 
+(defun ac-extend-region-to-delete (string)
+  "Determine the boundary of the region to delete before
+inserting the completed string. This will be either the position
+of current point, or the end of the symbol at point, if the text
+from point to end of symbol is the right part of the completed
+string."
+  (let* ((end-of-symbol (or (cdr-safe (bounds-of-thing-at-point 'symbol))
+                            (point)))
+         (remaindar (buffer-substring-no-properties (point) end-of-symbol))
+         (remaindar-length (length remaindar)))
+    (if (and (>= (length string) remaindar-length)
+             (string= (substring-no-properties string (- remaindar-length))
+                      remaindar))
+        end-of-symbol
+      (point))))
+ 
 (defun ac-expand-string (string &optional remove-undo-boundary)
   "Expand `STRING' into the buffer and update `ac-prefix' to `STRING'.
 This function records deletion and insertion sequences by `undo-boundary'.
@@ -1189,10 +1205,10 @@ that have been made before in this function.  When `buffer-undo-list' is
         (progn
           (let (buffer-undo-list)
             (save-excursion
-              (delete-region ac-point (point))))
+              (delete-region ac-point (ac-extend-region-to-delete string))))
           (setq buffer-undo-list
                 (nthcdr 2 buffer-undo-list)))
-      (delete-region ac-point (point)))
+      (delete-region ac-point (ac-extend-region-to-delete string)))
     (insert (substring-no-properties string))
     ;; Sometimes, possible when omni-completion used, (insert) added
     ;; to buffer-undo-list strange record about position changes.
