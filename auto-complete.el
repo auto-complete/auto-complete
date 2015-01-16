@@ -973,13 +973,13 @@ You can not use it in source definition like (prefix . `NAME')."
 (defun ac-prefix (requires ignore-list)
   (loop with current = (point)
         with point
+        with point-def
         with prefix-def
         with sources
         for source in (ac-compiled-sources)
         for prefix = (assoc-default 'prefix source)
         for req = (or (assoc-default 'requires source) requires 1)
 
-        if (null prefix-def)
         do
         (unless (member prefix ignore-list)
           (save-excursion
@@ -1002,10 +1002,12 @@ You can not use it in source definition like (prefix . `NAME')."
                      (integerp req)
                      (< (- current point) req))
                 (setq point nil))
-            (if point
-                (setq prefix-def prefix))))
-
-        if (equal prefix prefix-def) do (push source sources)
+            (when point
+                (if (null prefix-def)
+                    (setq prefix-def prefix
+                          point-def point))
+                (if (equal point point-def)
+                    (push source sources)))))
 
         finally return
         (and point (list prefix-def point (nreverse sources)))))
