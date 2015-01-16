@@ -43,7 +43,7 @@
 
 
 
-(defconst ac-version "1.4beta"
+(defconst ac-version "1.4.0"
   "Version of auto-complete in string format.
 Use `version-to-list' to get version component.")
 
