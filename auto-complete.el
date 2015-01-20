@@ -324,6 +324,11 @@ a prefix doesn't contain any upper case letters."
                  (const :tag "Window Ratio Limit" 0.5))
   :group 'auto-complete)
 
+(defcustom ac-delete-dups t
+  "Non-nil automatically deletes duplicate candidates"
+  :type 'boolean
+  :group 'auto-complete)
+
 (defface ac-completion-face
   '((t (:foreground "darkgray" :underline t)))
   "Face for inline completion"
@@ -1079,7 +1084,8 @@ You can not use it in source definition like (prefix . `NAME')."
         append (ac-candidates-1 source) into candidates
         finally return
         (progn
-          (delete-dups candidates)
+          (when ac-delete-dups
+            (delete-dups candidates))
           (if (and ac-use-comphist ac-comphist)
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
