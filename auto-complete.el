@@ -1076,29 +1076,29 @@ You can not use it in source definition like (prefix . `NAME')."
         with case-fold-search = completion-ignore-case
         with prefix-len = (length ac-prefix)
         for source in ac-current-sources
-        append (ac-candidates-1 source) into candidates
+        ;; Delete duplicates from the same source, but allow multiple sources to
+        ;; provide the same candidate completion.
+        append (delete-dups (ac-candidates-1 source)) into candidates
         finally return
-        (progn
-          (delete-dups candidates)
-          (if (and ac-use-comphist ac-comphist)
-              (if ac-show-menu
-                  (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
-                         (n (car pair))
-                         (result (cdr pair))
-                         (cons (if (> n 0) (nthcdr (1- n) result)))
-                         (cdr (cdr cons)))
-                    (if cons (setcdr cons nil))
-                    (setq ac-common-part (try-completion ac-prefix result))
-                    (setq ac-whole-common-part (try-completion ac-prefix candidates))
-                    (if cons (setcdr cons cdr))
-                    result)
-                (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
-                (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
-                (setq ac-whole-common-part (try-completion ac-prefix candidates))
-                candidates)
-            (setq ac-common-part (try-completion ac-prefix candidates))
-            (setq ac-whole-common-part ac-common-part)
-            candidates))))
+        (if (and ac-use-comphist ac-comphist)
+            (if ac-show-menu
+                (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
+                       (n (car pair))
+                       (result (cdr pair))
+                       (cons (if (> n 0) (nthcdr (1- n) result)))
+                       (cdr (cdr cons)))
+                  (if cons (setcdr cons nil))
+                  (setq ac-common-part (try-completion ac-prefix result))
+                  (setq ac-whole-common-part (try-completion ac-prefix candidates))
+                  (if cons (setcdr cons cdr))
+                  result)
+              (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
+              (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
+              (setq ac-whole-common-part (try-completion ac-prefix candidates))
+              candidates)
+          (setq ac-common-part (try-completion ac-prefix candidates))
+          (setq ac-whole-common-part ac-common-part)
+          candidates)))
 
 (defun ac-update-candidates (cursor scroll-top)
   "Update candidates of menu to `ac-candidates' and redraw it."
