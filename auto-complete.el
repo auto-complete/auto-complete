@@ -1483,10 +1483,10 @@ that have been made before in this function.  When `buffer-undo-list' is
     (unless (ac-menu-live-p)
       (ac-start))
     (let ((ac-match-function 'fuzzy-all-completions))
-      (unless ac-cursor-color
-        (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)))
-      (if ac-fuzzy-cursor-color
-          (set-cursor-color ac-fuzzy-cursor-color))
+      (when ac-fuzzy-cursor-color
+        (unless ac-cursor-color
+          (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)))
+        (set-cursor-color ac-fuzzy-cursor-color))
       (setq ac-show-menu t)
       (setq ac-fuzzy-enable t)
       (setq ac-triggered nil)
@@ -1598,8 +1598,9 @@ If given a prefix argument, select the previous candidate."
                      (ac-stop-word-p prefix))))
           (prog1 nil
             (ac-abort))
-        (unless ac-cursor-color
-          (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color)))
+        (when (and ac-use-fuzzy ac-fuzzy-cursor-color)
+          (unless ac-cursor-color
+            (setq ac-cursor-color (frame-parameter (selected-frame) 'cursor-color))))
         (setq ac-show-menu (or ac-show-menu (if (eq ac-auto-show-menu t) t))
               ac-current-sources sources
               ac-buffer (current-buffer)
