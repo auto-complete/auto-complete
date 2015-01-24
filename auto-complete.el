@@ -1068,6 +1068,35 @@ You can not use it in source definition like (prefix . `NAME')."
                              candidates))
     candidates))
 
+(defun ac-delete-candidates (candidates)
+  (cl-delete-duplicates
+   candidates
+   :test (lambda (x y)
+           ;; We assume two candidates are same if their titles are
+           ;; equal and their actions are equal.
+           (when (and (equal x y)
+                      (eq (popup-item-property x 'action)
+                          (popup-item-property y 'action)))
+             ;; Share properties among them.
+             ;; XXX need popup-item-set-property
+             (dolist (symbol '(symbol document))
+               (put-text-property 0 1 symbol (or (popup-item-property x symbol) (popup-item-property y symbol)) x)
+               (put-text-property 0 1 symbol (or (popup-item-property x symbol) (popup-item-property y symbol)) y))
+             t))))
+
+(defun ac-reduce-candidates (candidates)
+  ;; Call `ac-delete-candidates' on first portion of candidate list
+  ;; for speed.
+  (let ((size 20))
+    (if (< (length candidates) size)
+        (ac-delete-candidates candidates)
+      (cl-loop for c on candidates by 'cdr
+               repeat (1- size)
+               finally return
+               (let ((rest (cdr c)))
+                 (setcdr c nil)
+                 (append (ac-delete-candidates candidates) (copy-sequence rest)))))))
+
 (defun ac-candidates ()
   "Produce candidates for current sources."
   (loop with completion-ignore-case = (or (eq ac-ignore-case t)
@@ -1076,29 +1105,31 @@ You can not use it in source definition like (prefix . `NAME')."
         with case-fold-search = completion-ignore-case
         with prefix-len = (length ac-prefix)
         for source in ac-current-sources
-        ;; Delete duplicates from the same source, but allow multiple sources to
-        ;; provide the same candidate completion.
-        append (delete-dups (ac-candidates-1 source)) into candidates
+        append (ac-candidates-1 source) into candidates
         finally return
-        (if (and ac-use-comphist ac-comphist)
-            (if ac-show-menu
-                (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
-                       (n (car pair))
-                       (result (cdr pair))
-                       (cons (if (> n 0) (nthcdr (1- n) result)))
-                       (cdr (cdr cons)))
-                  (if cons (setcdr cons nil))
-                  (setq ac-common-part (try-completion ac-prefix result))
-                  (setq ac-whole-common-part (try-completion ac-prefix candidates))
-                  (if cons (setcdr cons cdr))
-                  result)
-              (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
-              (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
-              (setq ac-whole-common-part (try-completion ac-prefix candidates))
-              candidates)
-          (setq ac-common-part (try-completion ac-prefix candidates))
-          (setq ac-whole-common-part ac-common-part)
-          candidates)))
+        (progn
+          (if (and ac-use-comphist ac-comphist)
+              (if ac-show-menu
+                  (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
+                         (n (car pair))
+                         (result (cdr pair))
+                         (cons (if (> n 0) (nthcdr (1- n) result)))
+                         (cdr (cdr cons)))
+                    (setq result (ac-reduce-candidates result))
+                    (if cons (setcdr cons nil))
+                    (setq ac-common-part (try-completion ac-prefix result))
+                    (setq ac-whole-common-part (try-completion ac-prefix candidates))
+                    (if cons (setcdr cons cdr))
+                    result)
+                (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
+                (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
+                (setq ac-whole-common-part (try-completion ac-prefix candidates))
+                candidates)
+            (when ac-show-menu
+              (setq candidates (ac-reduce-candidates candidates)))
+            (setq ac-common-part (try-completion ac-prefix candidates))
+            (setq ac-whole-common-part ac-common-part)
+            candidates))))
 
 (defun ac-update-candidates (cursor scroll-top)
   "Update candidates of menu to `ac-candidates' and redraw it."
@@ -1917,7 +1948,7 @@ completion menu. This workaround stops that annoying behavior."
                         (and (local-variable-p 'ac-word-index buffer)
                              (cdr (buffer-local-value 'ac-word-index buffer))))
         into candidates
-        finally return candidates))
+        finally return (delete-dups candidates)))
 
 (ac-define-source words-in-buffer
   '((candidates . ac-word-candidates)))
