@@ -1068,7 +1068,7 @@ You can not use it in source definition like (prefix . `NAME')."
                              candidates))
     candidates))
 
-(defun ac-delete-candidates (candidates)
+(defun ac-delete-duplicated-candidates (candidates)
   (cl-delete-duplicates
    candidates
    :test (lambda (x y)
@@ -1085,17 +1085,17 @@ You can not use it in source definition like (prefix . `NAME')."
              t))))
 
 (defun ac-reduce-candidates (candidates)
-  ;; Call `ac-delete-candidates' on first portion of candidate list
-  ;; for speed.
+  ;; Call `ac-delete-duplicated-candidates' on first portion of
+  ;; candidate list for speed.
   (let ((size 20))
     (if (< (length candidates) size)
-        (ac-delete-candidates candidates)
+        (ac-delete-duplicated-candidates candidates)
       (cl-loop for c on candidates by 'cdr
                repeat (1- size)
                finally return
                (let ((rest (cdr c)))
                  (setcdr c nil)
-                 (append (ac-delete-candidates candidates) (copy-sequence rest)))))))
+                 (append (ac-delete-duplicated-candidates candidates) (copy-sequence rest)))))))
 
 (defun ac-candidates ()
   "Produce candidates for current sources."
@@ -1112,10 +1112,10 @@ You can not use it in source definition like (prefix . `NAME')."
               (if ac-show-menu
                   (let* ((pair (ac-comphist-sort ac-comphist candidates prefix-len ac-comphist-threshold))
                          (n (car pair))
-                         (result (cdr pair))
+                         (result (ac-reduce-candidates (cdr pair)))
                          (cons (if (> n 0) (nthcdr (1- n) result)))
                          (cdr (cdr cons)))
-                    (setq result (ac-reduce-candidates result))
+                    ;; XXX ugly
                     (if cons (setcdr cons nil))
                     (setq ac-common-part (try-completion ac-prefix result))
                     (setq ac-whole-common-part (try-completion ac-prefix candidates))
