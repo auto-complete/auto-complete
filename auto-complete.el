@@ -1010,7 +1010,7 @@ You can not use it in source definition like (prefix . `NAME')."
                     (push source sources)))))
 
         finally return
-        (and point (list prefix-def point (nreverse sources)))))
+        (and point-def (list prefix-def point-def (nreverse sources)))))
 
 (defun ac-init ()
   "Initialize current sources to start completion."
