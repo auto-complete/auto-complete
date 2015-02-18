@@ -25,9 +25,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
-
+(require 'cl-lib)
 (require 'auto-complete)
 
 
@@ -41,35 +39,35 @@
 (ac-clear-variable-every-10-minutes 'ac-imenu-index)
 
 (defun ac-imenu-candidates ()
-  (loop with i = 0
-        with stack = (progn
-                       (unless (local-variable-p 'ac-imenu-index)
-                         (make-local-variable 'ac-imenu-index))
-                       (or ac-imenu-index
-                           (setq ac-imenu-index
-                                 (ignore-errors
-                                   (with-no-warnings
-                                     (imenu--make-index-alist))))))
-        with result
-        while (and stack (or (not (integerp ac-limit))
-                             (< i ac-limit)))
-        for node = (pop stack)
-        if (consp node)
-        do
-        (let ((car (car node))
-              (cdr (cdr node)))
-          (if (consp cdr)
-              (mapc (lambda (child)
-                      (push child stack))
-                    cdr)
-            (when (and (stringp car)
-                       (string-match (concat "^" (regexp-quote ac-prefix)) car))
-              ;; Remove extra characters
-              (if (string-match "^.*\\(()\\|=\\|<>\\)$" car)
-                  (setq car (substring car 0 (match-beginning 1))))
-              (push car result)
-              (incf i))))
-        finally return (nreverse result)))
+  (cl-loop with i = 0
+           with stack = (progn
+                          (unless (local-variable-p 'ac-imenu-index)
+                            (make-local-variable 'ac-imenu-index))
+                          (or ac-imenu-index
+                              (setq ac-imenu-index
+                                    (ignore-errors
+                                      (with-no-warnings
+                                        (imenu--make-index-alist))))))
+           with result
+           while (and stack (or (not (integerp ac-limit))
+                                (< i ac-limit)))
+           for node = (pop stack)
+           if (consp node)
+           do
+           (let ((car (car node))
+                 (cdr (cdr node)))
+             (if (consp cdr)
+                 (mapc (lambda (child)
+                         (push child stack))
+                       cdr)
+               (when (and (stringp car)
+                          (string-match (concat "^" (regexp-quote ac-prefix)) car))
+                 ;; Remove extra characters
+                 (if (string-match "^.*\\(()\\|=\\|<>\\)$" car)
+                     (setq car (substring car 0 (match-beginning 1))))
+                 (push car result)
+                 (cl-incf i))))
+           finally return (nreverse result)))
 
 (ac-define-source imenu
   '((depends imenu)
@@ -213,8 +211,8 @@
 
 (defun ac-eclim-candidates ()
   (with-no-warnings
-    (loop for c in (eclim/java-complete)
-          collect (nth 1 c))))
+    (cl-loop for c in (eclim/java-complete)
+             collect (nth 1 c))))
 
 (ac-define-source eclim
   '((candidates . ac-eclim-candidates)
@@ -398,17 +396,17 @@
 (defun ac-css-property-candidates ()
   (let ((list (assoc-default ac-css-property ac-css-property-alist)))
     (if list
-        (loop with seen
-              with value
-              while (setq value (pop list))
-              if (symbolp value)
-              do (unless (memq value seen)
-                   (push value seen)
-                   (setq list
-                         (append list
-                                 (or (assoc-default value ac-css-value-classes)
-                                     (assoc-default (symbol-name value) ac-css-property-alist)))))
-              else collect value)
+        (cl-loop with seen
+                 with value
+                 while (setq value (pop list))
+                 if (symbolp value)
+                 do (unless (memq value seen)
+                      (push value seen)
+                      (setq list
+                            (append list
+                                    (or (assoc-default value ac-css-value-classes)
+                                        (assoc-default (symbol-name value) ac-css-property-alist)))))
+                 else collect value)
       ac-css-pseudo-classes)))
 
 (ac-define-source css-property
