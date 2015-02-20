@@ -1,6 +1,6 @@
 % Auto-Complete - An Intelligent auto-completion extension for Emacs
 
-[![Build Status](https://secure.travis-ci.org/auto-complete/auto-complete.png)](http://travis-ci.org/auto-complete/auto-complete)
+[![Build Status](https://secure.travis-ci.org/auto-complete/auto-complete.svg)](http://travis-ci.org/auto-complete/auto-complete)
 
 # What is Auto-Complete?
 
