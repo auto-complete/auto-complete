@@ -1072,15 +1072,10 @@ You can not use it in source definition like (prefix . `NAME')."
    :test (lambda (x y)
            ;; We assume two candidates are same if their titles are
            ;; equal and their actions are equal.
-           (when (and (equal x y)
-                      (eq (popup-item-property x 'action)
-                          (popup-item-property y 'action)))
-             ;; Share properties among them.
-             ;; XXX need popup-item-set-property
-             (dolist (symbol '(symbol document))
-               (put-text-property 0 1 symbol (or (popup-item-property x symbol) (popup-item-property y symbol)) x)
-               (put-text-property 0 1 symbol (or (popup-item-property x symbol) (popup-item-property y symbol)) y))
-             t))))
+           (and (equal x y)
+                (eq (popup-item-property x 'action)
+                    (popup-item-property y 'action))))
+   :from-end t))
 
 (defun ac-reduce-candidates (candidates)
   ;; Call `ac-delete-duplicated-candidates' on first portion of
