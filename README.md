@@ -31,7 +31,7 @@ work.
 
 # User Manual
 
-[Auto-Complete User Manual](http://cx4a.org/software/auto-complete/manual.html)
+[Auto-Complete User Manual](http://auto-complete.org/doc/manual.html)
 
 # Development
 
