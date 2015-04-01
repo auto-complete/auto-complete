@@ -1,21 +1,23 @@
-% Auto-Complete - An Intelligent auto-completion extension for Emacs
+# Auto-Complete
 
 [![Build Status](https://secure.travis-ci.org/auto-complete/auto-complete.svg)](http://travis-ci.org/auto-complete/auto-complete)
 
-# What is Auto-Complete?
+An Intelligent auto-completion extension for Emacs
+
+## What is Auto-Complete?
 
 Auto-Complete is an intelligent auto-completion extension for
 Emacs. It extends the standard Emacs completion interface and provides
 an environment that allows users to concentrate more on their own
 work.
 
-# Features
+## Features
 
 * Visual interface
 * Reduce overhead of completion by using statistic method
 * Extensibility
 
-# Screenshots
+## Screenshots
 
 ![](doc/ac.png "Auto Completion")
 
@@ -23,27 +25,33 @@ work.
 
 ![](doc/ac-isearch.png "Increamental Search")
 
-# Demo Video
+## Demo Video
 
 * [YouTube](http://www.youtube.com/watch?v=rGVVnDxwJYE)
 
-# Install
+## Install
 
-# User Manual
+`auto-complete` is available on [MELPA](http://melpa.org) and [MELPA-STABLE](http://stable.melpa.org)
+
+You can install `auto-complete` with the following command.
+
+<kbd>M-x package-install [RET] auto-complete [RET]</kbd>
+
+
+## User Manual
 
 [Auto-Complete User Manual](http://auto-complete.org/doc/manual.html)
 
-# Development
+## Development
 
 * <http://github.com/auto-complete/auto-complete>
 
-# Reporting Bugs
+## Reporting Bugs
 
 Visit
 [Auto-Complete Issue Tracker](https://github.com/auto-complete/auto-complete/issues)
 and create a new issue.
 
-License
--------
+## License
 
 This software is distributed under the term of GPLv3.
