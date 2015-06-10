@@ -28,6 +28,7 @@ work.
 ## Demo Video
 
 * [YouTube](http://www.youtube.com/watch?v=rGVVnDxwJYE)
+* [Python autocompletion for Emacs and Vim](http://youtu.be/FAi4LKgR6So)
 
 ## Install
 
@@ -37,6 +38,20 @@ You can install `auto-complete` with the following command.
 
 <kbd>M-x package-install [RET] auto-complete [RET]</kbd>
 
+This is [an example](http://www.emacswiki.org/emacs/ELPA) of `~/.emacs.d/init.el`.
+
+	(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+		("marmalade" . "http://marmalade-repo.org/packages/")
+		("melpa" . "http://melpa.milkbox.net/packages/")))
+
+[These lines will be executed](http://emacswiki.org/emacs/ELPA#toc5) after `(package-initialize)`.
+
+	(add-hook 'after-init-hook
+		(lambda ()
+			(require 'auto-complete)
+			(require 'auto-complete-config)
+			(ac-config-default)
+			))
 
 ## User Manual
 
