@@ -42,6 +42,13 @@ You can install `auto-complete` with the following command.
 
 [Auto-Complete User Manual](http://auto-complete.org/doc/manual.html)
 
+
+## Basic Configuration
+
+```lisp
+(ac-config-default)
+```
+
 ## Development
 
 * <http://github.com/auto-complete/auto-complete>
