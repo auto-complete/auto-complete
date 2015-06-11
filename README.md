@@ -28,7 +28,7 @@ work.
 ## Demo Video
 
 * [YouTube](http://www.youtube.com/watch?v=rGVVnDxwJYE)
-* [Python autocompletion for Emacs and Vim](http://youtu.be/FAi4LKgR6So)
+* [Python autocompletion for Emacs and Vim](http://youtu.be/E-5XFXhkJK8)
 
 ## Install
 
