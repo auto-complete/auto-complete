@@ -57,6 +57,7 @@ __doc__
 __file__
 __future__
 __import__
+__init__
 __main__
 __name__
 __package__
@@ -294,6 +295,7 @@ runpy
 sched
 select
 selectors
+self
 set
 setattr
 shelve
