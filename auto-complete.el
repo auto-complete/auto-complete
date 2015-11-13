@@ -210,7 +210,8 @@ Use `version-to-list' to get version component.")
     ts-mode
     sclang-mode
     verilog-mode
-    qml-mode)
+    qml-mode
+    apples-mode)
   "Major modes `auto-complete-mode' can run on."
   :type '(repeat symbol)
   :group 'auto-complete)
