@@ -1643,7 +1643,7 @@ If given a prefix argument, select the previous candidate."
         t))))
 
 (defun ac-stop ()
-  "Stop completiong."
+  "Stop completing."
   (interactive)
   (setq ac-selected-candidate nil)
   (ac-abort))
