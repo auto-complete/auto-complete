@@ -47,7 +47,7 @@ to add a directory to `load-path` later if `load-path` doesn't include
 the directory. The directory is to be `~/.emacs.d` by default.
 
 Finally type `RET` to start installation. After installation, you may
-see the following buffer and follow instructions to edit `.emacs`.
+see the following buffer and follow instructions to edit `.emacs.d/init.el`.
 
 You can also install from terminal like:
 
@@ -64,7 +64,7 @@ If you don't have GNU Make, run emacs like:
 ```
 Successfully installed!
 
-Add the following code to your .emacs:
+Add the following code to your .emacs.d/init.el:
 
 (add-to-list 'load-path "~/.emacs.d")    ; This may not be appeared if you have already added.
 (require 'auto-complete-config)
@@ -108,7 +108,7 @@ script above avoids overwrite by renaming `dict` directory to
 $ cp -r dict ~/.emacs.d
 ```
 
-Finally add the following code to `.emacs`:
+Finally add the following code to `.emacs.d/init.el`:
 
 ```emacs-lisp
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
@@ -473,7 +473,7 @@ sources.
 
 ## Using Source
 
-If you wrote `(ac-config-default)` in your `.emacs`, it is rare to
+If you wrote `(ac-config-default)` in your `.emacs.d/init.el`, it is rare to
 change a source setting because it is already optimized to use. Here
 is a short explanation about source however. Sources will be used by
 setting `ac-sources` to a list of sources. You can see the setting by
@@ -519,7 +519,7 @@ by adding a hook which is called when \*scratch\* buffer is created.
 (add-hook 'emacs-lisp-mode-hook 'my-ac-emacs-lisp-mode)
 ```
 
-If the code `(ac-config-default)` is written in `.emacs`, the code
+If the code `(ac-config-default)` is written in `.emacs.d/init.el`, the code
 above may not work correctly. This is because `(ac-config-default)`
 will overwrite the setting. In such case, you can redefine a function
 which is used in `(ac-config-default)`. The function name is
@@ -957,7 +957,7 @@ See [ENSIME](https://github.com/aemoncannon/ensime) page.
 
 # Configuration
 
-Any configuration item will be set in `.emacs` or with `M-x
+Any configuration item will be set in `.emacs.d/init.el` or with `M-x
 customize-group RET auto-complete RET`.
 
 ## `ac-delay`
@@ -1594,7 +1594,7 @@ it:
 A way of delaying processes of `flyspell-mode` disables auto
 completion. You can avoid this problem by `M-x
 ac-flyspell-workaround`. You can write the following code into your
-`~/.emacs`.
+`~/.emacs.d/init.el`.
 
 ```emacs-lisp
 (ac-flyspell-workaround)
@@ -1604,7 +1604,7 @@ ac-flyspell-workaround`. You can write the following code into your
 
 linum-mode tries to add the line numbers even for the comletion
 menu. To stop that annoying behavior, do `M-x ac-linum-workaround` or
-add the following code into your `~/.emacs`.
+add the following code into your `~/.emacs.d/init.el`.
 
 ```emacs-lisp
 (ac-linum-workaround)
