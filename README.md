@@ -31,7 +31,7 @@ work.
 
 ## Install
 
-`auto-complete` is available on [MELPA](http://melpa.org) and [MELPA-STABLE](http://stable.melpa.org)
+`auto-complete` is available on [MELPA](https://melpa.org) and [MELPA-STABLE](https://stable.melpa.org)
 
 You can install `auto-complete` with the following command.
 
