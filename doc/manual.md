@@ -241,13 +241,12 @@ regarding "messaeg" as "message". It is not a bad idea to bind
 
 ## Filtering Completion Candidates
 
-You can start filtering by `C-s`. The cursor color will change to
-blue. Then input characters to filter. It is possible to do completion
-by TAB or select candidates, which changes the cursor color to
-original so that telling filtering completion candidates has done. The
-filtering string will be restored when `C-s` again. To delete the
-filter string, press `DEL` or `C-h`. Other general operations is not
-allowed there.
+You can start filtering by `C-s`(You need to set `ac-use-menu-map` to `t`).
+The cursor color will change to blue. Then input characters to filter.
+It is possible to do completion by TAB or select candidates, which changes
+the cursor color to original so that telling filtering completion candidates
+has done. The filtering string will be restored when `C-s` again. To delete the
+filter string, press `DEL` or `C-h`. Other general operations is not allowed there.
 
 ![Filtering](ac-isearch.png)
 
