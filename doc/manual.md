@@ -27,7 +27,7 @@ You can download the latest auto-complete from
 
 * 800MHz or higher CPU
 * 256MB or higher RAM
-* GNU Emacs 22 or later
+* GNU Emacs 24 or later
 
 ## Automatic Installation
 
