@@ -255,7 +255,7 @@ temporarily. After completion is finished, these operations will be
 disabled.
 
 | Key           | Command       | Description               |
-|---------------+---------------+---------------------------|
+|---------------|---------------|---------------------------|
 | `TAB`, `C-i`  | `ac-expand`   | Completion by TAB         |
 | `RET`, `C-m`  | `ac-complete` | Completion by RET         |
 | `down`, `M-n` | `ac-next`     | Select next candidate     |
