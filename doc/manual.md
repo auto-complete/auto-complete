@@ -29,99 +29,26 @@ You can download the latest auto-complete from
 * 256MB or higher RAM
 * GNU Emacs 24 or later
 
-## Automatic Installation
+## Installation
 
-It is easy to install by using an installation script called
-`etc/install.el` that is located in the package directory.
-
-Type `M-x load-file RET` in a running or newly-launched Emacs. Note
-that if you want to upgrade `auto-complete-mode`, you have to install
-in **a newly launched Emacs with the `-q` option**. Then input a file
-name to load which is a path string with adding `/etc/install.el` to
-the package directory. For example, if the package directory is
-`~/tmp/auto-complete-1.2`, the file name will be
-`~/tmp/auto-complete-1.2/etc/install.el`.
-
-Then input a directory where Auto Complete will be installed. You need
-to add a directory to `load-path` later if `load-path` doesn't include
-the directory. The directory is to be `~/.emacs.d` by default.
-
-Finally type `RET` to start installation. After installation, you may
-see the following buffer and follow instructions to edit `.emacs.d/init.el`.
-
-You can also install from terminal like:
-
-    $ make install
-    $ # or with directory specified
-    $ make install DIR=$HOME/.emacs.d/
-
-If you don't have GNU Make, run emacs like:
-
-    $ emacs -batch -l etc/install.el
-
-**Example message after installation (\*Installation Result* Buffer)**
-
-```
-Successfully installed!
-
-Add the following code to your .emacs.d/init.el:
-
-(add-to-list 'load-path "~/.emacs.d")    ; This may not be appeared if you have already added.
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
-(ac-config-default)
-```
-
-## Manual Installation
-
-It is also possible to install manually if you follow a directory
-configuration. First, byte-compile all `.el` files in the package
-directory. You may use `Makefile` in UNIX OS.
-
-```
-$ make byte-compile
-```
-
-If you can't use `Makefile`, open the directory from Emacs by `C-x d`
-and type `* . el RET B RET` to do byte-compile.
-
-Then copy all `.el` files and `.elc` files to a directory which is
-added to `load-path`. You may do such the following command if the
-directory is `~/.emacs.d`
-
-```
-$ cp *.el *.elc ~/.emacs.d
-```
-
-And then install dictionary files. They are optional to run Auto
-Complete Mode, but you should install if you don't have any
-reason. Dictionary files are located in called `dict` directory, it is
-needed that they are installed to a directory which is
-`auto-complete.el` has been installed. If you installed
-`auto-complete.el` to a directory called `~/.emacs.d`, you also have
-to install dictionary files to `~/.emacs.d`. Please be careful not to
-overwrite existed files. It may be a rare case, but the installation
-script above avoids overwrite by renaming `dict` directory to
-`ac-dict` directory.
-
-```
-$ cp -r dict ~/.emacs.d
-```
-
-Finally add the following code to `.emacs.d/init.el`:
+You can install `auto-complete.el` from [MELPA](https://melpa.org/#/) or [MELPA Stable](https://stable.melpa.org/#/) with package.el.
+Add following configurations for initializing package.el.
 
 ```emacs-lisp
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
-(require 'auto-complete-config)
-(ac-config-default)
+(require 'package)
+
+;; If you want to use latest version
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
+;; If you want to use last tagged version
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(package-initialize)
 ```
 
-If you haven't added the directory to `load-path`, you need to add the
-following code too.
+Then You can install auto-complete by
 
-```emacs-lisp
-(add-to-list 'load-path "~/.emacs.d")
-```
+- `M-x package-list-packages` and select auto-complete
+- `M-x package-refresh-contents` and `M-x package-install auto-complete`
 
 ## After-Installation Check
 
@@ -130,11 +57,6 @@ newly-launched Emacs. Installation has been successful if you see a
 completion menu. If you have an error or no completion is started, it
 could be a failure. Please contact me in such case with confirmation
 following:
-
-  * Using correct `load-path`?
-
-    A directory which `auto-complete.el` is installed to is in
-    `load-path`.
 
   * Characters `AC` in mode-line?
 
@@ -277,7 +199,9 @@ which is used with key binding in general. The following code changes
 a default completion command to more advanced feature that
 `auto-complete-mode` provides.
 
-    (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+```emacs-lisp
+(define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+```
 
 So, as of `auto-complete` command, it is a little different from an
 original automatic completion.
