@@ -5,7 +5,7 @@
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; URL: https://github.com/auto-complete/auto-complete
 ;; Keywords: completion, convenience
-;; Version: 1.5.0
+;; Version: 1.5.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 
 
 
-(defconst ac-version "1.5.0"
+(defconst ac-version "1.5.1"
   "Version of auto-complete in string format.
 Use `version-to-list' to get version component.")
 
