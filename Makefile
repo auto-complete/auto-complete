@@ -4,8 +4,7 @@ EMACS ?= emacs
 CASK ?= cask
 SITE=../auto-complete.github.com
 
-ELPA_DIR = \
-	.cask/$(shell $(EMACS) -Q --batch --eval '(princ (concat emacs-major-version "." emacs-minor-version))')/elpa
+ELPA_DIR = $(shell EMACS=$(EMACS) $(CASK) package-directory)
 
 test: elpa
 	$(CASK) exec $(EMACS) -batch -Q -L . \
