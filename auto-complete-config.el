@@ -28,6 +28,14 @@
 (require 'cl-lib)
 (require 'auto-complete)
 
+(declare-function semantic-analyze-current-context "semantic/analyze")
+(declare-function semantic-tag-class "semantic/tag")
+(declare-function semantic-tag-function-arguments "semantic/tag")
+(declare-function semantic-format-tag-type "semantic/format")
+(declare-function semantic-format-tag-name "semantic/format")
+(declare-function yas-expand-snippet "yasnippet")
+(declare-function oref "eieio" (obj slot))
+
 
 
 ;;;; Additional sources
