@@ -421,25 +421,30 @@
   "Current editing property.")
 
 (defun ac-css-prefix ()
-  (when (save-excursion (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\=" nil t))
-    (setq ac-css-property (match-string 1))
+  (when (save-excursion
+          (or (and (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\=" nil t)
+                   (setq ac-css-property (match-string 1)))
+              (and (re-search-backward "\\(?:^\\|;\\)\\s *[^:]*\\=" nil t)
+                   (setq ac-css-property t))))
     (or (ac-prefix-symbol) (point))))
 
 (defun ac-css-property-candidates ()
-  (let ((list (assoc-default ac-css-property ac-css-property-alist)))
-    (if list
-        (cl-loop with seen
-                 with value
-                 while (setq value (pop list))
-                 if (symbolp value)
-                 do (unless (memq value seen)
-                      (push value seen)
-                      (setq list
-                            (append list
-                                    (or (assoc-default value ac-css-value-classes)
-                                        (assoc-default (symbol-name value) ac-css-property-alist)))))
-                 else collect value)
-      ac-css-pseudo-classes)))
+  (if (not (stringp ac-css-property))
+      (mapcar 'car ac-css-property-alist)
+    (let ((list (assoc-default ac-css-property ac-css-property-alist)))
+      (if list
+          (cl-loop with seen
+                   with value
+                   while (setq value (pop list))
+                   if (symbolp value)
+                   do (unless (memq value seen)
+                        (push value seen)
+                        (setq list
+                              (append list
+                                      (or (assoc-default value ac-css-value-classes)
+                                          (assoc-default (symbol-name value) ac-css-property-alist)))))
+                   else collect value)
+        ac-css-pseudo-classes))))
 
 (ac-define-source css-property
   '((candidates . ac-css-property-candidates)
