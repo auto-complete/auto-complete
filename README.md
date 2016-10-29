@@ -36,7 +36,7 @@ You can install `auto-complete` with the following command.
 
 ## User Manual
 
-[Auto-Complete User Manual](http://auto-complete.org/doc/manual.html)
+[Auto-Complete User Manual](doc/manual.html)
 
 
 ## Basic Configuration
