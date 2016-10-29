@@ -205,7 +205,7 @@ Use `version-to-list' to get version component.")
     ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
     perl-mode cperl-mode python-mode ruby-mode lua-mode tcl-mode
     ecmascript-mode javascript-mode js-mode js-jsx-mode js2-mode js2-jsx-mode
-    php-mode css-mode scss-mode less-css-mode
+    coffee-mode php-mode css-mode scss-mode less-css-mode
     elixir-mode
     makefile-mode sh-mode fortran-mode f90-mode ada-mode
     xml-mode sgml-mode web-mode
