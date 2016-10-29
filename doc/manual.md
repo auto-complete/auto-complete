@@ -1,4 +1,4 @@
-% Auto-Complete - User Manual
+# Auto-Complete - User Manual
 
 # Introduction
 
@@ -15,11 +15,6 @@ extend. Please contact me if you have any questions.
 
 Auto Complete Mode is licensed under the terms of GPLv3. And this
 document is licensed under the term of GFDL.
-
-# Downloads
-
-You can download the latest auto-complete from
-[the official site](http://auto-complete.org/).
 
 # Installation
 
