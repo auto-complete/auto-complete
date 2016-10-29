@@ -1,4 +1,4 @@
-% Auto-Complete - User Manual
+# Auto-Complete - User Manual
 
 # Introduction
 
