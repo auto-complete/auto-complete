@@ -701,13 +701,12 @@ If there is no common part, this will be nil.")
 
 (defun ac-prefix-default ()
   "Same as `ac-prefix-symbol' but ignore a number prefix."
-  (let ((start (ac-prefix-symbol)))
-    (when start
-      (cl-loop with end = (point)
-            for pos from start below end
-            for c = (char-after pos)
-            if (not (and (<= ?0 c) (<= c ?9)))
-            return start))))
+  (let ((start (ac-prefix-symbol))
+        (case-fold-search t))
+    (when (and start
+             (not (string-match "^\\(?:0[xbo][0-9a-f]+\\|[0-9]+\\)$"
+                              (buffer-substring-no-properties start (point)))))
+      start)))
 
 (defun ac-prefix-symbol ()
   "Default prefix definition function."
