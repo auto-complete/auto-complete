@@ -4,13 +4,13 @@
 
 ## New Options {#new-options_v1.4}
 
-* [`ac-use-dictionary-as-stop-words`](manual.html#ac-use-dictionary-as-stop-words)
-* [`ac-non-trigger-commands`](manual.html#ac-non-trigger-commands)
+* [`ac-use-dictionary-as-stop-words`](manual.md#ac-use-dictionary-as-stop-words)
+* [`ac-non-trigger-commands`](manual.md#ac-non-trigger-commands)
 
 ## New Sources {#new-sources_v1.4}
 
-* [`ac-source-ghc-mod`](manual.html#ac-source-ghc-mod)
-* [`ac-source-slime`](manual.html#ac-source-slime)
+* [`ac-source-ghc-mod`](manual.md#ac-source-ghc-mod)
+* [`ac-source-slime`](manual.md#ac-source-slime)
 
 ## New Dictionaries {#new-dictionaries_v1.4}
 
@@ -24,7 +24,7 @@
 * Fixed help-mode error ("help-setup-xref: Symbol's value as variable
   is void: help-xref-following")
 * Fixed auto-complete couldn't use pos-tip on Windows
-* [Added workaround for linum-mode displaying bug](manual.html#linum-mode-bug)
+* [Added workaround for linum-mode displaying bug](manual.md#linum-mode-bug)
 
 # v1.3.1 Changes {#changes_v1.3.1}
 
@@ -42,20 +42,20 @@ Major changes in v1.3.
 
 ## New Options {#new-options_v1.3}
 
-* [`ac-disable-faces`](manual.html#ac-disable-faces)
-* [`ac-show-menu-immediately-on-auto-complete`](manual.html#ac-show-menu-immediately-on-auto-complete)
-* [`ac-expand-on-auto-complete`](manual.html#ac-expand-on-auto-complete)
-* [`ac-use-menu-map`](manual.html#ac-use-menu-map)
+* [`ac-disable-faces`](manual.md#ac-disable-faces)
+* [`ac-show-menu-immediately-on-auto-complete`](manual.md#ac-show-menu-immediately-on-auto-complete)
+* [`ac-expand-on-auto-complete`](manual.md#ac-expand-on-auto-complete)
+* [`ac-use-menu-map`](manual.md#ac-use-menu-map)
 
 ## New Sources {#new-sources_v1.3}
 
-* [`ac-source-semantic-raw`](manual.html#ac-source-semantic-raw)
-* [`ac-source-css-property`](manual.html#ac-source-css-property)
+* [`ac-source-semantic-raw`](manual.md#ac-source-semantic-raw)
+* [`ac-source-css-property`](manual.md#ac-source-css-property)
 
 ## New Source Properties {#new-source-properties_v1.3}
 
-* [`summary`](manual.html#summary)
-* [`available`](manual.html#available)
+* [`summary`](manual.md#summary)
+* [`available`](manual.md#available)
 
 ## New Dictionaries {#new-dictionaries_v1.3}
 
@@ -74,7 +74,7 @@ Major changes in v1.3.
 ## Others {#others-v1.3}
 
 * Improved word completion performance (#18)
-* Cooperate with [pos-tip.el](manual.html#show-help-beautifully)
+* Cooperate with [pos-tip.el](manual.md#show-help-beautifully)
 * Yasnippet 0.61 support
 * Fix many bugs
 
@@ -84,37 +84,37 @@ Major changes in v1.2 since v1.0.
 
 ## New Features {#new-features_v1.2}
 
-* [Completion by Fuzzy Matching](manual.html#completion-by-fuzzy-matching)
-* [Completion by Dictionary](manual.html#completion-by-dictionary)
-* [Incremental Filtering](manual.html#filtering-completion-candidates)
-* [Intelligent Candidate Suggestion](manual.html#candidate-suggestion)
-* [Trigger Key](manual.html#trigger-key)
-* [Help](manual.html#Help)
+* [Completion by Fuzzy Matching](manual.md#completion-by-fuzzy-matching)
+* [Completion by Dictionary](manual.md#completion-by-dictionary)
+* [Incremental Filtering](manual.md#filtering-completion-candidates)
+* [Intelligent Candidate Suggestion](manual.md#candidate-suggestion)
+* [Trigger Key](manual.md#trigger-key)
+* [Help](manual.md#Help)
 
 ## New Commands {#new-commands_v1.2}
 
-* [`auto-complete`](manual.html#auto-complete-command)
+* [`auto-complete`](manual.md#auto-complete-command)
 
 ## New Options {#new-options_v1.2}
 
-* [`ac-delay`](manual.html#ac-delay)
-* [`ac-auto-show-menu`](manual.html#ac-auto-show-menu)
-* [`ac-use-fuzzy`](manual.html#ac-use-fuzzy)
-* [`ac-use-comphist`](manual.html#ac-use-comphist)
-* [`ac-ignores`](manual.html#ac-ignores)
-* [`ac-ignore-case`](manual.html#ac-ignore-case)
-* [`ac-mode-map`](manual.html#ac-mode-map)
+* [`ac-delay`](manual.md#ac-delay)
+* [`ac-auto-show-menu`](manual.md#ac-auto-show-menu)
+* [`ac-use-fuzzy`](manual.md#ac-use-fuzzy)
+* [`ac-use-comphist`](manual.md#ac-use-comphist)
+* [`ac-ignores`](manual.md#ac-ignores)
+* [`ac-ignore-case`](manual.md#ac-ignore-case)
+* [`ac-mode-map`](manual.md#ac-mode-map)
 
 ## New Sources {#new-sources_v1.2}
 
-* [`ac-source-dictionary`](manual.html#ac-source-dictionary)
+* [`ac-source-dictionary`](manual.md#ac-source-dictionary)
 
 ## Changed Behaviors {#changed-behaviors_v1.2}
 
 * Completion is now delayed to start
-  ([`ac-delay`](manual.html#ac-delay))
+  ([`ac-delay`](manual.md#ac-delay))
 * Completion menu is now delayed to show
-  ([`ac-auto-show-menu`](manual.html#ac-auto-show-menu))
+  ([`ac-auto-show-menu`](manual.md#ac-auto-show-menu))
 
 ## Others {#others_v1.2}
 
