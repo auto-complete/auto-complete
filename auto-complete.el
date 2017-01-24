@@ -704,8 +704,8 @@ If there is no common part, this will be nil.")
   (let ((start (ac-prefix-symbol))
         (case-fold-search t))
     (when (and start
-             (not (string-match "^\\(?:0[xbo][0-9a-f]+\\|[0-9]+\\)$"
-                              (buffer-substring-no-properties start (point)))))
+             (not (string-match-p "\\`\\(?:0[xbo][0-9a-f]+\\|[0-9]+\\)"
+                                (buffer-substring-no-properties start (point)))))
       start)))
 
 (defun ac-prefix-symbol ()
