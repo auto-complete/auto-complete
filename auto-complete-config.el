@@ -169,9 +169,44 @@
              (if table
                  (ac-yasnippet-candidate-1 table)))))))
 
+(defun ac-yasnippet-document (symbol)
+  (with-no-warnings
+    ;; expand snippet in a temporary buffer
+    (let ((orig-major-mode major-mode))
+      (with-temp-buffer
+	(let ((major-mode orig-major-mode))
+	  (insert (concatenate 'string "YASnippet " symbol ":\n\n"))
+	  ;; insert the symbol to expand - this will be deleted once
+	  ;; it is expanded
+	  (insert symbol)
+	  ;; expand to potentially multiple options and show each
+	  (let* ((templates-and-pos (yas--current-key))
+		 (templates (first templates-and-pos))
+		 (start (second templates-and-pos))
+		 (end (third templates-and-pos)))
+	    (dolist (template templates)
+	      (let ((yas--current-template (cdr template)))
+		;; using start and end ensures the original symbol is
+		;; removed from the buffer once it is expanded
+		(yas/expand-snippet (yas--template-content yas--current-template)
+				    start end)
+		;; set start and end to nil since after the first
+		;; expansion we will have then deleted the original
+		;; symbol and don't want to repeat this action for
+		;; each additional expansion
+		(setq start nil
+		      end nil)
+		(yas-exit-all-snippets)
+		;; go to end of buffer to expand next snippet
+		;; following this one
+		(goto-char (point-max))
+		(insert "\n")))
+	    (buffer-string)))))))
+
 (ac-define-source yasnippet
   '((depends yasnippet)
     (candidates . ac-yasnippet-candidates)
+    (document . ac-yasnippet-document)
     (action . yas/expand)
     (candidate-face . ac-yasnippet-candidate-face)
     (selection-face . ac-yasnippet-selection-face)
