@@ -1578,11 +1578,39 @@ If given a prefix argument, select the previous candidate."
       (setq ac-common-part nil)
       t)))
 
+(defun ac-function-arity (function)
+  "Return minimum and maximum number of args allowed for FUNCTION.
+The returned value is a pair (MIN . MAX).  MIN is the minimum number
+of args.  MAX is the maximum number or the symbol `many', for a
+function with `&rest' args."
+  (if (subrp function)
+      (subr-arity function)
+    (let* ((arglist (help-function-arglist function))
+           (optional-arglist (memq '&optional arglist))
+           (key-arglist (memq '&key arglist))
+           (rest-arglist (memq '&rest arglist))
+           (minimum (- (length arglist)
+                       (cond (optional-arglist (length optional-arglist))
+                             (key-arglist (length key-arglist))
+                             (rest-arglist (length rest-arglist))
+                             (t 0))))
+           (maximum (cond (rest-arglist 'many)
+                          (optional-arglist (+ minimum
+                                               (length optional-arglist)
+                                               (if key-arglist -1 0)
+                                               -1))
+                          (key-arglist (+ minimum
+                                          (length key-arglist)
+                                          -1))
+                          (t (length arglist)))))
+      (cons minimum maximum))))
+
 (defun ac-complete-1 (candidate)
   (let ((action (popup-item-property candidate 'action))
+        (selected-name (ac-expand-string candidate))
         (fallback nil))
     (when candidate
-      (unless (ac-expand-string candidate)
+      (unless selected-name
         (setq fallback t))
       ;; Remember to show help later
       (when (and ac-point candidate)
@@ -1593,7 +1621,9 @@ If given a prefix argument, select the previous candidate."
     (ac-abort)
     (cond
      (action
-      (funcall action))
+      (cond ((eq 1 (car (ac-function-arity action)))
+             (funcall action selected-name))
+            (t (funcall action))))
      (fallback
       (ac-fallback-command)))
     candidate))
