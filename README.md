@@ -42,7 +42,10 @@ You can install `auto-complete` with the following command.
 ## Basic Configuration
 
 ```lisp
-(ac-config-default)
+(add-hook 'after-init-hook
+	  (lambda ()
+	    (ac-config-default)
+	    ))
 ```
 
 ## Development
