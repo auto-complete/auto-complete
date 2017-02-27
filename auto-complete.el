@@ -348,8 +348,6 @@ a prefix doesn't contain any upper case letters."
 (defvar auto-complete-mode-hook nil
   "Hook for `auto-complete-mode'.")
 
-
-
 ;;;; Internal variables
 
 (defvar auto-complete-mode nil
@@ -818,7 +816,7 @@ You can not use it in source definition like (prefix . `NAME')."
 (defsubst ac-menu-live-p ()
   (popup-live-p ac-menu))
 
-(defun ac-menu-create (point width height)
+(defun* ac-menu-create (point width height) 
   (setq ac-menu
         (popup-create point width height
                       :around t
