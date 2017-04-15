@@ -1768,7 +1768,8 @@ If given a prefix argument, select the previous candidate."
                      ac-completing)
                  (not isearch-mode))
         (setq ac-last-point (point))
-        (ac-start :requires (unless ac-completing ac-auto-start))
+        (unless (region-active-p)
+          (ac-start :requires (unless ac-completing ac-auto-start)))
         (unless ac-disable-inline
           (ac-inline-update)))
     (error (ac-error var))))
