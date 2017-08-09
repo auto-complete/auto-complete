@@ -527,15 +527,22 @@
   )
 
 (defun ac-emacs-lisp-mode-setup ()
-  (setq ac-sources (append '(ac-source-features ac-source-functions ac-source-yasnippet ac-source-variables ac-source-symbols) ac-sources)))
+  (setq ac-sources (cl-union '(ac-source-features
+                               ac-source-functions
+                               ac-source-yasnippet
+                               ac-source-variables
+                               ac-source-symbols)
+                             ac-sources)))
 
 (defun ac-cc-mode-setup ()
-  (setq ac-sources (append '(ac-source-yasnippet ac-source-gtags) ac-sources)))
+  (setq ac-sources (cl-union '(ac-source-yasnippet ac-source-gtags)
+                             ac-sources)))
 
 (defun ac-ruby-mode-setup ())
 
 (defun ac-css-mode-setup ()
-  (setq ac-sources (append '(ac-source-css-property) ac-sources)))
+  (setq ac-sources (cl-union '(ac-source-css-property)
+                             ac-sources)))
 
 ;;;###autoload
 (defun ac-config-default ()
