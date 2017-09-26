@@ -15,6 +15,8 @@ struct
 subscript
 typealias
 var
+__shared
+__owned
 fileprivate
 internal
 private
