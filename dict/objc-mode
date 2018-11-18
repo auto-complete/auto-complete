@@ -206,9 +206,6 @@ __autoreleasing
 __nonnull
 __nullable
 __null_unspecified
-_Nonnull
-_Null_unspecified
-_Nullable
 IMP
 BOOL
 YES
