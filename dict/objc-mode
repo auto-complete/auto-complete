@@ -75,6 +75,9 @@ false
 true
 wchar_t
 _Float16
+_Accum
+_Fract
+_Sat
 _Decimal32
 _Decimal64
 _Decimal128
@@ -166,11 +169,11 @@ __builtin_available
 @import
 @available
 self
+_cmd
+instancetype
 id
 Class
 SEL
-instancetype
-_cmd
 getter=
 setter=
 readonly
@@ -203,6 +206,9 @@ __autoreleasing
 __nonnull
 __nullable
 __null_unspecified
+_Nonnull
+_Null_unspecified
+_Nullable
 IMP
 BOOL
 YES
