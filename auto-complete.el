@@ -41,7 +41,7 @@
 
 ;;; Code:
 
-
+(require 'subr-x)
 
 (defconst ac-version "1.5.1"
   "Version of auto-complete in string format.
@@ -65,7 +65,7 @@ Use `version-to-list' to get version component.")
     (auto-complete-mode -1)
     var))
 
-
+
 
 ;;;; Customization
 
@@ -348,7 +348,30 @@ a prefix doesn't contain any upper case letters."
 (defvar auto-complete-mode-hook nil
   "Hook for `auto-complete-mode'.")
 
-
+(defmacro auto-complete-when-let (bindings &rest forms)
+  (declare (indent defun))
+  (if (> emacs-major-version 24)
+      `(when-let ,bindings ,@forms)
+     ;; "Gauche's `and-let*'."
+    (if (null bindings)
+	`(progn ,@forms)
+      (let* ((head (car bindings))
+	     (tail (cdr bindings))
+	     (rest (macroexpand-all `(auto-complete-when-let ,tail ,@forms))))
+	(cond
+	 ((symbolp head) `(if ,head ,rest))
+	 ((= (length head) 1) `(if ,(car head) ,rest))
+	 (t `(let (,head) (if ,(car head) ,rest))))))))
+
+(add-hook 'auto-complete-mode-hook
+	  (lambda ()
+	    "Will not accommodate `c-mode-common-hook'."
+	    (require 'auto-complete-config)
+	    ;; when-let only 25.x
+	    (auto-complete-when-let
+	      ((setup-hook (intern-soft (format "ac-%s-setup" major-mode))))
+	      (when (fboundp setup-hook)
+		(funcall setup-hook)))))
 
 ;;;; Internal variables
 
@@ -499,7 +522,7 @@ If there is no common part, this will be nil.")
     (cc-member . ac-prefix-cc-member))
   "Prefix definitions for common use.")
 
-(defvar ac-sources '(ac-source-words-in-same-mode-buffers)
+(defvar ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers)
   "Sources for completion.")
 (make-variable-buffer-local 'ac-sources)
 
@@ -516,7 +539,7 @@ If there is no common part, this will be nil.")
 
 (defvar ac-ignoring-prefix-def nil)
 
-
+
 
 ;;;; Intelligent completion history
 
@@ -637,7 +660,7 @@ If there is no common part, this will be nil.")
       (pp (ac-comphist-serialize ac-comphist) (current-buffer))
       (write-region (point-min) (point-max) ac-comphist-file))))
 
-
+
 
 ;;;; Dictionary
 (defvar ac-buffer-dictionary nil)
@@ -682,7 +705,7 @@ If there is no common part, this will be nil.")
                    (ac-mode-dictionary major-mode)
                    (mapcar 'ac-file-dictionary ac-dictionary-files))))))
 
-
+
 
 ;;;; Auto completion internals
 
@@ -1444,7 +1467,7 @@ that have been made before in this function.  When `buffer-undo-list' is
   (when ac-quick-help
     (popup-scroll-up ac-quick-help)))
 
-
+
 
 ;;;; Auto completion isearch
 
@@ -1466,7 +1489,7 @@ that have been made before in this function.  When `buffer-undo-list' is
                          :help-delay ac-quick-help-delay))
       (popup-isearch ac-menu :callback 'ac-isearch-callback))))
 
-
+
 
 ;;;; Auto completion commands
 
@@ -1674,7 +1697,7 @@ If given a prefix argument, select the previous candidate."
     (unless started
       (ac-fallback-command 'ac-trigger-key-command))))
 
-
+
 
 ;;;; Basic cache facility
 
@@ -1707,7 +1730,7 @@ If given a prefix argument, select the previous candidate."
     (if (eq (% ac-minutes-counter (cdr pair)) 0)
         (set (car pair) nil))))
 
-
+
 
 ;;;; Auto complete mode
 
@@ -1835,8 +1858,6 @@ If given a prefix argument, select the previous candidate."
   auto-complete-mode auto-complete-mode-maybe
   :group 'auto-complete)
 
-
-
 ;;;; Compatibilities with other extensions
 
 (defun ac-flyspell-workaround ()
@@ -1856,7 +1877,7 @@ completion menu. This workaround stops that annoying behavior."
     (unless ac-completing
       ad-do-it)))
 
-
+
 
 ;;;; Standard sources
 

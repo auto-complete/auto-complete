@@ -7,3 +7,5 @@ README.html
 doc/*.html
 /auto-complete-*/
 /.cask/
+*autoloads*
+dist

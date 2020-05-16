@@ -1,9 +1,11 @@
 (source gnu)
 (source melpa)
 
-(package-file "auto-complete.el")
-(depends-on "popup")
-(depends-on "fuzzy")
+(package-descriptor "auto-complete-pkg.el")
+(files "*.el" "dict")
 
 (development
- (depends-on "ert"))
+ (depends-on "popup")
+ (depends-on "fuzzy")
+ (depends-on "ert-runner")
+ (depends-on "company"))

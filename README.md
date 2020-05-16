@@ -8,7 +8,7 @@ for new maintainers.  If you are interested, then please comment on
 
 # Auto-Complete
 
-[![Build Status](https://secure.travis-ci.org/auto-complete/auto-complete.svg)](http://travis-ci.org/auto-complete/auto-complete)
+[![Build Status](https://github.com/auto-complete/auto-complete/workflows/CI/badge.svg)](https://github.com/auto-complete/auto-complete/actions)
 
 An Intelligent auto-completion extension for Emacs
 
@@ -49,10 +49,19 @@ You can install `auto-complete` with the following command.
 
 ## Basic Configuration
 
+Old style:
 ```lisp
 (ac-config-default)
 ```
 
+More transparent but verbose new style:
+```lisp
+(use-package auto-complete
+  :init (defun ac-c++-mode-setup ()
+          (add-to-list 'ac-sources 'ac-source-yasnippet)
+          (add-to-list 'ac-sources 'ac-source-gtags)))
+(global-auto-complete-mode)
+```
 ## Development
 
 * <http://github.com/auto-complete/auto-complete>

@@ -36,8 +36,6 @@
 (declare-function yas-expand-snippet "yasnippet")
 (declare-function oref "eieio" (obj slot))
 
-
-
 ;;;; Additional sources
 
 ;; imenu
@@ -201,6 +199,10 @@
 
 (defun ac-semantic-action ()
   (when (and (boundp 'yas-minor-mode) yas-minor-mode)
+    ;; warning killer because imprudently playing the runtime-require game
+    (eval-when-compile
+      (when (boundp 'eieio--known-slot-names)
+	(add-to-list 'eieio--known-slot-names 'prefix)))
     (let* ((tag (car (last (oref (semantic-analyze-current-context) prefix))))
            (class (semantic-tag-class tag))
            (args))
@@ -460,7 +462,7 @@
     (symbol . "s")
     (cache)))
 
-
+
 
 ;;;; Not maintained sources
 
@@ -518,7 +520,7 @@
                         (replace-regexp-in-string "\t.*$" "" (car completion)))
                       rct-method-completion-table))))))
 
-
+
 
 ;;;; Default settings
 
@@ -539,13 +541,14 @@
 
 ;;;###autoload
 (defun ac-config-default ()
-  (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
   (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
   (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
   (add-hook 'css-mode-hook 'ac-css-mode-setup)
   (add-hook 'auto-complete-mode-hook 'ac-common-setup)
   (global-auto-complete-mode t))
+
+
 
 (provide 'auto-complete-config)
 ;;; auto-complete-config.el ends here

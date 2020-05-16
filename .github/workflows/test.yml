@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  push:
+    paths-ignore:
+    - '**.md'
+    branches-ignore:
+    - 'master'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        emacs_version: [24.5, 25.3, 26.3, snapshot]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: nix
+      uses: purcell/setup-emacs@master
+      with:
+        version: ${{ matrix.emacs_version }}
+
+    - uses: actions/cache@v1
+      if: startsWith(runner.os, 'Linux')
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-001
+
+    - uses: actions/cache@v1
+      if: startsWith(runner.os, 'macOS')
+      with:
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-pip-001
+
+    - uses: actions/cache@v1
+      with:
+        path: ~/local
+        key: ${{ runner.os }}-local-000
+
+    - uses: actions/cache@v1
+      with:
+        path: ~/.emacs.d
+        key: emacs.d
+
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cask
+        key: cask-001
+
+    - name: paths
+      uses: dickmao/setup-paths@master
+      with:
+        paths: local/bin:local/cask/bin
+
+    - name: apt-get
+      if: startsWith(runner.os, 'Linux')
+      run: |
+        sudo apt-get -yq update
+        DEBIAN_FRONTEND=noninteractive sudo apt-get -yq install gnutls-bin sharutils gnupg2 dirmngr libreadline-dev libcurl4-openssl-dev
+
+    - name: dependencies
+      run: |
+        mkdir -p ~/local/bin
+
+    - name: versions
+      run: |
+        curl --version
+        emacs --version
+
+    - name: gnupg
+      if: startsWith(runner.os, 'macOS')
+      run: |
+         brew list gnupg &>/dev/null || HOMEBREW_NO_AUTO_UPDATE=1 brew install gnupg
+
+    - name: cask
+      run: |
+        sh tools/install-cask.sh
+        cask link list
+
+    - name: test
+      run: |
+        make test
+      continue-on-error: ${{ matrix.emacs_version == 'snapshot' }}
