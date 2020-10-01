@@ -2009,7 +2009,7 @@ completion menu. This workaround stops that annoying behavior."
   (unless (local-variable-p 'ac-word-index)
     (make-local-variable 'ac-word-index))
   (when (and (not (car ac-word-index))
-             (< (buffer-size) 1048576))
+             (< (buffer-size) 1048576))  ; NOTE: Not sure 1048576 means
     ;; Complete index
     (setq ac-word-index
           (cons t
