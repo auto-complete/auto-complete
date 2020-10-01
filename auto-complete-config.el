@@ -431,11 +431,13 @@
   "Current editing property.")
 
 (defun ac-css-prefix ()
+  "No documentation."
   (when (save-excursion (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\=" nil t))
     (setq ac-css-property (match-string 1))
     (or (ac-prefix-symbol) (point))))
 
 (defun ac-css-property-candidates ()
+  "No documentation."
   (let ((list (assoc-default ac-css-property ac-css-property-alist)))
     (if list
         (cl-loop with seen
@@ -477,7 +479,9 @@
 ;; ropemacs
 
 (defvar ac-ropemacs-loaded nil)
+
 (defun ac-ropemacs-require ()
+  "No documentation."
   (with-no-warnings
     (unless ac-ropemacs-loaded
       (pymacs-load "ropemacs" "rope-")
@@ -486,11 +490,13 @@
       (setq ac-ropemacs-loaded t))))
 
 (defun ac-ropemacs-setup ()
+  "No documentation."
   (ac-ropemacs-require)
   ;(setq ac-sources (append (list 'ac-source-ropemacs) ac-sources))
   (setq ac-omni-completion-sources '(("\\." ac-source-ropemacs))))
 
 (defun ac-ropemacs-initialize ()
+  "No documentation."
   (autoload 'pymacs-apply "pymacs")
   (autoload 'pymacs-call "pymacs")
   (autoload 'pymacs-eval "pymacs" nil t)
@@ -533,10 +539,13 @@
 ;;;; Default settings
 
 (defun ac-common-setup ()
-  ;(add-to-list 'ac-sources 'ac-source-filename)
+  "No documentation."
+  ;; TODO: Don't know this is commented; leave an empty function.
+  ;;(add-to-list 'ac-sources 'ac-source-filename)
   )
 
 (defun ac-emacs-lisp-mode-setup ()
+  "No documentation."
   (setq ac-sources (cl-union '(ac-source-features
                                ac-source-functions
                                ac-source-yasnippet
@@ -545,17 +554,23 @@
                              ac-sources)))
 
 (defun ac-cc-mode-setup ()
+  "No documentation."
   (setq ac-sources (cl-union '(ac-source-yasnippet ac-source-gtags)
                              ac-sources)))
 
-(defun ac-ruby-mode-setup ())
+(defun ac-ruby-mode-setup ()
+  "No documentation."
+  ;; TODO: Don't know this is commented; leave an empty function.
+  )
 
 (defun ac-css-mode-setup ()
+  "No documentation."
   (setq ac-sources (cl-union '(ac-source-css-property)
                              ac-sources)))
 
 ;;;###autoload
 (defun ac-config-default ()
+  "No documentation."
   (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
   (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
