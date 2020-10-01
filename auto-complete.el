@@ -48,10 +48,10 @@
 Use `version-to-list' to get version component.")
 
 (defconst ac-version-major (car (version-to-list ac-version))
-  "Major version number of auto-complete")
+  "Major version number of auto-complete.")
 
 (defconst ac-version-minor (cadr (version-to-list ac-version))
-  "Minor version number of auto-complete")
+  "Minor version number of auto-complete.")
 
 (require 'cl-lib)
 (require 'popup)
@@ -59,7 +59,9 @@ Use `version-to-list' to get version component.")
 ;;;; Global stuff
 
 (defun ac-error (&optional var)
-  "Report an error and disable `auto-complete-mode'."
+  "Report an error and disable `auto-complete-mode'.
+
+An optional argument VAR is the message related to the current error."
   (ignore-errors
     (message "auto-complete error: %s" var)
     (auto-complete-mode -1)
@@ -141,7 +143,7 @@ Use `version-to-list' to get version component.")
   :group 'auto-complete)
 
 (defcustom ac-user-dictionary nil
-  "User defined dictionary"
+  "User defined dictionary."
   :type '(repeat string)
   :group 'auto-complete)
 
@@ -191,7 +193,7 @@ Use `version-to-list' to get version component.")
 (defvaralias 'ac-quick-help-prefer-x 'ac-quick-help-prefer-pos-tip)
 
 (defcustom ac-candidate-limit nil
-  "Limit number of candidates. Non-integer means no limit."
+  "Limit number of candidates.  Non-integer means no limit."
   :type 'integer
   :group 'auto-complete)
 (defvaralias 'ac-candidate-max 'ac-candidate-limit)
@@ -265,9 +267,9 @@ and if there is no completions, an original command will be fallbacked."
 
 (defcustom ac-auto-start 2
   "Non-nil means completion will be started automatically.
-Positive integer means if a length of a word you entered is larger than the value,
-completion will be started automatically.
-If you specify `nil', never be started automatically."
+Positive integer means if a length of a word you entered is larger than
+the value, completion will be started automatically.
+If you specify 'nil', never be started automatically."
   :type '(choice (const :tag "Yes" t)
                  (const :tag "Never" nil)
                  (integer :tag "Require"))
@@ -309,17 +311,17 @@ a prefix doesn't contain any upper case letters."
   :group 'auto-complete)
 
 (defcustom ac-disable-inline nil
-  "Non-nil disable inline completion visibility"
+  "Non-nil disable inline completion visibility."
   :type 'boolean
   :group 'auto-complete)
 
 (defcustom ac-candidate-menu-min 1
-  "Number of candidates required to display menu"
+  "Number of candidates required to display menu."
   :type 'integer
   :group 'auto-complete)
 
 (defcustom ac-max-width nil
-  "Maximum width for auto-complete menu to have"
+  "Maximum width for auto-complete menu to have."
   :type '(choice (const :tag "No limit" nil)
                  (const :tag "Character Limit" 25)
                  (const :tag "Window Ratio Limit" 0.5))
