@@ -527,18 +527,23 @@ See also `ac-trigger-key'.")
   "Database of completion history.")
 
 (defsubst ac-comphist-make-tab ()
+  "No documentation."
   (make-hash-table :test 'equal))
 
 (defsubst ac-comphist-tab (db)
+  "No documentation, DB."
   (nth 0 db))
 
 (defsubst ac-comphist-cache (db)
+  "No documentation, DB."
   (nth 1 db))
 
 (defun ac-comphist-make (&optional tab)
+  "No documentation, TAB."
   (list (or tab (ac-comphist-make-tab)) (make-hash-table :test 'equal :weakness t)))
 
 (defun ac-comphist-get (db string &optional create)
+  "No documentation, DB, STRING, CREATE."
   (let* ((tab (ac-comphist-tab db))
          (index (gethash string tab)))
     (when (and create (null index))
@@ -547,6 +552,7 @@ See also `ac-trigger-key'.")
     index))
 
 (defun ac-comphist-add (db string prefix)
+  "No documentation, DB, STRING, PREFIX."
   (setq prefix (min prefix (1- (length string))))
   (when (<= 0 prefix)
     (setq string (substring-no-properties string))
@@ -555,6 +561,7 @@ See also `ac-trigger-key'.")
       (remhash string (ac-comphist-cache db)))))
 
 (defun ac-comphist-score (db string prefix)
+  "No documentation, DB, STRING, PREFIX."
   (setq prefix (min prefix (1- (length string))))
   (if (<= 0 prefix)
       (let ((cache (gethash string (ac-comphist-cache db))))
@@ -581,6 +588,7 @@ See also `ac-trigger-key'.")
     0.0))
 
 (defun ac-comphist-sort (db collection prefix &optional threshold)
+  "No documentation, DB, COLLECTION, PREFIX, THRESHOLD."
   (let (result
         (n 0)
         (total 0)
@@ -603,6 +611,7 @@ See also `ac-trigger-key'.")
       result)))
 
 (defun ac-comphist-serialize (db)
+  "No documentation, DB."
   (let (alist)
     (maphash (lambda (k v)
                (push (cons k v) alist))
@@ -610,6 +619,7 @@ See also `ac-trigger-key'.")
     (list alist)))
 
 (defun ac-comphist-deserialize (sexp)
+  "No documentation, SEXP."
   (condition-case nil
       (ac-comphist-make (let ((tab (ac-comphist-make-tab)))
                           (mapc (lambda (cons)
@@ -619,10 +629,12 @@ See also `ac-trigger-key'.")
     (error (message "Invalid comphist db.") nil)))
 
 (defun ac-comphist-init ()
+  "No documentation."
   (ac-comphist-load)
   (add-hook 'kill-emacs-hook 'ac-comphist-save))
 
 (defun ac-comphist-load ()
+  "No documentation."
   (interactive)
   (let ((db (if (file-exists-p ac-comphist-file)
                 (ignore-errors
@@ -633,6 +645,7 @@ See also `ac-trigger-key'.")
     (setq ac-comphist (or db (ac-comphist-make)))))
 
 (defun ac-comphist-save ()
+  "No documentation."
   (interactive)
   (require 'pp)
   (ignore-errors
@@ -643,10 +656,13 @@ See also `ac-trigger-key'.")
 
 
 ;;;; Dictionary
-(defvar ac-buffer-dictionary nil)
-(defvar ac-file-dictionary (make-hash-table :test 'equal))
+(defvar ac-buffer-dictionary nil
+  "No documentation.")
+(defvar ac-file-dictionary (make-hash-table :test 'equal)
+  "No documentation.")
 
 (defun ac-clear-dictionary-cache ()
+  "No documentation."
   (interactive)
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
@@ -655,6 +671,7 @@ See also `ac-trigger-key'.")
   (clrhash ac-file-dictionary))
 
 (defun ac-file-dictionary (filename)
+  "No documentation, FILENAME."
   (let ((cache (gethash filename ac-file-dictionary 'none)))
     (if (and cache (not (eq cache 'none)))
         cache
@@ -667,6 +684,7 @@ See also `ac-trigger-key'.")
         result))))
 
 (defun ac-mode-dictionary (mode)
+  "No documentation, MODE."
   (cl-loop for name in (cons (symbol-name mode)
                           (ignore-errors (list (file-name-extension (buffer-file-name)))))
         append (cl-loop for dir in ac-dictionary-directories
@@ -675,6 +693,7 @@ See also `ac-trigger-key'.")
                      append (ac-file-dictionary file))))
 
 (defun ac-buffer-dictionary (&optional buffer)
+  "No documentation, BUFFER."
   (with-current-buffer (or buffer (current-buffer))
     (if (local-variable-p 'ac-buffer-dictionary)
         ac-buffer-dictionary
@@ -698,6 +717,7 @@ See also `ac-trigger-key'.")
              (line-beginning-position)))))
 
 (defun ac-stop-word-p (word)
+  "No documentation, WORD."
   (or (member word ac-stop-words)
       (if ac-use-dictionary-as-stop-words
           (member word (ac-buffer-dictionary)))))
@@ -722,6 +742,7 @@ See also `ac-trigger-key'.")
     (if point (1+ point))))
 
 (defsubst ac-windows-remote-file-p (file)
+  "No documentation, FILE."
   (and (memq system-type '(ms-dos windows-nt cygwin))
        (string-match-p "\\`\\(?://\\|\\\\\\\\\\)" file)))
 
@@ -757,16 +778,18 @@ See also `ac-trigger-key'.")
 
 (defun ac-define-prefix (name prefix)
   "Define new prefix definition.
-You can not use it in source definition like (prefix . `NAME')."
+You can not use it in source definition like (PREFIX . `NAME')."
   (push (cons name prefix) ac-prefix-definitions))
 
 (defun ac-match-substring (prefix candidates)
+  "No documentation, PREFIX, CANDIDATES."
   (cl-loop with regexp = (regexp-quote prefix)
            for candidate in candidates
            if (string-match regexp candidate)
            collect candidate))
 
 (defsubst ac-source-entity (source)
+  "No documentation, source."
   (if (symbolp source)
       (symbol-value source)
     source))
