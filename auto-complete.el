@@ -158,9 +158,9 @@ An optional argument VAR is the message related to the current error."
     (when load-file-name
       (let ((installed-dir (file-name-directory load-file-name)))
         (cl-loop for name in '("ac-dict" "dict")
-              for dir = (concat installed-dir name)
-              if (file-directory-p dir)
-              collect dir))))
+                 for dir = (concat installed-dir name)
+                 if (file-directory-p dir)
+                 collect dir))))
   "Dictionary directories."
   :type '(repeat string)
   :group 'auto-complete)
@@ -200,22 +200,22 @@ An optional argument VAR is the message related to the current error."
 
 (defcustom ac-modes
   '(emacs-lisp-mode lisp-mode lisp-interaction-mode
-    slime-repl-mode
-    nim-mode c-mode cc-mode c++-mode objc-mode swift-mode go-mode
-    java-mode malabar-mode clojure-mode clojurescript-mode  scala-mode
-    scheme-mode
-    ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
-    perl-mode cperl-mode python-mode ruby-mode lua-mode tcl-mode
-    ecmascript-mode javascript-mode js-mode js-jsx-mode js2-mode js2-jsx-mode
-    coffee-mode php-mode css-mode scss-mode less-css-mode
-    elixir-mode
-    makefile-mode sh-mode fortran-mode f90-mode ada-mode
-    xml-mode sgml-mode web-mode
-    ts-mode
-    sclang-mode
-    verilog-mode
-    qml-mode
-    apples-mode)
+                    slime-repl-mode
+                    nim-mode c-mode cc-mode c++-mode objc-mode swift-mode go-mode
+                    java-mode malabar-mode clojure-mode clojurescript-mode  scala-mode
+                    scheme-mode
+                    ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
+                    perl-mode cperl-mode python-mode ruby-mode lua-mode tcl-mode
+                    ecmascript-mode javascript-mode js-mode js-jsx-mode js2-mode js2-jsx-mode
+                    coffee-mode php-mode css-mode scss-mode less-css-mode
+                    elixir-mode
+                    makefile-mode sh-mode fortran-mode f90-mode ada-mode
+                    xml-mode sgml-mode web-mode
+                    ts-mode
+                    sclang-mode
+                    verilog-mode
+                    qml-mode
+                    apples-mode)
   "Major modes `auto-complete-mode' can run on."
   :type '(repeat symbol)
   :group 'auto-complete)
@@ -570,14 +570,14 @@ See also `ac-trigger-key'.")
                   (score 0.0))
               (when stat
                 (cl-loop for p from 0 below (length string)
-                      ;; sigmoid function
-                      with a = 5
-                      with b = (/ 700.0 a) ; bounds for avoiding range error in `exp'
-                      with d = (/ 6.0 a)
-                      for x = (max (- b) (min b (- d (abs (- prefix p)))))
-                      for r = (/ 1.0 (1+ (exp (* (- a) x))))
-                      do
-                      (cl-incf score (* (aref stat p) r))))
+                         ;; sigmoid function
+                         with a = 5
+                         with b = (/ 700.0 a) ; bounds for avoiding range error in `exp'
+                         with d = (/ 6.0 a)
+                         for x = (max (- b) (min b (- d (abs (- prefix p)))))
+                         for r = (/ 1.0 (1+ (exp (* (- a) x))))
+                         do
+                         (cl-incf score (* (aref stat p) r))))
               ;; Weight by distance
               (cl-incf score (max 0.0 (- 0.3 (/ (- (length string) prefix) 100.0))))
               (unless cache
@@ -686,11 +686,11 @@ See also `ac-trigger-key'.")
 (defun ac-mode-dictionary (mode)
   "No documentation, MODE."
   (cl-loop for name in (cons (symbol-name mode)
-                          (ignore-errors (list (file-name-extension (buffer-file-name)))))
-        append (cl-loop for dir in ac-dictionary-directories
-                     for file = (concat dir "/" name)
-                     if (file-exists-p file)
-                     append (ac-file-dictionary file))))
+                             (ignore-errors (list (file-name-extension (buffer-file-name)))))
+           append (cl-loop for dir in ac-dictionary-directories
+                           for file = (concat dir "/" name)
+                           if (file-exists-p file)
+                           append (ac-file-dictionary file))))
 
 (defun ac-buffer-dictionary (&optional buffer)
   "No documentation, BUFFER."
@@ -727,8 +727,8 @@ See also `ac-trigger-key'.")
   (let ((start (ac-prefix-symbol))
         (case-fold-search t))
     (when (and start
-             (not (string-match-p "\\`\\(?:0[xbo][0-9a-f]+\\|[0-9]+\\)"
-                                (buffer-substring-no-properties start (point)))))
+               (not (string-match-p "\\`\\(?:0[xbo][0-9a-f]+\\|[0-9]+\\)"
+                                    (buffer-substring-no-properties start (point)))))
       start)))
 
 (defun ac-prefix-symbol ()
@@ -893,9 +893,9 @@ You can not use it in source definition like (PREFIX . `NAME')."
                     (< width string-width)
                     (setq c (char-after))
                     (not (eq c ?\t)))   ; special case for tab
-        (cl-incf width (char-width c))
-        (cl-incf length)
-        (forward-char)))
+          (cl-incf width (char-width c))
+          (cl-incf length)
+          (forward-char)))
 
       ;; Show completion
       (goto-char point)
@@ -1458,14 +1458,14 @@ that have been made before in this function.  When `buffer-undo-list' is
                  (null this-command))
              (ac-menu-live-p)
              (null ac-quick-help))
-      (setq ac-quick-help
-            (funcall (if (ac-quick-help-use-pos-tip-p)
-                         'ac-pos-tip-show-quick-help
-                       'popup-menu-show-quick-help)
-                     ac-menu nil
-                     :point ac-point
-                     :height ac-quick-help-height
-                     :nowait t))))
+    (setq ac-quick-help
+          (funcall (if (ac-quick-help-use-pos-tip-p)
+                       'ac-pos-tip-show-quick-help
+                     'popup-menu-show-quick-help)
+                   ac-menu nil
+                   :point ac-point
+                   :height ac-quick-help-height
+                   :nowait t))))
 
 (defun ac-remove-quick-help ()
   "No documentation."
@@ -1621,10 +1621,10 @@ If given a prefix argument, select the previous candidate."
           (setq string (ac-selected-candidate)))
         (ac-expand-string string
                           (or (eq last-command 'ac-expand)
-                             (eq last-command 'ac-expand-previous)))
+                              (eq last-command 'ac-expand-previous)))
         ;; Do reposition if menu at long line
         (if (and (> (popup-direction ac-menu) 0)
-               (ac-menu-at-wrapper-line-p))
+                 (ac-menu-at-wrapper-line-p))
             (ac-reposition))
         (setq ac-show-menu t)
         string))))
