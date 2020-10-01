@@ -485,8 +485,8 @@
   (with-no-warnings
     (unless ac-ropemacs-loaded
       (pymacs-load "ropemacs" "rope-")
-      (if (boundp 'ropemacs-enable-autoimport)
-          (setq ropemacs-enable-autoimport t))
+      (when (boundp 'ropemacs-enable-autoimport)
+        (setq ropemacs-enable-autoimport t))
       (setq ac-ropemacs-loaded t))))
 
 (defun ac-ropemacs-setup ()
