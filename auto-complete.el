@@ -199,23 +199,24 @@ An optional argument VAR is the message related to the current error."
 (defvaralias 'ac-candidate-max 'ac-candidate-limit)
 
 (defcustom ac-modes
-  '(emacs-lisp-mode lisp-mode lisp-interaction-mode
-                    slime-repl-mode
-                    nim-mode c-mode cc-mode c++-mode objc-mode swift-mode go-mode
-                    java-mode malabar-mode clojure-mode clojurescript-mode  scala-mode
-                    scheme-mode
-                    ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
-                    perl-mode cperl-mode python-mode ruby-mode lua-mode tcl-mode
-                    ecmascript-mode javascript-mode js-mode js-jsx-mode js2-mode js2-jsx-mode
-                    coffee-mode php-mode css-mode scss-mode less-css-mode
-                    elixir-mode
-                    makefile-mode sh-mode fortran-mode f90-mode ada-mode
-                    xml-mode sgml-mode web-mode
-                    ts-mode
-                    sclang-mode
-                    verilog-mode
-                    qml-mode
-                    apples-mode)
+  (list
+   emacs-lisp-mode lisp-mode lisp-interaction-mode
+   slime-repl-mode
+   nim-mode c-mode cc-mode c++-mode objc-mode swift-mode go-mode
+   java-mode malabar-mode clojure-mode clojurescript-mode  scala-mode
+   scheme-mode
+   ocaml-mode tuareg-mode coq-mode haskell-mode agda-mode agda2-mode
+   perl-mode cperl-mode python-mode ruby-mode lua-mode tcl-mode
+   ecmascript-mode javascript-mode js-mode js-jsx-mode js2-mode js2-jsx-mode
+   coffee-mode php-mode css-mode scss-mode less-css-mode
+   elixir-mode
+   makefile-mode sh-mode fortran-mode f90-mode ada-mode
+   xml-mode sgml-mode web-mode
+   ts-mode
+   sclang-mode
+   verilog-mode
+   qml-mode
+   apples-mode)
   "Major modes `auto-complete-mode' can run on."
   :type '(repeat symbol)
   :group 'auto-complete)
