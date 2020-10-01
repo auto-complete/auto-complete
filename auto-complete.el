@@ -1255,11 +1255,10 @@ TODO Missing documentation CURSOR, SCROLL-TOP."
   (ac-cleanup))
 
 (defun ac-extend-region-to-delete (string)
-  "Determine the boundary of the region to delete before
-inserting the completed string. This will be either the position
-of current point, or the end of the symbol at point, if the text
-from point to end of symbol is the right part of the completed
-string."
+  "Determine the boundary of the region to delete before inserting the \
+completed string.  This will be either the position of current point, or
+the end of the symbol at point, if the text from point to end of symbol
+is the right part of the completed STRING."
   (let* ((end-of-symbol (or (cdr-safe (bounds-of-thing-at-point 'symbol))
                             (point)))
          (remaindar (buffer-substring-no-properties (point) end-of-symbol))
@@ -1273,9 +1272,9 @@ string."
 (defun ac-expand-string (string &optional remove-undo-boundary)
   "Expand `STRING' into the buffer and update `ac-prefix' to `STRING'.
 This function records deletion and insertion sequences by `undo-boundary'.
-If `remove-undo-boundary' is non-nil, this function also removes `undo-boundary'
+If REMOVE-UNDO-BOUNDARY is non-nil, this function also removes `undo-boundary'
 that have been made before in this function.  When `buffer-undo-list' is
-`t', `remove-undo-boundary' has no effect."
+'t', REMOVE-UNDO-BOUNDARY has no effect."
   (when (eq buffer-undo-list t)
     (setq remove-undo-boundary nil))
   (when (not (equal string (buffer-substring ac-point (point))))
@@ -1305,7 +1304,7 @@ that have been made before in this function.  When `buffer-undo-list' is
     (setq ac-prefix string)))
 
 (defun ac-set-trigger-key (key)
-  "Set `ac-trigger-key' to `KEY'. It is recommemded to use this function instead of calling `setq'."
+  "Set `ac-trigger-key' to `KEY'.  It is recommemded to use this function instead of calling `setq'."
   ;; Remove old mapping
   (when ac-trigger-key
     (define-key ac-mode-map (read-kbd-macro ac-trigger-key) nil))
@@ -1391,7 +1390,7 @@ that have been made before in this function.  When `buffer-undo-list' is
   (ac-help t))
 
 (defun ac-last-help (&optional persist)
-  "No documentation."
+  "No documentation, PERSIST."
   (interactive "P")
   (when ac-last-completion
     (popup-item-show-help (cdr ac-last-completion) persist)))
@@ -1502,13 +1501,11 @@ that have been made before in this function.  When `buffer-undo-list' is
      (put ',name 'ac-quick-help-command t)))
 
 (ac-define-quick-help-command ac-quick-help-scroll-down ()
-                              "No documentation."
   (interactive)
   (when ac-quick-help
     (popup-scroll-down ac-quick-help)))
 
 (ac-define-quick-help-command ac-quick-help-scroll-up ()
-                              "No documentation."
   (interactive)
   (when ac-quick-help
     (popup-scroll-up ac-quick-help)))
@@ -1518,9 +1515,11 @@ that have been made before in this function.  When `buffer-undo-list' is
 ;;;; Auto completion isearch
 
 (defun ac-isearch-callback (list)
+  "No documentation."
   (setq ac-dwim-enable (eq (length list) 1)))
 
 (defun ac-isearch ()
+  "No documentation."
   (interactive)
   (when (ac-menu-live-p)
     (ac-cancel-show-menu-timer)
@@ -1648,6 +1647,7 @@ If given a prefix argument, select the previous candidate."
       t)))
 
 (defun ac-complete-1 (candidate)
+  "No documentation, CANDIDATE."
   (let ((action (popup-item-property candidate 'action))
         (fallback nil))
     (when candidate
