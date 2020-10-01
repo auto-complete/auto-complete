@@ -44,14 +44,14 @@
 
 
 (defconst ac-version "1.5.1"
-  "Version of auto-complete in string format.
+  "Version of `auto-complete' in string format.
 Use `version-to-list' to get version component.")
 
 (defconst ac-version-major (car (version-to-list ac-version))
-  "Major version number of auto-complete.")
+  "Major version number of `auto-complete'.")
 
 (defconst ac-version-minor (cadr (version-to-list ac-version))
-  "Minor version number of auto-complete.")
+  "Minor version number of `auto-complete'.")
 
 (require 'cl-lib)
 (require 'popup)
@@ -59,7 +59,7 @@ Use `version-to-list' to get version component.")
 ;;;; Global stuff
 
 (defun ac-error (&optional var)
-  "Report an error and disable `auto-complete-mode'.
+  "Report an error and disable 'auto-complete-mode'.
 
 An optional argument VAR is the message related to the current error."
   (ignore-errors
@@ -217,13 +217,13 @@ An optional argument VAR is the message related to the current error."
    '(verilog-mode)
    '(qml-mode)
    '(apples-mode))
-  "Major modes `auto-complete-mode' can run on."
+  "Major modes 'auto-complete-mode' can run on."
   :type '(repeat symbol)
   :group 'auto-complete)
 
 (defcustom ac-compatible-packages-regexp
   "^ac-"
-  "Regexp to indicate what packages can work with auto-complete."
+  "Regexp to indicate what packages can work with `auto-complete'."
   :type 'string
   :group 'auto-complete)
 
@@ -288,8 +288,8 @@ If you specify 'nil', never be started automatically."
   :group 'auto-complete)
 
 (defcustom ac-ignore-case 'smart
-  "Non-nil means auto-complete ignores case.
-If this value is `smart', auto-complete ignores case only when
+  "Non-nil means `auto-complete' ignores case.
+If this value is `smart', `auto-complete' ignores case only when
 a prefix doesn't contain any upper case letters."
   :type '(choice (const :tag "Yes" t)
                  (const :tag "Smart" smart)
@@ -322,7 +322,7 @@ a prefix doesn't contain any upper case letters."
   :group 'auto-complete)
 
 (defcustom ac-max-width nil
-  "Maximum width for auto-complete menu to have."
+  "Maximum width for `auto-complete' menu to have."
   :type '(choice (const :tag "No limit" nil)
                  (const :tag "Character Limit" 25)
                  (const :tag "Window Ratio Limit" 0.5))
@@ -349,7 +349,7 @@ a prefix doesn't contain any upper case letters."
   :group 'auto-complete)
 
 (defvar auto-complete-mode-hook nil
-  "Hook for `auto-complete-mode'.")
+  "Hook for 'auto-complete-mode'.")
 
 
 
@@ -377,10 +377,10 @@ a prefix doesn't contain any upper case letters."
   "Quick help instance.")
 
 (defvar ac-completing nil
-  "Non-nil means `auto-complete-mode' is now working on completion.")
+  "Non-nil means 'auto-complete-mode' is now working on completion.")
 
 (defvar ac-buffer nil
-  "Buffer where auto-complete is started.")
+  "Buffer where `auto-complete' is started.")
 
 (defvar ac-point nil
   "Start point of prefix.")
@@ -511,7 +511,7 @@ See also `ac-trigger-key'.")
   "Compiled source of `ac-sources'.")
 
 (defvar ac-current-sources nil
-  "Current working sources.  This is sublist of `ac-compiled-sources'.")
+  "Current working sources.  This is sublist of 'ac-compiled-sources'.")
 
 (defvar ac-omni-completion-sources nil
   "Do not use this anymore.")
@@ -1174,7 +1174,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
                candidates))))
 
 (defun ac-update-candidates (cursor scroll-top)
-  "Update candidates of menu to `ac-candidates' and redraw it.
+  "Update candidates of menu to 'ac-candidates' and redraw it.
 
 TODO Missing documentation CURSOR, SCROLL-TOP."
   (setf (popup-cursor ac-menu) cursor
@@ -1196,7 +1196,7 @@ TODO Missing documentation CURSOR, SCROLL-TOP."
         (popup-draw ac-menu))))
 
 (defun ac-reposition ()
-  "Force to redraw candidate menu with current `ac-candidates'."
+  "Force to redraw candidate menu with current 'ac-candidates'."
   (let ((cursor (popup-cursor ac-menu))
         (scroll-top (popup-scroll-top ac-menu))
         (height (popup-height ac-menu)))
@@ -1271,7 +1271,7 @@ is the right part of the completed STRING."
       (point))))
 
 (defun ac-expand-string (string &optional remove-undo-boundary)
-  "Expand `STRING' into the buffer and update `ac-prefix' to `STRING'.
+  "Expand `STRING' into the buffer and update 'ac-prefix' to `STRING'.
 This function records deletion and insertion sequences by `undo-boundary'.
 If REMOVE-UNDO-BOUNDARY is non-nil, this function also removes `undo-boundary'
 that have been made before in this function.  When `buffer-undo-list' is
@@ -1516,7 +1516,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 ;;;; Auto completion isearch
 
 (defun ac-isearch-callback (list)
-  "No documentation."
+  "No documentation, LIST."
   (setq ac-dwim-enable (eq (length list) 1)))
 
 (defun ac-isearch ()
@@ -1540,6 +1540,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 ;;;; Auto completion commands
 
 (cl-defun auto-complete-1 (&key sources (triggered 'command))
+  "No documentation."
   (let ((menu-live (ac-menu-live-p))
         (inline-live (ac-inline-live-p))
         started)
