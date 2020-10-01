@@ -795,9 +795,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
 
 (defsubst ac-source-entity (source)
   "No documentation, SOURCE."
-  (if (symbolp source)
-      (symbol-value source)
-    source))
+  (if (symbolp source) (symbol-value source) source))
 
 (defun ac-source-available-p (source)
   "No documentation, SOURCE."
