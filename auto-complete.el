@@ -843,11 +843,10 @@ You can not use it in source definition like (PREFIX . `NAME')."
 (defun ac-compiled-sources ()
   "No documentation."
   (or ac-compiled-sources
-      (setq ac-compiled-sources
-            (ac-compile-sources ac-sources))))
+      (setq ac-compiled-sources (ac-compile-sources ac-sources))))
 
 (defsubst ac-menu-live-p ()
-  "No documentation."
+  "Return non-nil if menu is alive."
   (popup-live-p ac-menu))
 
 (defun ac-menu-create (point width height)
@@ -866,7 +865,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
                       )))
 
 (defun ac-menu-delete ()
-  "No documentation."
+  "Delete the completion menu."
   (when ac-menu
     (popup-delete ac-menu)
     (setq ac-menu nil)))
