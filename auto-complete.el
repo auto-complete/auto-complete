@@ -482,9 +482,9 @@ See also `ac-trigger-key'.")
     (define-key map [mouse-1] 'ac-mouse-1)
     (define-key map [down-mouse-1] 'ac-ignore)
     (if (string-equal system-type "gnu/linux")
-	(progn
-	  (define-key map [mouse-4] 'ac-mouse-4)
-	  (define-key map [mouse-5] 'ac-mouse-5))
+    (progn
+      (define-key map [mouse-4] 'ac-mouse-4)
+      (define-key map [mouse-5] 'ac-mouse-5))
       (define-key map [wheel-up] 'ac-mouse-4)
       (define-key map [wheel-down] 'ac-mouse-5))
     map)
@@ -671,8 +671,8 @@ See also `ac-trigger-key'.")
   (interactive)
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
-      (if (local-variable-p 'ac-buffer-dictionary)
-          (kill-local-variable 'ac-buffer-dictionary))))
+      (when (local-variable-p 'ac-buffer-dictionary)
+        (kill-local-variable 'ac-buffer-dictionary))))
   (clrhash ac-file-dictionary))
 
 (defun ac-file-dictionary (filename)
