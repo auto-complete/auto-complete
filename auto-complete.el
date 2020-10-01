@@ -789,12 +789,13 @@ You can not use it in source definition like (PREFIX . `NAME')."
            collect candidate))
 
 (defsubst ac-source-entity (source)
-  "No documentation, source."
+  "No documentation, SOURCE."
   (if (symbolp source)
       (symbol-value source)
     source))
 
 (defun ac-source-available-p (source)
+  "No documentation, SOURCE."
   (if (and (symbolp source)
            (get source 'available))
       (eq (get source 'available) t)
@@ -837,14 +838,17 @@ You can not use it in source definition like (PREFIX . `NAME')."
            and collect source))
 
 (defun ac-compiled-sources ()
+  "No documentation."
   (or ac-compiled-sources
       (setq ac-compiled-sources
             (ac-compile-sources ac-sources))))
 
 (defsubst ac-menu-live-p ()
+  "No documentation."
   (popup-live-p ac-menu))
 
 (defun ac-menu-create (point width height)
+  "No documentation POINT, WIDTH, HEIGHT."
   (setq ac-menu
         (popup-create point width height
                       :around t
@@ -859,17 +863,21 @@ You can not use it in source definition like (PREFIX . `NAME')."
                       )))
 
 (defun ac-menu-delete ()
+  "No documentation."
   (when ac-menu
     (popup-delete ac-menu)
     (setq ac-menu nil)))
 
 (defsubst ac-inline-overlay ()
+  "No documentation."
   (nth 0 ac-inline))
 
 (defsubst ac-inline-live-p ()
+  "No documentation."
   (and ac-inline (ac-inline-overlay) t))
 
 (defun ac-inline-show (point string)
+  "No documentation, POINT, STRING."
   (unless ac-inline
     (setq ac-inline (list nil)))
   (save-excursion
@@ -926,12 +934,14 @@ You can not use it in source definition like (PREFIX . `NAME')."
       (overlay-put overlay 'string original-string))))
 
 (defun ac-inline-delete ()
+  "No documentation."
   (when (ac-inline-live-p)
     (ac-inline-hide)
     (delete-overlay (ac-inline-overlay))
     (setq ac-inline nil)))
 
 (defun ac-inline-hide ()
+  "No documentation."
   (when (ac-inline-live-p)
     (let ((overlay (ac-inline-overlay))
           (buffer-undo-list t))
@@ -942,6 +952,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
         (overlay-put overlay 'after-string nil)))))
 
 (defun ac-inline-update ()
+  "No documentation."
   (if (and ac-completing ac-prefix (stringp ac-common-part))
       (let ((common-part-length (length ac-common-part))
             (prefix-length (length ac-prefix)))
@@ -953,6 +964,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
     (ac-inline-delete)))
 
 (defun ac-put-prefix-overlay ()
+  "No documentation."
   (unless ac-prefix-overlay
     (let (newline)
       ;; Insert newline to make sure that cursor always on the overlay
@@ -966,6 +978,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
       (overlay-put ac-prefix-overlay 'newline newline))))
 
 (defun ac-remove-prefix-overlay ()
+  "No documentation."
   (when ac-prefix-overlay
     (when (overlay-get ac-prefix-overlay 'newline)
       ;; Remove inserted newline
@@ -976,6 +989,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
     (delete-overlay ac-prefix-overlay)))
 
 (defun ac-activate-completing-map ()
+  "No documentation."
   (if (and ac-show-menu ac-use-menu-map)
       (set-keymap-parent ac-current-map ac-menu-map))
   (when (and ac-use-overriding-local-map
@@ -985,6 +999,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) ac-current-map)))
 
 (defun ac-deactivate-completing-map ()
+  "No documentation."
   (set-keymap-parent ac-current-map ac-completing-map)
   (when (and ac-use-overriding-local-map
              (eq overriding-terminal-local-map ac-current-map))
@@ -993,10 +1008,12 @@ You can not use it in source definition like (PREFIX . `NAME')."
     (set-keymap-parent (overlay-get ac-prefix-overlay 'keymap) nil)))
 
 (defsubst ac-selected-candidate ()
+  "No documentation."
   (if ac-menu
       (popup-selected-item ac-menu)))
 
 (defun ac-prefix (requires ignore-list)
+  "No documentation, REQUIRES, IGNORE-LIST."
   (cl-loop with current = (point)
            with point
            with point-def
@@ -1052,6 +1069,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
                (eval function))))))
 
 (defun ac-candidates-1 (source)
+  "No documentation, SOURCE."
   (let* ((do-cache (assq 'cache source))
          (function (assoc-default 'candidates source))
          (action (assoc-default 'action source))
@@ -1095,6 +1113,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
     candidates))
 
 (defun ac-delete-duplicated-candidates (candidates)
+  "No documentation, CANDIDATES."
   (cl-delete-duplicates
    candidates
    :test (lambda (x y)
@@ -1106,6 +1125,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
    :from-end t))
 
 (defun ac-reduce-candidates (candidates)
+  "No documentation, CANDIDATES."
   ;; Call `ac-delete-duplicated-candidates' on first portion of
   ;; candidate list for speed.
   (let ((size 20))
@@ -1153,7 +1173,9 @@ You can not use it in source definition like (PREFIX . `NAME')."
                candidates))))
 
 (defun ac-update-candidates (cursor scroll-top)
-  "Update candidates of menu to `ac-candidates' and redraw it."
+  "Update candidates of menu to `ac-candidates' and redraw it.
+
+TODO Missing documentation CURSOR, SCROLL-TOP."
   (setf (popup-cursor ac-menu) cursor
         (popup-scroll-top ac-menu) scroll-top)
   (setq ac-dwim-enable (= (length ac-candidates) 1))
@@ -1294,15 +1316,18 @@ that have been made before in this function.  When `buffer-undo-list' is
     (define-key ac-mode-map (read-kbd-macro key) 'ac-trigger-key-command)))
 
 (defun ac-set-timer ()
+  "No documentation."
   (unless ac-timer
     (setq ac-timer (run-with-idle-timer ac-delay ac-delay 'ac-update-greedy))))
 
 (defun ac-cancel-timer ()
+  "No documentation."
   (when (timerp ac-timer)
     (cancel-timer ac-timer)
     (setq ac-timer nil)))
 
 (defun ac-update (&optional force)
+  "No documentation, FORCE."
   (when (and auto-complete-mode
              ac-prefix
              (or ac-triggered
@@ -1325,6 +1350,7 @@ that have been made before in this function.  When `buffer-undo-list' is
     t))
 
 (defun ac-update-greedy (&optional force)
+  "No documentation, FORCE."
   (let (result)
     (while (when (and (setq result (ac-update force))
                       (null ac-candidates))
@@ -1334,16 +1360,19 @@ that have been made before in this function.  When `buffer-undo-list' is
     result))
 
 (defun ac-set-show-menu-timer ()
+  "No documentation."
   (when (and (or (integerp ac-auto-show-menu) (floatp ac-auto-show-menu))
              (null ac-show-menu-timer))
     (setq ac-show-menu-timer (run-with-idle-timer ac-auto-show-menu ac-auto-show-menu 'ac-show-menu))))
 
 (defun ac-cancel-show-menu-timer ()
+  "No documentation."
   (when (timerp ac-show-menu-timer)
     (cancel-timer ac-show-menu-timer)
     (setq ac-show-menu-timer nil)))
 
 (defun ac-show-menu ()
+  "No documentation."
   (when (not (eq ac-show-menu t))
     (setq ac-show-menu t)
     (ac-inline-hide)
@@ -1351,34 +1380,41 @@ that have been made before in this function.  When `buffer-undo-list' is
     (ac-update t)))
 
 (defun ac-help (&optional persist)
+  "No documentation, PERSIST."
   (interactive "P")
   (when ac-menu
     (popup-menu-show-help ac-menu persist)))
 
 (defun ac-persist-help ()
+  "No documentation."
   (interactive)
   (ac-help t))
 
 (defun ac-last-help (&optional persist)
+  "No documentation."
   (interactive "P")
   (when ac-last-completion
     (popup-item-show-help (cdr ac-last-completion) persist)))
 
 (defun ac-last-persist-help ()
+  "No documentation."
   (interactive)
   (ac-last-help t))
 
 (defun ac-set-quick-help-timer ()
+  "No documentation."
   (when (and ac-use-quick-help
              (null ac-quick-help-timer))
     (setq ac-quick-help-timer (run-with-idle-timer ac-quick-help-delay ac-quick-help-delay 'ac-quick-help))))
 
 (defun ac-cancel-quick-help-timer ()
+  "No documentation."
   (when (timerp ac-quick-help-timer)
     (cancel-timer ac-quick-help-timer)
     (setq ac-quick-help-timer nil)))
 
 (defun ac-pos-tip-show-quick-help (menu &optional item &rest args)
+  "No documentation, MENU, ITEM, ARGS."
   (let* ((point (plist-get args :point))
          (around nil)
          (parent-offset (popup-offset menu))
@@ -1406,11 +1442,13 @@ that have been made before in this function.  When `buffer-undo-list' is
           t)))))
 
 (defun ac-quick-help-use-pos-tip-p ()
+  "No documentation."
   (and ac-quick-help-prefer-pos-tip
        window-system
        (featurep 'pos-tip)))
 
 (defun ac-quick-help (&optional force)
+  "No documentation, FORCE."
   (interactive)
   ;; TODO don't use FORCE
   (when (and (or force
@@ -1431,6 +1469,7 @@ that have been made before in this function.  When `buffer-undo-list' is
                      :nowait t))))
 
 (defun ac-remove-quick-help ()
+  "No documentation."
   (when (ac-quick-help-use-pos-tip-p)
     (with-no-warnings
       (pos-tip-hide)))
@@ -1439,6 +1478,7 @@ that have been made before in this function.  When `buffer-undo-list' is
     (setq ac-quick-help nil)))
 
 (defun ac-last-quick-help ()
+  "No documentation."
   (interactive)
   (when (and ac-last-completion
              (eq (marker-buffer (car ac-last-completion))
@@ -1455,17 +1495,20 @@ that have been made before in this function.  When `buffer-undo-list' is
                      :margin t))))))
 
 (defmacro ac-define-quick-help-command (name arglist &rest body)
+  "No documentation, NAME, ARGLIST, BODY."
   (declare (indent 2))
   `(progn
      (defun ,name ,arglist ,@body)
      (put ',name 'ac-quick-help-command t)))
 
 (ac-define-quick-help-command ac-quick-help-scroll-down ()
+                              "No documentation."
   (interactive)
   (when ac-quick-help
     (popup-scroll-down ac-quick-help)))
 
 (ac-define-quick-help-command ac-quick-help-scroll-up ()
+                              "No documentation."
   (interactive)
   (when ac-quick-help
     (popup-scroll-up ac-quick-help)))
