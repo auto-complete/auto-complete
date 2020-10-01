@@ -47,6 +47,7 @@
 (ac-clear-variable-every-10-minutes 'ac-imenu-index)
 
 (defun ac-imenu-candidates ()
+  "No documentation."
   (cl-loop with i = 0
            with stack = (progn
                           (unless (local-variable-p 'ac-imenu-index)
@@ -95,6 +96,7 @@
   :group 'auto-complete)
 
 (defun ac-gtags-candidate ()
+  "No documentation."
   (ignore-errors
     (split-string (shell-command-to-string (format "global -ciq %s" ac-prefix)) "\n")))
 
@@ -119,6 +121,7 @@
   :group 'auto-complete)
 
 (defun ac-yasnippet-table-hash (table)
+  "No documentation, TABLE."
   (cond
    ((fboundp 'yas/snippet-table-hash)
     (yas/snippet-table-hash table))
@@ -126,6 +129,7 @@
     (yas/table-hash table))))
 
 (defun ac-yasnippet-table-parent (table)
+  "No documentation, TABLE."
   (cond
    ((fboundp 'yas/snippet-table-parent)
     (yas/snippet-table-parent table))
@@ -133,6 +137,7 @@
     (yas/table-parent table))))
 
 (defun ac-yasnippet-candidate-1 (table)
+  "No documentation, TABLE."
   (with-no-warnings
     (let ((hashtab (ac-yasnippet-table-hash table))
           (parent (ac-yasnippet-table-parent table))
@@ -147,6 +152,7 @@
       candidates)))
 
 (defun ac-yasnippet-candidates ()
+  "No documentation."
   (with-no-warnings
     (cond (;; 0.8 onwards
            (fboundp 'yas-active-keys)
@@ -180,6 +186,7 @@
 ;; semantic
 
 (defun ac-semantic-candidates (prefix)
+  "No documentation, PREFIX."
   (with-no-warnings
     (delete ""            ; semantic sometimes returns an empty string
             (mapcar (lambda (elem)
@@ -191,6 +198,7 @@
                           (senator-find-tag-for-completion prefix)))))))
 
 (defun ac-semantic-doc (symbol)
+  "No documentation, SYMBOL."
   (with-no-warnings
     (let* ((proto (semantic-format-tag-summarize-with-file symbol nil t))
            (doc (semantic-documentation-for-tag symbol))
@@ -200,6 +208,7 @@
       res)))
 
 (defun ac-semantic-action ()
+  "No documentation."
   (when (and (boundp 'yas-minor-mode) yas-minor-mode)
     (let* ((tag (car (last (oref (semantic-analyze-current-context) prefix))))
            (class (semantic-tag-class tag))
@@ -242,6 +251,7 @@
 ;; eclim
 
 (defun ac-eclim-candidates ()
+  "No documentation."
   (with-no-warnings
     (cl-loop for c in (eclim/java-complete)
              collect (nth 1 c))))
