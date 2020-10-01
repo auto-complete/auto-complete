@@ -1723,19 +1723,23 @@ If given a prefix argument, select the previous candidate."
   (interactive))
 
 (defun ac-mouse-1 (event)
+  "No documentation, EVENT."
   (interactive "e")
   (popup-awhen (popup-menu-item-of-mouse-event event)
     (ac-complete-1 it)))
 
 (defun ac-mouse-4 (event)
+  "No documentation, EVENT."
   (interactive "e")
   (ac-previous))
 
 (defun ac-mouse-5 (event)
+  "No documentation, EVENT."
   (interactive "e")
   (ac-next))
 
 (defun ac-trigger-key-command (&optional force)
+  "No documentation, FORCE."
   (interactive "P")
   (let (started)
     (when (or force (ac-trigger-command-p last-command))
@@ -1753,24 +1757,30 @@ If given a prefix argument, select the previous candidate."
 (defvar ac-minutes-counter 0)
 
 (defun ac-clear-variable-after-save (variable &optional pred)
+  "No documentation."
   (add-to-list 'ac-clear-variables-after-save (cons variable pred)))
 
 (defun ac-clear-variables-after-save ()
+  "No documentation."
   (dolist (pair ac-clear-variables-after-save)
     (if (or (null (cdr pair))
             (funcall (cdr pair)))
         (set (car pair) nil))))
 
 (defun ac-clear-variable-every-minutes (variable minutes)
+  "No documentation."
   (add-to-list 'ac-clear-variables-every-minute (cons variable minutes)))
 
 (defun ac-clear-variable-every-minute (variable)
+  "No documentation."
   (ac-clear-variable-every-minutes variable 1))
 
 (defun ac-clear-variable-every-10-minutes (variable)
+  "No documentation."
   (ac-clear-variable-every-minutes variable 10))
 
 (defun ac-clear-variables-every-minute ()
+  "No documentation."
   (cl-incf ac-minutes-counter)
   (dolist (pair ac-clear-variables-every-minute)
     (if (eq (% ac-minutes-counter (cdr pair)) 0)
@@ -1781,6 +1791,7 @@ If given a prefix argument, select the previous candidate."
 ;;;; Auto complete mode
 
 (defun ac-cursor-on-diable-face-p (&optional point)
+  "No documentation."
   (memq (get-text-property (or point (point)) 'face) ac-disable-faces))
 
 (defun ac-trigger-command-p (command)
@@ -1792,12 +1803,14 @@ If given a prefix argument, select the previous candidate."
            (string-match "electric" (symbol-name command)))))
 
 (defun ac-fallback-key-sequence ()
+  "No documentation."
   (setq unread-command-events
         (append (this-single-command-raw-keys)
                 unread-command-events))
   (read-key-sequence-vector ""))
 
 (defun ac-fallback-command (&optional except-command)
+  "No documentation."
   (let* ((auto-complete-mode nil)
          (keys (ac-fallback-key-sequence))
          (command (and keys (key-binding keys))))
@@ -1831,6 +1844,7 @@ If given a prefix argument, select the previous candidate."
     (error (ac-error var))))
 
 (defun ac-handle-post-command ()
+  "No documentation."
   (condition-case var
       (when (and ac-triggered
                  (or ac-auto-start
@@ -1846,6 +1860,7 @@ If given a prefix argument, select the previous candidate."
   "Timer to poll end of completion.")
 
 (defun ac-syntax-checker-workaround ()
+  "No documentation."
   (if ac-stop-flymake-on-completing
       (progn
         (make-local-variable 'ac-flycheck-poll-completion-end-timer)
@@ -1867,6 +1882,7 @@ If given a prefix argument, select the previous candidate."
       (ad-disable-advice 'flycheck-handle-idle-change 'around 'ac-flycheck-stop-advice))))
 
 (defun ac-setup ()
+  "No documentation."
   (if ac-trigger-key
       (ac-set-trigger-key ac-trigger-key))
   (if ac-use-comphist
@@ -1946,6 +1962,7 @@ completion menu. This workaround stops that annoying behavior."
 (defvar ac-word-index nil)
 
 (defun ac-candidate-words-in-buffer (point prefix limit)
+  "No documentation."
   (let ((i 0)
         candidate
         candidates
@@ -1970,6 +1987,7 @@ completion menu. This workaround stops that annoying behavior."
       (nreverse candidates))))
 
 (defun ac-incremental-update-word-index ()
+  "No documentation."
   (unless (local-variable-p 'ac-word-index)
     (make-local-variable 'ac-word-index))
   (if (null ac-word-index)
@@ -1985,6 +2003,7 @@ completion menu. This workaround stops that annoying behavior."
         (setcdr ac-word-index index)))))
 
 (defun ac-update-word-index-1 ()
+  "No documentation."
   (unless (local-variable-p 'ac-word-index)
     (make-local-variable 'ac-word-index))
   (when (and (not (car ac-word-index))
@@ -1996,6 +2015,7 @@ completion menu. This workaround stops that annoying behavior."
                               "\\(?:^\\|\\_>\\).*?\\(?:\\_<\\|$\\)")))))
 
 (defun ac-update-word-index ()
+  "No documentation."
   (dolist (buffer (buffer-list))
     (when (or ac-fuzzy-enable
               (not (eq buffer (current-buffer))))
@@ -2003,6 +2023,7 @@ completion menu. This workaround stops that annoying behavior."
         (ac-update-word-index-1)))))
 
 (defun ac-word-candidates (&optional buffer-pred)
+  "No documentation."
   (cl-loop initially (unless ac-fuzzy-enable (ac-incremental-update-word-index))
            for buffer in (buffer-list)
            if (and (or (not (integerp ac-limit)) (< (length candidates) ac-limit))
@@ -2032,6 +2053,7 @@ completion menu. This workaround stops that annoying behavior."
 (ac-clear-variable-every-10-minutes 'ac-symbols-cache)
 
 (defun ac-symbol-file (symbol type)
+  "No documentation."
   (if (fboundp 'find-lisp-object-file-name)
       (find-lisp-object-file-name symbol type)
     (let ((file-name (with-no-warnings
@@ -2064,6 +2086,7 @@ completion menu. This workaround stops that annoying behavior."
         file-name))))
 
 (defun ac-symbol-documentation (symbol)
+  "No documentation."
   (if (stringp symbol)
       (setq symbol (intern-soft symbol)))
   (ignore-errors
@@ -2111,6 +2134,7 @@ completion menu. This workaround stops that annoying behavior."
               (buffer-string)))))))))
 
 (defun ac-symbol-candidates ()
+  "No documentation."
   (or ac-symbols-cache
       (setq ac-symbols-cache
             (cl-loop for x being the symbols
@@ -2130,6 +2154,7 @@ completion menu. This workaround stops that annoying behavior."
 (ac-clear-variable-every-10-minutes 'ac-functions-cache)
 
 (defun ac-function-candidates ()
+  "No documentation."
   (or ac-functions-cache
       (setq ac-functions-cache
             (cl-loop for x being the symbols
@@ -2148,6 +2173,7 @@ completion menu. This workaround stops that annoying behavior."
 (ac-clear-variable-every-10-minutes 'ac-variables-cache)
 
 (defun ac-variable-candidates ()
+  "No documentation."
   (or ac-variables-cache
       (setq ac-variables-cache
             (cl-loop for x being the symbols
@@ -2165,6 +2191,7 @@ completion menu. This workaround stops that annoying behavior."
 (ac-clear-variable-every-10-minutes 'ac-emacs-lisp-features)
 
 (defun ac-emacs-lisp-feature-candidates ()
+  "No documentation."
   (or ac-emacs-lisp-features
       (if (fboundp 'find-library-suffixes)
           (let ((suffix (concat (regexp-opt (find-library-suffixes) t) "\\'")))
@@ -2200,6 +2227,7 @@ completion menu. This workaround stops that annoying behavior."
 (defvar ac-filename-cache nil)
 
 (defun ac-filename-candidate ()
+  "No documentation."
   (let (file-name-handler-alist)
     (unless (or (and comment-start-skip
                      (string-match comment-start-skip ac-prefix))
