@@ -1317,12 +1317,12 @@ that have been made before in this function.  When `buffer-undo-list' is
     (define-key ac-mode-map (read-kbd-macro key) 'ac-trigger-key-command)))
 
 (defun ac-set-timer ()
-  "No documentation."
+  "Safe way to start the completion menu timer."
   (unless ac-timer
     (setq ac-timer (run-with-idle-timer ac-delay ac-delay 'ac-update-greedy))))
 
 (defun ac-cancel-timer ()
-  "No documentation."
+  "Safe way to cancel timer."
   (when (timerp ac-timer)
     (cancel-timer ac-timer)
     (setq ac-timer nil)))
