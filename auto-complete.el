@@ -861,8 +861,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
                       :symbol t
                       :scroll-bar t
                       :margin-left 1
-                      :keymap ac-menu-map
-                      )))
+                      :keymap ac-menu-map)))
 
 (defun ac-menu-delete ()
   "Delete the completion menu."
