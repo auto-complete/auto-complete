@@ -482,9 +482,9 @@ See also `ac-trigger-key'.")
     (define-key map [mouse-1] 'ac-mouse-1)
     (define-key map [down-mouse-1] 'ac-ignore)
     (if (string-equal system-type "gnu/linux")
-    (progn
-      (define-key map [mouse-4] 'ac-mouse-4)
-      (define-key map [mouse-5] 'ac-mouse-5))
+        (progn
+          (define-key map [mouse-4] 'ac-mouse-4)
+          (define-key map [mouse-5] 'ac-mouse-5))
       (define-key map [wheel-up] 'ac-mouse-4)
       (define-key map [wheel-down] 'ac-mouse-5))
     map)
@@ -1472,8 +1472,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 (defun ac-remove-quick-help ()
   "No documentation."
   (when (ac-quick-help-use-pos-tip-p)
-    (with-no-warnings
-      (pos-tip-hide)))
+    (with-no-warnings (pos-tip-hide)))
   (when ac-quick-help
     (popup-delete ac-quick-help)
     (setq ac-quick-help nil)))
