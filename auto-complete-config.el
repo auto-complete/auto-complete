@@ -172,8 +172,8 @@
                       (yas/snippet-table major-mode)
                     ;; 0.6.0
                     (yas/current-snippet-table))))
-             (if table
-                 (ac-yasnippet-candidate-1 table)))))))
+             (when table
+               (ac-yasnippet-candidate-1 table)))))))
 
 (ac-define-source yasnippet
   '((depends yasnippet)
