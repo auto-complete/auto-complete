@@ -815,8 +815,8 @@ You can not use it in source definition like (PREFIX . `NAME')."
                            (cl-loop for feature in (assoc-default 'depends src)
                                     unless (require feature nil t) return nil
                                     finally return t))))
-      (if (symbolp source)
-          (put source 'available (if available t 'no)))
+      (when (symbolp source)
+        (put source 'available (if available t 'no)))
       available)))
 
 (defun ac-compile-sources (sources)
