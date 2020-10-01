@@ -1,6 +1,6 @@
 ;;; auto-complete.el --- Auto Completion for GNU Emacs
 
-;; Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015  Tomohiro Matsuyama
+;; Copyright (C) 2008-2015  Tomohiro Matsuyama
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; URL: https://github.com/auto-complete/auto-complete
