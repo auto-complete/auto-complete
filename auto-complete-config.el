@@ -146,9 +146,9 @@
                  (push key candidates))
                hashtab)
       (setq candidates (all-completions ac-prefix (nreverse candidates)))
-      (if parent
-          (setq candidates
-                (append candidates (ac-yasnippet-candidate-1 parent))))
+      (when parent
+        (setq candidates
+              (append candidates (ac-yasnippet-candidate-1 parent))))
       candidates)))
 
 (defun ac-yasnippet-candidates ()
