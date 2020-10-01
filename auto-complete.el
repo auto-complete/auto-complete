@@ -373,7 +373,7 @@ a prefix doesn't contain any upper case letters."
   "Cons of prefix marker and selected item of last completion.")
 
 (defvar ac-quick-help nil
-  "Quick help instance")
+  "Quick help instance.")
 
 (defvar ac-completing nil
   "Non-nil means `auto-complete-mode' is now working on completion.")
@@ -433,7 +433,8 @@ If there is no common part, this will be nil.")
   "Non-nil means DWIM completion will be allowed.")
 
 (defvar ac-mode-map (make-sparse-keymap)
-  "Auto-complete mode map. It is also used for trigger key command. See also `ac-trigger-key'.")
+  "Auto-complete mode map.  It is also used for trigger key command.
+See also `ac-trigger-key'.")
 
 (defvar ac-completing-map
   (let ((map (make-sparse-keymap)))
@@ -509,7 +510,7 @@ If there is no common part, this will be nil.")
   "Compiled source of `ac-sources'.")
 
 (defvar ac-current-sources nil
-  "Current working sources. This is sublist of `ac-compiled-sources'.")
+  "Current working sources.  This is sublist of `ac-compiled-sources'.")
 
 (defvar ac-omni-completion-sources nil
   "Do not use this anymore.")
