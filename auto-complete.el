@@ -724,8 +724,8 @@ See also `ac-trigger-key'.")
 (defun ac-stop-word-p (word)
   "No documentation, WORD."
   (or (member word ac-stop-words)
-      (if ac-use-dictionary-as-stop-words
-          (member word (ac-buffer-dictionary)))))
+      (when ac-use-dictionary-as-stop-words
+        (member word (ac-buffer-dictionary)))))
 
 (defun ac-prefix-default ()
   "Same as `ac-prefix-symbol' but ignore a number prefix."
@@ -744,7 +744,7 @@ See also `ac-trigger-key'.")
 (defun ac-prefix-file ()
   "File prefix."
   (let ((point (re-search-backward "[\"<>' \t\r\n]" nil t)))
-    (if point (1+ point))))
+    (when point (1+ point))))
 
 (defsubst ac-windows-remote-file-p (file)
   "No documentation, FILE."
