@@ -1,6 +1,16 @@
+# Looking for new maintainer
+
+[`auto-complete`](https://github.com/auto-complete/auto-complete),
+[`popup-el`](https://github.com/auto-complete/popup-el) and
+[`fuzzy-el`](https://github.com/auto-complete/fuzzy-el) are looking
+for new maintainers.  If you are interested, then please comment on
+[this issue](https://github.com/auto-complete/auto-complete/issues/509).
+
 # Auto-Complete
 
 [![Build Status](https://secure.travis-ci.org/auto-complete/auto-complete.svg)](http://travis-ci.org/auto-complete/auto-complete)
+[![MELPA](https://melpa.org/packages/auto-complete-badge.svg)](https://melpa.org/#/auto-complete)
+[![MELPA Stable](https://stable.melpa.org/packages/auto-complete-badge.svg)](https://stable.melpa.org/#/auto-complete)
 
 An Intelligent auto-completion extension for Emacs
 
@@ -25,10 +35,6 @@ work.
 
 ![](doc/ac-isearch.png "Increamental Search")
 
-## Demo Video
-
-* [YouTube](http://www.youtube.com/watch?v=rGVVnDxwJYE)
-
 ## Install
 
 `auto-complete` is available on [MELPA](https://melpa.org) and [MELPA-STABLE](https://stable.melpa.org)
@@ -40,7 +46,7 @@ You can install `auto-complete` with the following command.
 
 ## User Manual
 
-[Auto-Complete User Manual](http://auto-complete.org/doc/manual.html)
+[Auto-Complete User Manual](https://github.com/auto-complete/auto-complete/blob/master/doc/manual.md)
 
 
 ## Basic Configuration

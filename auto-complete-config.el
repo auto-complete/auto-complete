@@ -1,6 +1,6 @@
 ;;; auto-complete-config.el --- auto-complete additional configuations
 
-;; Copyright (C) 2009, 2010  Tomohiro Matsuyama
+;; Copyright (C) 2009-2010  Tomohiro Matsuyama
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
 ;; Keywords: convenience
@@ -47,6 +47,7 @@
 (ac-clear-variable-every-10-minutes 'ac-imenu-index)
 
 (defun ac-imenu-candidates ()
+  "No documentation."
   (cl-loop with i = 0
            with stack = (progn
                           (unless (local-variable-p 'ac-imenu-index)
@@ -95,6 +96,7 @@
   :group 'auto-complete)
 
 (defun ac-gtags-candidate ()
+  "No documentation."
   (ignore-errors
     (split-string (shell-command-to-string (format "global -ciq %s" ac-prefix)) "\n")))
 
@@ -119,6 +121,7 @@
   :group 'auto-complete)
 
 (defun ac-yasnippet-table-hash (table)
+  "No documentation, TABLE."
   (cond
    ((fboundp 'yas/snippet-table-hash)
     (yas/snippet-table-hash table))
@@ -126,6 +129,7 @@
     (yas/table-hash table))))
 
 (defun ac-yasnippet-table-parent (table)
+  "No documentation, TABLE."
   (cond
    ((fboundp 'yas/snippet-table-parent)
     (yas/snippet-table-parent table))
@@ -133,6 +137,7 @@
     (yas/table-parent table))))
 
 (defun ac-yasnippet-candidate-1 (table)
+  "No documentation, TABLE."
   (with-no-warnings
     (let ((hashtab (ac-yasnippet-table-hash table))
           (parent (ac-yasnippet-table-parent table))
@@ -141,12 +146,13 @@
                  (push key candidates))
                hashtab)
       (setq candidates (all-completions ac-prefix (nreverse candidates)))
-      (if parent
-          (setq candidates
-                (append candidates (ac-yasnippet-candidate-1 parent))))
+      (when parent
+        (setq candidates
+              (append candidates (ac-yasnippet-candidate-1 parent))))
       candidates)))
 
 (defun ac-yasnippet-candidates ()
+  "No documentation."
   (with-no-warnings
     (cond (;; 0.8 onwards
            (fboundp 'yas-active-keys)
@@ -166,8 +172,8 @@
                       (yas/snippet-table major-mode)
                     ;; 0.6.0
                     (yas/current-snippet-table))))
-             (if table
-                 (ac-yasnippet-candidate-1 table)))))))
+             (when table
+               (ac-yasnippet-candidate-1 table)))))))
 
 (ac-define-source yasnippet
   '((depends yasnippet)
@@ -180,6 +186,7 @@
 ;; semantic
 
 (defun ac-semantic-candidates (prefix)
+  "No documentation, PREFIX."
   (with-no-warnings
     (delete ""            ; semantic sometimes returns an empty string
             (mapcar (lambda (elem)
@@ -191,6 +198,7 @@
                           (senator-find-tag-for-completion prefix)))))))
 
 (defun ac-semantic-doc (symbol)
+  "No documentation, SYMBOL."
   (with-no-warnings
     (let* ((proto (semantic-format-tag-summarize-with-file symbol nil t))
            (doc (semantic-documentation-for-tag symbol))
@@ -200,6 +208,7 @@
       res)))
 
 (defun ac-semantic-action ()
+  "No documentation."
   (when (and (boundp 'yas-minor-mode) yas-minor-mode)
     (let* ((tag (car (last (oref (semantic-analyze-current-context) prefix))))
            (class (semantic-tag-class tag))
@@ -242,6 +251,7 @@
 ;; eclim
 
 (defun ac-eclim-candidates ()
+  "No documentation."
   (with-no-warnings
     (cl-loop for c in (eclim/java-complete)
              collect (nth 1 c))))
@@ -421,6 +431,7 @@
   "Current editing property.")
 
 (defun ac-css-prefix ()
+  "No documentation."
   (when (save-excursion
           (or (and (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\=" nil t)
                    (setq ac-css-property (match-string 1)))
@@ -429,6 +440,7 @@
     (or (ac-prefix-symbol) (point))))
 
 (defun ac-css-property-candidates ()
+  "No documentation."
   (if (not (stringp ac-css-property))
       (mapcar 'car ac-css-property-alist)
     (let ((list (assoc-default ac-css-property ac-css-property-alist)))
@@ -472,20 +484,24 @@
 ;; ropemacs
 
 (defvar ac-ropemacs-loaded nil)
+
 (defun ac-ropemacs-require ()
+  "No documentation."
   (with-no-warnings
     (unless ac-ropemacs-loaded
       (pymacs-load "ropemacs" "rope-")
-      (if (boundp 'ropemacs-enable-autoimport)
-          (setq ropemacs-enable-autoimport t))
+      (when (boundp 'ropemacs-enable-autoimport)
+        (setq ropemacs-enable-autoimport t))
       (setq ac-ropemacs-loaded t))))
 
 (defun ac-ropemacs-setup ()
+  "No documentation."
   (ac-ropemacs-require)
-  ;(setq ac-sources (append (list 'ac-source-ropemacs) ac-sources))
+  ;;(setq ac-sources (append (list 'ac-source-ropemacs) ac-sources))
   (setq ac-omni-completion-sources '(("\\." ac-source-ropemacs))))
 
 (defun ac-ropemacs-initialize ()
+  "No documentation."
   (autoload 'pymacs-apply "pymacs")
   (autoload 'pymacs-call "pymacs")
   (autoload 'pymacs-eval "pymacs" nil t)
@@ -528,22 +544,38 @@
 ;;;; Default settings
 
 (defun ac-common-setup ()
-  ;(add-to-list 'ac-sources 'ac-source-filename)
+  "No documentation."
+  ;; TODO: Don't know this is commented; leave an empty function.
+  ;;(add-to-list 'ac-sources 'ac-source-filename)
   )
 
 (defun ac-emacs-lisp-mode-setup ()
-  (setq ac-sources (append '(ac-source-features ac-source-functions ac-source-yasnippet ac-source-variables ac-source-symbols) ac-sources)))
+  "No documentation."
+  (setq ac-sources (cl-union '(ac-source-features
+                               ac-source-functions
+                               ac-source-yasnippet
+                               ac-source-variables
+                               ac-source-symbols)
+                             ac-sources)))
 
 (defun ac-cc-mode-setup ()
-  (setq ac-sources (append '(ac-source-yasnippet ac-source-gtags) ac-sources)))
+  "No documentation."
+  (setq ac-sources (cl-union '(ac-source-yasnippet ac-source-gtags)
+                             ac-sources)))
 
-(defun ac-ruby-mode-setup ())
+(defun ac-ruby-mode-setup ()
+  "No documentation."
+  ;; TODO: Don't know this is commented; leave an empty function.
+  )
 
 (defun ac-css-mode-setup ()
-  (setq ac-sources (append '(ac-source-css-property) ac-sources)))
+  "No documentation."
+  (setq ac-sources (cl-union '(ac-source-css-property)
+                             ac-sources)))
 
 ;;;###autoload
 (defun ac-config-default ()
+  "No documentation."
   (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
   (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
