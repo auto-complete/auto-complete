@@ -1850,7 +1850,8 @@ If given a prefix argument, select the previous candidate."
       (when (and ac-triggered
                  (or ac-auto-start
                      ac-completing)
-                 (not isearch-mode))
+                 (not isearch-mode)
+                 (looking-back "\\>"))
         (setq ac-last-point (point))
         (ac-start :requires (unless ac-completing ac-auto-start))
         (unless ac-disable-inline
