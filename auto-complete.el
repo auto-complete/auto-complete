@@ -1591,8 +1591,8 @@ that have been made before in this function.  When `buffer-undo-list' is
     (when (popup-hidden-p ac-menu)
       (ac-show-menu))
     (popup-next ac-menu)
-    (if (eq this-command 'ac-next)
-        (setq ac-dwim-enable t))))
+    (when (eq this-command 'ac-next)
+      (setq ac-dwim-enable t))))
 
 (defun ac-previous ()
   "Select previous candidate."
@@ -1636,8 +1636,7 @@ If given a prefix argument, select the previous candidate."
   (interactive)
   (if (and ac-dwim ac-dwim-enable)
       (ac-complete)
-    (when (and (ac-inline-live-p)
-               ac-common-part)
+    (when (and (ac-inline-live-p) ac-common-part)
       (ac-inline-hide)
       (ac-expand-string ac-common-part (eq last-command this-command))
       (setq ac-common-part nil)
@@ -1657,11 +1656,8 @@ If given a prefix argument, select the previous candidate."
         (set-marker (car ac-last-completion) ac-point ac-buffer)
         (setcdr ac-last-completion candidate)))
     (ac-abort)
-    (cond
-     (action
-      (funcall action))
-     (fallback
-      (ac-fallback-command)))
+    (cond (action (funcall action))
+          (fallback (ac-fallback-command)))
     candidate))
 
 (defun ac-complete ()
