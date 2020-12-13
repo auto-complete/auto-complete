@@ -1369,7 +1369,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 
 (defun ac-show-menu ()
   "No documentation."
-  (when (not (eq ac-show-menu t))
+  (unless (eq ac-show-menu t)
     (setq ac-show-menu t)
     (ac-inline-hide)
     (ac-remove-quick-help)
@@ -1378,8 +1378,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 (defun ac-help (&optional persist)
   "No documentation, PERSIST."
   (interactive "P")
-  (when ac-menu
-    (popup-menu-show-help ac-menu persist)))
+  (when ac-menu (popup-menu-show-help ac-menu persist)))
 
 (defun ac-persist-help ()
   "No documentation."
@@ -1389,8 +1388,7 @@ that have been made before in this function.  When `buffer-undo-list' is
 (defun ac-last-help (&optional persist)
   "No documentation, PERSIST."
   (interactive "P")
-  (when ac-last-completion
-    (popup-item-show-help (cdr ac-last-completion) persist)))
+  (when ac-last-completion (popup-item-show-help (cdr ac-last-completion) persist)))
 
 (defun ac-last-persist-help ()
   "No documentation."
@@ -1416,9 +1414,7 @@ that have been made before in this function.  When `buffer-undo-list' is
          (parent-offset (popup-offset menu))
          (doc (popup-menu-documentation menu item)))
     (when (stringp doc)
-      (if (popup-hidden-p menu)
-          (setq around t)
-        (setq point nil))
+      (if (popup-hidden-p menu) (setq around t) (setq point nil))
       (with-no-warnings
         (pos-tip-show doc
                       'popup-tip-face
@@ -1476,8 +1472,7 @@ that have been made before in this function.  When `buffer-undo-list' is
   "No documentation."
   (interactive)
   (when (and ac-last-completion
-             (eq (marker-buffer (car ac-last-completion))
-                 (current-buffer)))
+             (eq (marker-buffer (car ac-last-completion)) (current-buffer)))
     (let ((doc (popup-item-documentation (cdr ac-last-completion)))
           (point (marker-position (car ac-last-completion))))
       (when (stringp doc)
@@ -1541,14 +1536,12 @@ that have been made before in this function.  When `buffer-undo-list' is
         started)
     (ac-abort)
     (let ((ac-sources (or sources ac-sources)))
-      (if (or ac-show-menu-immediately-on-auto-complete
-              inline-live)
+      (if (or ac-show-menu-immediately-on-auto-complete inline-live)
           (setq ac-show-menu t))
       (setq started (ac-start :triggered triggered)))
     (when (ac-update-greedy t)
       ;; TODO Not to cause inline completion to be disrupted.
-      (if (ac-inline-live-p)
-          (ac-inline-hide))
+      (when (ac-inline-live-p) (ac-inline-hide))
       ;; Not to expand when it is first time to complete
       (when (and (or (and (not ac-expand-on-auto-complete)
                           (> (length ac-candidates) 1)
