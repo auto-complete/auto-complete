@@ -940,8 +940,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
 (defun ac-inline-hide ()
   "No documentation."
   (when (ac-inline-live-p)
-    (let ((overlay (ac-inline-overlay))
-          (buffer-undo-list t))
+    (let ((overlay (ac-inline-overlay)) (buffer-undo-list t))
       (when overlay
         (move-overlay overlay (point-min) (point-min))
         (overlay-put overlay 'invisible t)
@@ -981,8 +980,8 @@ You can not use it in source definition like (PREFIX . `NAME')."
       ;; Remove inserted newline
       (popup-save-buffer-state
         (goto-char (point-max))
-        (if (eq (char-before) ?\n)
-            (delete-char -1))))
+        (when (eq (char-before) ?\n)
+          (delete-char -1))))
     (delete-overlay ac-prefix-overlay)))
 
 (defun ac-activate-completing-map ()
@@ -1006,8 +1005,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
 
 (defsubst ac-selected-candidate ()
   "No documentation."
-  (if ac-menu
-      (popup-selected-item ac-menu)))
+  (when ac-menu (popup-selected-item ac-menu)))
 
 (defun ac-prefix (requires ignore-list)
   "No documentation, REQUIRES, IGNORE-LIST."
@@ -1043,11 +1041,11 @@ You can not use it in source definition like (PREFIX . `NAME')."
                         (< (- current point) req))
                    (setq point nil))
                (when point
-                 (if (null prefix-def)
-                     (setq prefix-def prefix
-                           point-def point))
-                 (if (equal point point-def)
-                     (push source sources)))))
+                 (when (null prefix-def)
+                   (setq prefix-def prefix
+                         point-def point))
+                 (when (equal point point-def)
+                   (push source sources)))))
 
            finally return
            (and point-def (list prefix-def point-def (nreverse sources)))))
@@ -1059,11 +1057,8 @@ You can not use it in source definition like (PREFIX . `NAME')."
            for function = (assoc-default 'init source)
            if function do
            (save-excursion
-             (cond
-              ((functionp function)
-               (funcall function))
-              (t
-               (eval function))))))
+             (cond ((functionp function) (funcall function))
+                   (t (eval function))))))
 
 (defun ac-candidates-1 (source)
   "No documentation, SOURCE."
@@ -1188,8 +1183,8 @@ TODO Missing documentation CURSOR, SCROLL-TOP."
   (if (and (not ac-fuzzy-enable)
            (<= (length ac-candidates) ac-candidate-menu-min))
       (popup-hide ac-menu)
-    (if ac-show-menu
-        (popup-draw ac-menu))))
+    (when ac-show-menu
+      (popup-draw ac-menu))))
 
 (defun ac-reposition ()
   "Force to redraw candidate menu with current 'ac-candidates'."
@@ -1202,11 +1197,10 @@ TODO Missing documentation CURSOR, SCROLL-TOP."
 
 (defun ac-cleanup ()
   "Cleanup auto completion."
-  (if ac-cursor-color
-      (set-cursor-color ac-cursor-color))
+  (when ac-cursor-color
+    (set-cursor-color ac-cursor-color))
   (when (and ac-use-comphist ac-comphist)
-    (when (and (null ac-selected-candidate)
-               (member ac-prefix ac-candidates))
+    (when (and (null ac-selected-candidate) (member ac-prefix ac-candidates))
       ;; Assume candidate is selected by just typing
       (setq ac-selected-candidate ac-prefix)
       (setq ac-last-point ac-point))
@@ -1326,8 +1320,7 @@ that have been made before in this function.  When `buffer-undo-list' is
   "No documentation, FORCE."
   (when (and auto-complete-mode
              ac-prefix
-             (or ac-triggered
-                 force)
+             (or ac-triggered force)
              (not isearch-mode))
     (ac-put-prefix-overlay)
     (setq ac-candidates (ac-candidates))
