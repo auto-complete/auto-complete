@@ -1832,9 +1832,9 @@ If given a prefix argument, select the previous candidate."
                                       (or ac-triggered t)))
               (ac-compatible-package-command-p this-command))
           (progn
-            (if (or (not (symbolp this-command))
-                    (not (get this-command 'ac-quick-help-command)))
-                (ac-remove-quick-help))
+            (when (or (not (symbolp this-command))
+                      (not (get this-command 'ac-quick-help-command)))
+              (ac-remove-quick-help))
             ;; Not to cause inline completion to be disrupted.
             (ac-inline-hide))
         (ac-abort))
@@ -1844,8 +1844,7 @@ If given a prefix argument, select the previous candidate."
   "No documentation."
   (condition-case var
       (when (and ac-triggered
-                 (or ac-auto-start
-                     ac-completing)
+                 (or ac-auto-start ac-completing)
                  (not isearch-mode))
         (setq ac-last-point (point))
         (ac-start :requires (unless ac-completing ac-auto-start))
@@ -1880,10 +1879,8 @@ If given a prefix argument, select the previous candidate."
 
 (defun ac-setup ()
   "No documentation."
-  (if ac-trigger-key
-      (ac-set-trigger-key ac-trigger-key))
-  (if ac-use-comphist
-      (ac-comphist-init))
+  (when ac-trigger-key (ac-set-trigger-key ac-trigger-key))
+  (when ac-use-comphist (ac-comphist-init))
   (unless ac-clear-variables-every-minute-timer
     (setq ac-clear-variables-every-minute-timer (run-with-timer 60 60 'ac-clear-variables-every-minute)))
   (ac-syntax-checker-workaround))
@@ -1908,9 +1905,9 @@ If given a prefix argument, select the previous candidate."
 
 (defun auto-complete-mode-maybe ()
   "What buffer `auto-complete-mode' prefers."
-  (if (and (not (minibufferp (current-buffer)))
-           (memq major-mode ac-modes))
-      (auto-complete-mode 1)))
+  (when (and (not (minibufferp (current-buffer)))
+             (memq major-mode ac-modes))
+    (auto-complete-mode 1)))
 
 ;;;###autoload
 (define-global-minor-mode global-auto-complete-mode
@@ -1960,9 +1957,7 @@ completion menu. This workaround stops that annoying behavior."
 
 (defun ac-candidate-words-in-buffer (point prefix limit)
   "No documentation."
-  (let ((i 0)
-        candidate
-        candidates
+  (let ((i 0) candidate candidates
         (regexp (concat "\\_<" (regexp-quote prefix) "\\(\\sw\\|\\s_\\)+\\_>")))
     (save-excursion
       ;; Search backward
