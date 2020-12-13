@@ -1760,9 +1760,8 @@ If given a prefix argument, select the previous candidate."
 (defun ac-clear-variables-after-save ()
   "No documentation."
   (dolist (pair ac-clear-variables-after-save)
-    (if (or (null (cdr pair))
-            (funcall (cdr pair)))
-        (set (car pair) nil))))
+    (when (or (null (cdr pair)) (funcall (cdr pair)))
+      (set (car pair) nil))))
 
 (defun ac-clear-variable-every-minutes (variable minutes)
   "No documentation."
