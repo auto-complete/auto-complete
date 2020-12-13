@@ -1137,7 +1137,7 @@ You can not use it in source definition like (PREFIX . `NAME')."
 
 (defun ac-candidates ()
   "Produce candidates for current sources."
-  (cl-loop with completion-ignore-case = (or (eq ac-ignore-case t)
+  (cl-loop with completion-ignore-case = (or ac-ignore-case
                                              (and (eq ac-ignore-case 'smart)
                                                   (let ((case-fold-search nil)) (not (string-match "[[:upper:]]" ac-prefix)))))
            with case-fold-search = completion-ignore-case
