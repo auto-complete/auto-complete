@@ -1154,13 +1154,13 @@ You can not use it in source definition like (PREFIX . `NAME')."
                             (cons (if (> n 0) (nthcdr (1- n) result)))
                             (cdr (cdr cons)))
                        ;; XXX ugly
-                       (if cons (setcdr cons nil))
+                       (when cons (setcdr cons nil))
                        (setq ac-common-part (try-completion ac-prefix result))
                        (setq ac-whole-common-part (try-completion ac-prefix candidates))
-                       (if cons (setcdr cons cdr))
+                       (when cons (setcdr cons cdr))
                        result)
                    (setq candidates (ac-comphist-sort ac-comphist candidates prefix-len))
-                   (setq ac-common-part (if candidates (popup-x-to-string (car candidates))))
+                   (setq ac-common-part (when candidates (popup-x-to-string (car candidates))))
                    (setq ac-whole-common-part (try-completion ac-prefix candidates))
                    candidates)
                (when ac-show-menu
