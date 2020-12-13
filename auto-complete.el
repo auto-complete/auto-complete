@@ -1780,8 +1780,8 @@ If given a prefix argument, select the previous candidate."
   "No documentation."
   (cl-incf ac-minutes-counter)
   (dolist (pair ac-clear-variables-every-minute)
-    (if (eq (% ac-minutes-counter (cdr pair)) 0)
-        (set (car pair) nil))))
+    (when (eq (% ac-minutes-counter (cdr pair)) 0)
+      (set (car pair) nil))))
 
 
 
