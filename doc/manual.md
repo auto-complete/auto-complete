@@ -1518,9 +1518,9 @@ ac-flyspell-workaround`. You can write the following code into your
 (ac-flyspell-workaround)
 ```
 
-## `linum-mode` tries to display the line numbers even for the comletion menu {#linum-mode-bug}
+## `linum-mode` tries to display the line numbers even for the completion menu {#linum-mode-bug}
 
-linum-mode tries to add the line numbers even for the comletion
+linum-mode tries to add the line numbers even for the completion
 menu. To stop that annoying behavior, do `M-x ac-linum-workaround` or
 add the following code into your `~/.emacs.d/init.el`.
 
