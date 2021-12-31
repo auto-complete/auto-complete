@@ -459,6 +459,9 @@ See also `ac-trigger-key'.")
     (define-key map "\C-\M-n" 'ac-quick-help-scroll-down)
     (define-key map "\C-\M-p" 'ac-quick-help-scroll-up)
 
+    (define-key map (kbd "<next>") #'ac-next-page)
+    (define-key map (kbd "<prior>") #'ac-previous-page)
+
     (dotimes (i 9)
       (let ((symbol (intern (format "ac-complete-select-%d" (1+ i)))))
         (fset symbol
@@ -1580,6 +1583,16 @@ that have been made before in this function.  When `buffer-undo-list' is
     (when (eq this-command 'ac-next)
       (setq ac-dwim-enable t))))
 
+(defun ac-next-page ()
+  "Select candidate `ac-menu-height' positions below current."
+  (interactive)
+  (when (ac-menu-live-p)
+    (when (popup-hidden-p ac-menu)
+      (ac-show-menu))
+    (popup-page-next ac-menu)
+    (when (eq this-command 'ac-next-page)
+      (setq ac-dwim-enable t))))
+
 (defun ac-previous ()
   "Select previous candidate."
   (interactive)
@@ -1589,6 +1602,16 @@ that have been made before in this function.  When `buffer-undo-list' is
     (popup-previous ac-menu)
     (if (eq this-command 'ac-previous)
         (setq ac-dwim-enable t))))
+
+(defun ac-previous-page ()
+  "Select candidate `ac-menu-height' positions above current."
+  (interactive)
+  (when (ac-menu-live-p)
+    (when (popup-hidden-p ac-menu)
+      (ac-show-menu))
+    (popup-page-previous ac-menu)
+    (when (eq this-command 'ac-previous-page)
+      (setq ac-dwim-enable t))))
 
 (defun ac-expand (arg)
   "Try expand, and if expanded twice, select next candidate.
