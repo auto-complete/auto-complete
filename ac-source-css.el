@@ -1,5 +1,92 @@
 ;; -*- mode: emacs-lisp; lexical-binding: t -*-
+(require 'rx)
 (require 'auto-complete)
+
+
+(ac-define-source css-property
+  '((candidates . ac-css-property-candidates)
+    (prefix . ac-css-prefix)
+    (symbol . "p")
+    (requires . 0)))
+
+
+(eval-when-compile
+  ;; These variables are huge and scrolling past them to see the code is a
+  ;; hassle. I moved their definitions below the code, but need to declare them
+  ;; here to keep byte compiler happy.
+  (defvar ac-css-value-classes)
+  (defvar ac-css-property-alist))
+
+
+(defvar ac-css-property nil
+  "Name of a property being defined, or `t' if we're editing the property name.")
+
+
+(defconst ac-css-property-cache (make-hash-table :size 115 :test 'equal))
+;; (hash-table-count ac-css-property-cache)
+
+
+(rx-let ((any-ws (zero-or-more (syntax whitespace)))
+         (prop-name (seq symbol-start (group (+? nonl)) symbol-end))
+         (while-not (c) (zero-or-more (not (any c)))))
+
+  ;; Original: "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\="
+  (defconst ac-css-prop-with-value-re
+    (rx prop-name any-ws ":" (while-not ";") point))
+
+  ;; Original: "\\(?:^\\|;\\)\\s *[^:]*\\="
+  (defconst ac-css-prop-name-only-re
+    (rx (or bol "; ") any-ws (while-not ":") point)))
+
+
+(defun ac-css-prefix ()
+ "Check if text before point is either a property name or a property value."
+  (cond
+   ((looking-back ac-css-prop-with-value-re nil)
+    (setf ac-css-property (match-string 1)))
+   ((looking-back ac-css-prop-name-only-re nil)
+    (setf ac-css-property t))
+   (t
+    (setf ac-css-property nil)))
+  (when ac-css-property
+    (or (ac-prefix-symbol) (point))))
+
+
+(defun ac-css-property-candidates ()
+  "No documentation."
+  (if (not (stringp ac-css-property))
+      (mapcar 'car ac-css-property-alist)
+    (ac-css-value-candidates ac-css-property)))
+
+
+(cl-defun ac-css-value-candidates (property)
+  (if-let (vals (gethash property ac-css-property-cache))
+      vals
+    ;; TODO: ac-css-pseudo-classes are not checked!
+    (ac-css-get-and-cache-property-values ac-css-property-cache property)))
+;; (ac-css-value-candidates "border")
+
+
+(defun ac-css-get-and-cache-property-values (cache property)
+  (when-let (value-specs (or (assoc-default (intern property) ac-css-value-classes)
+                             (assoc-default property ac-css-property-alist)))
+    (let ((values (cl-remove-duplicates
+                   (cl-loop for spec in value-specs
+                            append (if (symbolp spec)
+                                       (ac-css-value-candidates (symbol-name spec))
+                                     ;; I decided to get rid of the parens, but left
+                                     ;; them in the data so that updating it is
+                                     ;; easier. It's cleaned here instead.
+                                     (list (if-let (pos (string-match "(" spec))
+                                               (substring spec 0 pos)
+                                             spec))))
+                   :test #'string=)))
+      (puthash property values cache)
+      values)))
+ ;; (ac-css-get-and-cache-property-values ac-css-property-cache "background")
+
+
+
 
 
 ;; Property list borrowed from Company, source:
@@ -249,78 +336,6 @@
 (defconst ac-css-pseudo-classes
   '("active" "after" "before" "first" "first-child" "first-letter" "first-line" "focus" "hover" "lang" "left" "link" "right" "visited")
   "Identifiers for CSS pseudo-elements and pseudo-classes.")
-
-
-(defvar ac-css-property nil
-  "Name of a property being defined, or `t' if we're editing the property name.")
-
-
-(defconst ac-css-property-cache (make-hash-table :size 115 :test 'equal))
-;; (hash-table-count ac-css-property-cache)
-
-(defun ac-css-get-and-cache-property-values (cache property)
-  (when-let (value-specs (or (assoc-default (intern property) ac-css-value-classes)
-                             (assoc-default property ac-css-property-alist)))
-    (let ((values (cl-remove-duplicates
-                   (cl-loop for spec in value-specs
-                            append (if (symbolp spec)
-                                       (ac-css-value-candidates (symbol-name spec))
-                                     (list spec)))
-                   :test #'string=)))
-      (puthash property values cache)
-      values)))
- ;; (ac-css-get-and-cache-property-values ac-css-property-cache "background")
-
-
-(cl-defun ac-css-value-candidates (property)
-  (if-let (vals (gethash property ac-css-property-cache))
-      vals
-    (ac-css-get-and-cache-property-values ac-css-property-cache property)))
-;; (ac-css-value-candidates "border")
-
-
-;; TODO: ac-css-pseudo-classes are not checked
-
-
-(require 'rx)
-(rx-let ((any-ws (zero-or-more (syntax whitespace)))
-         (prop-name (seq symbol-start (group (+? nonl)) symbol-end))
-         (while-not (c) (zero-or-more (not (any c)))))
-
-  ;; Original: "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\="
-  (defconst ac-css-prop-with-value-re
-    (rx prop-name any-ws ":" (while-not ";") point))
-
-  ;; Original: "\\(?:^\\|;\\)\\s *[^:]*\\="
-  (defconst ac-css-prop-name-only-re
-    (rx (or bol "; ") any-ws (while-not ":") point)))
-
-
-(defun ac-css-prefix ()
- "Check if text before point is either a property name or a property value."
-  (cond
-   ((looking-back ac-css-prop-with-value-re nil)
-    (setf ac-css-property (match-string 1)))
-   ((looking-back ac-css-prop-name-only-re nil)
-    (setf ac-css-property t))
-   (t
-    (setf ac-css-property nil)))
-  (when ac-css-property
-    (or (ac-prefix-symbol) (point))))
-
-
-(defun ac-css-property-candidates ()
-  "No documentation."
-  (if (not (stringp ac-css-property))
-      (mapcar 'car ac-css-property-alist)
-    (ac-css-value-candidates ac-css-property)))
-
-
-(ac-define-source css-property
-  '((candidates . ac-css-property-candidates)
-    (prefix . ac-css-prefix)
-    (symbol . "p")
-    (requires . 0)))
 
 
 (provide 'ac-source-css)
