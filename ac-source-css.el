@@ -6,18 +6,12 @@
 ;; https://github.com/company-mode/company-mode/blob/master/company-css.el
 (defconst ac-css-property-alist
   ;; see http://www.w3.org/TR/CSS21/propidx.html
-  '(("azimuth" angle "left-side" "far-left" "left" "center-left" "center"
-     "center-right" "right" "far-right" "right-side" "behind" "leftwards"
-     "rightwards")
-    ("background" background-color background-image background-repeat
-     background-attachment background-position
-     background-clip background-origin background-size)
+  '(("azimuth" angle "left-side" "far-left" "left" "center-left" "center" "center-right" "right" "far-right" "right-side" "behind" "leftwards" "rightwards")
+    ("background" background-color background-image background-repeat background-attachment background-position background-clip background-origin background-size)
     ("background-attachment" "scroll" "fixed")
     ("background-color" color "transparent")
     ("background-image" uri "none")
-    ("background-position" percentage length "left" "center" "right" percentage
-     length "top" "center" "bottom" "left" "center" "right" "top" "center"
-     "bottom")
+    ("background-position" percentage length "left" "center" "right" percentage length "top" "center" "bottom" "left" "center" "right" "top" "center" "bottom")
     ("background-repeat" "repeat" "repeat-x" "repeat-y" "no-repeat")
     ("border" border-width border-style border-color)
     ("border-bottom" border)
@@ -46,27 +40,19 @@
     ("clear" "none" "left" "right" "both")
     ("clip" shape "auto")
     ("color" color)
-    ("content" "normal" "none" string uri counter "attr()" "open-quote"
-     "close-quote" "no-open-quote" "no-close-quote")
+    ("content" "normal" "none" string uri counter "attr()" "open-quote" "close-quote" "no-open-quote" "no-close-quote")
     ("counter-increment" identifier integer "none")
     ("counter-reset" identifier integer "none")
     ("cue" cue-before cue-after)
     ("cue-after" uri "none")
     ("cue-before" uri "none")
-    ("cursor" uri "*" "auto" "crosshair" "default" "pointer" "move" "e-resize"
-     "ne-resize" "nw-resize" "n-resize" "se-resize" "sw-resize" "s-resize"
-     "w-resize" "text" "wait" "help" "progress")
+    ("cursor" uri "*" "auto" "crosshair" "default" "pointer" "move" "e-resize" "ne-resize" "nw-resize" "n-resize" "se-resize" "sw-resize" "s-resize" "w-resize" "text" "wait" "help" "progress")
     ("direction" "ltr" "rtl")
-    ("display" "inline" "block" "list-item" "run-in" "inline-block" "table"
-     "inline-table" "table-row-group" "table-header-group" "table-footer-group"
-     "table-row" "table-column-group" "table-column" "table-cell"
-     "table-caption" "none")
+    ("display" "inline" "block" "list-item" "run-in" "inline-block" "table" "inline-table" "table-row-group" "table-header-group" "table-footer-group" "table-row" "table-column-group" "table-column" "table-cell" "table-caption" "none")
     ("elevation" angle "below" "level" "above" "higher" "lower")
     ("empty-cells" "show" "hide")
     ("float" "left" "right" "none")
-    ("font" font-style font-weight font-size "/" line-height
-     font-family "caption" "icon" "menu" "message-box" "small-caption"
-     "status-bar" "normal" "small-caps"
+    ("font" font-style font-weight font-size "/" line-height font-family "caption" "icon" "menu" "message-box" "small-caption" "status-bar" "normal" "small-caps"
      ;; CSS3
      font-stretch)
     ("font-family" family-name generic-family)
@@ -81,9 +67,7 @@
     ("list-style" list-style-type list-style-position list-style-image)
     ("list-style-image" uri "none")
     ("list-style-position" "inside" "outside")
-    ("list-style-type" "disc" "circle" "square" "decimal" "decimal-leading-zero"
-     "lower-roman" "upper-roman" "lower-greek" "lower-latin" "upper-latin"
-     "armenian" "georgian" "lower-alpha" "upper-alpha" "none")
+    ("list-style-type" "disc" "circle" "square" "decimal" "decimal-leading-zero" "lower-roman" "upper-roman" "lower-greek" "lower-latin" "upper-latin" "armenian" "georgian" "lower-alpha" "upper-alpha" "none")
     ("margin" margin-width)
     ("margin-bottom" margin-width)
     ("margin-left" margin-width)
@@ -123,8 +107,7 @@
     ("speak-header" "once" "always")
     ("speak-numeral" "digits" "continuous")
     ("speak-punctuation" "code" "none")
-    ("speech-rate" number "x-slow" "slow" "medium" "fast" "x-fast" "faster"
-     "slower")
+    ("speech-rate" number "x-slow" "slow" "medium" "fast" "x-fast" "faster" "slower")
     ("stress" number)
     ("table-layout" "auto" "fixed")
     ("text-align" "left" "right" "center" "justify")
@@ -132,13 +115,10 @@
     ("text-transform" "capitalize" "uppercase" "lowercase" "none")
     ("top" length percentage "auto")
     ("unicode-bidi" "normal" "embed" "bidi-override")
-    ("vertical-align" "baseline" "sub" "super" "top" "text-top" "middle"
-     "bottom" "text-bottom" percentage length)
+    ("vertical-align" "baseline" "sub" "super" "top" "text-top" "middle" "bottom" "text-bottom" percentage length)
     ("visibility" "visible" "hidden" "collapse")
-    ("voice-family" specific-voice generic-voice "*" specific-voice
-     generic-voice)
-    ("volume" number percentage "silent" "x-soft" "soft" "medium" "loud"
-     "x-loud")
+    ("voice-family" specific-voice generic-voice "*" specific-voice generic-voice)
+    ("volume" number percentage "silent" "x-soft" "soft" "medium" "loud" "x-loud")
     ("white-space" "normal" "pre" "nowrap" "pre-wrap" "pre-line")
     ("widows" integer)
     ("width" length percentage "auto")
@@ -148,9 +128,7 @@
     ("align-content" align-stretch "space-between" "space-around")
     ("align-items" align-stretch "baseline")
     ("align-self" align-items "auto")
-    ("animation" animation-name animation-duration animation-timing-function
-     animation-delay animation-iteration-count animation-direction
-     animation-fill-mode)
+    ("animation" animation-name animation-duration animation-timing-function animation-delay animation-iteration-count animation-direction animation-fill-mode)
     ("animation-delay" time)
     ("animation-direction" "normal" "reverse" "alternate" "alternate-reverse")
     ("animation-duration" time)
@@ -158,14 +136,12 @@
     ("animation-iteration-count" integer "infinite")
     ("animation-name" "none")
     ("animation-play-state" "paused" "running")
-    ("animation-timing-function" transition-timing-function
-     "step-start" "step-end" "steps(,)")
+    ("animation-timing-function" transition-timing-function "step-start" "step-end" "steps(,)")
     ("backface-visibility" "visible" "hidden")
     ("background-clip" background-origin)
     ("background-origin" "border-box" "padding-box" "content-box")
     ("background-size" length percentage "auto" "cover" "contain")
-    ("border-image" border-image-outset border-image-repeat border-image-source
-     border-image-slice border-image-width)
+    ("border-image" border-image-outset border-image-repeat border-image-source border-image-slice border-image-width)
     ("border-image-outset" length)
     ("border-image-repeat" "stretch" "repeat" "round" "space")
     ("border-image-source" uri "none")
@@ -179,8 +155,7 @@
     ("box-decoration-break" "slice" "clone")
     ("box-shadow" length color)
     ("box-sizing" "content-box" "border-box")
-    ("break-after" "auto" "always" "avoid" "left" "right" "page" "column"
-     "avoid-page" "avoid-column")
+    ("break-after" "auto" "always" "avoid" "left" "right" "page" "column" "avoid-page" "avoid-column")
     ("break-before" break-after)
     ("break-inside" "avoid" "auto")
     ("columns" column-width column-count)
@@ -193,8 +168,7 @@
     ("column-rule-width" border-width)
     ("column-span" "all" "none")
     ("column-width" length "auto")
-    ("filter" url "blur()" "brightness()" "contrast()" "drop-shadow()"
-     "grayscale()" "hue-rotate()" "invert()" "opacity()" "saturate()" "sepia()")
+    ("filter" url "blur()" "brightness()" "contrast()" "drop-shadow()" "grayscale()" "hue-rotate()" "invert()" "opacity()" "saturate()" "sepia()")
     ("flex" flex-grow flex-shrink flex-basis)
     ("flex-basis" percentage length "auto")
     ("flex-direction" "row" "row-reverse" "column" "column-reverse")
@@ -206,24 +180,14 @@
     ("font-kerning" "auto" "normal" "none")
     ("font-language-override" "normal" string)
     ("font-size-adjust" "none" number)
-    ("font-stretch" "normal" "ultra-condensed" "extra-condensed" "condensed"
-     "semi-condensed" "semi-expanded" "expanded" "extra-expanded" "ultra-expanded")
+    ("font-stretch" "normal" "ultra-condensed" "extra-condensed" "condensed" "semi-condensed" "semi-expanded" "expanded" "extra-expanded" "ultra-expanded")
     ("font-synthesis" "none" "weight" "style")
-    ("font-variant" font-variant-alternates font-variant-caps
-     font-variant-east-asian font-variant-ligatures font-variant-numeric
-     font-variant-position)
-    ("font-variant-alternates" "normal" "historical-forms" "stylistic()"
-     "styleset()" "character-variant()" "swash()" "ornaments()" "annotation()")
-    ("font-variant-caps" "normal" "small-caps" "all-small-caps" "petite-caps"
-     "all-petite-caps" "unicase" "titling-caps")
-    ("font-variant-east-asian" "jis78" "jis83" "jis90" "jis04" "simplified"
-     "traditional" "full-width" "proportional-width" "ruby")
-    ("font-variant-ligatures" "normal" "none" "common-ligatures"
-     "no-common-ligatures" "discretionary-ligatures" "no-discretionary-ligatures"
-     "historical-ligatures" "no-historical-ligatures" "contextual" "no-contextual")
-    ("font-variant-numeric" "normal" "ordinal" "slashed-zero"
-     "lining-nums" "oldstyle-nums" "proportional-nums" "tabular-nums"
-     "diagonal-fractions" "stacked-fractions")
+    ("font-variant" font-variant-alternates font-variant-caps font-variant-east-asian font-variant-ligatures font-variant-numeric font-variant-position)
+    ("font-variant-alternates" "normal" "historical-forms" "stylistic()" "styleset()" "character-variant()" "swash()" "ornaments()" "annotation()")
+    ("font-variant-caps" "normal" "small-caps" "all-small-caps" "petite-caps" "all-petite-caps" "unicase" "titling-caps")
+    ("font-variant-east-asian" "jis78" "jis83" "jis90" "jis04" "simplified" "traditional" "full-width" "proportional-width" "ruby")
+    ("font-variant-ligatures" "normal" "none" "common-ligatures" "no-common-ligatures" "discretionary-ligatures" "no-discretionary-ligatures" "historical-ligatures" "no-historical-ligatures" "contextual" "no-contextual")
+    ("font-variant-numeric" "normal" "ordinal" "slashed-zero" "lining-nums" "oldstyle-nums" "proportional-nums" "tabular-nums" "diagonal-fractions" "stacked-fractions")
     ("font-variant-position" "normal" "sub" "super")
     ("hyphens" "none" "manual" "auto")
     ("justify-content" align-common "space-between" "space-around")
@@ -251,31 +215,26 @@
     ("text-overflow" "clip" "ellipsis")
     ("text-shadow" color length)
     ("text-underline-position" "auto" "under" "left" "right")
-    ("transform" "matrix(,,,,,)" "translate(,)" "translateX()" "translateY()"
-     "scale()" "scaleX()" "scaleY()" "rotate()" "skewX()" "skewY()" "none")
+    ("transform" "matrix(,,,,,)" "translate(,)" "translateX()" "translateY()" "scale()" "scaleX()" "scaleY()" "rotate()" "skewX()" "skewY()" "none")
     ("transform-origin" perspective-origin)
     ("transform-style" "flat" "preserve-3d")
-    ("transition" transition-property transition-duration
-     transition-timing-function transition-delay)
+    ("transition" transition-property transition-duration transition-timing-function transition-delay)
     ("transition-delay" time)
     ("transition-duration" time)
-    ("transition-timing-function"
-     "ease" "linear" "ease-in" "ease-out" "ease-in-out" "cubic-bezier(,,,)")
+    ("transition-timing-function" "ease" "linear" "ease-in" "ease-out" "ease-in-out" "cubic-bezier(,,,)")
     ("transition-property" "none" "all" identifier)
     ("word-wrap" overflow-wrap)
     ("word-break" "normal" "break-all" "keep-all"))
   "A list of CSS properties and their possible values.")
 
+
 (defconst ac-css-value-classes
-  '((absolute-size "xx-small" "x-small" "small" "medium" "large" "x-large"
-                   "xx-large")
+  '((absolute-size "xx-small" "x-small" "small" "medium" "large" "x-large" "xx-large")
     (align-common "flex-start" "flex-end" "center")
     (align-stretch align-common "stretch")
-    (border-style "none" "hidden" "dotted" "dashed" "solid" "double" "groove"
-                  "ridge" "inset" "outset")
+    (border-style "none" "hidden" "dotted" "dashed" "solid" "double" "groove" "ridge" "inset" "outset")
     (border-width "thick" "medium" "thin")
-    (color "aqua" "black" "blue" "fuchsia" "gray" "green" "lime" "maroon" "navy"
-           "olive" "orange" "purple" "red" "silver" "teal" "white" "yellow")
+    (color "aqua" "black" "blue" "fuchsia" "gray" "green" "lime" "maroon" "navy" "olive" "orange" "purple" "red" "silver" "teal" "white" "yellow")
     (counter "counter(,)")
     (family-name "Courier" "Helvetica" "Times")
     (generic-family "serif" "sans-serif" "cursive" "fantasy" "monospace")
@@ -285,49 +244,82 @@
     (shape "rect(,,,)")
     (uri "url()"))
   "A list of CSS property value classes and their contents.")
-;; missing, because not completable
-;; <angle><frequency><identifier><integer><length><number><padding-width>
-;; <percentage><specific-voice><string><time><uri>
+
 
 (defconst ac-css-pseudo-classes
-  '("active" "after" "before" "first" "first-child" "first-letter" "first-line"
-    "focus" "hover" "lang" "left" "link" "right" "visited")
+  '("active" "after" "before" "first" "first-child" "first-letter" "first-line" "focus" "hover" "lang" "left" "link" "right" "visited")
   "Identifiers for CSS pseudo-elements and pseudo-classes.")
 
+
 (defvar ac-css-property nil
-  "Current editing property.")
+  "Name of a property being defined, or `t' if we're editing the property name.")
+
+
+(defconst ac-css-property-cache (make-hash-table :size 115 :test 'equal))
+;; (hash-table-count ac-css-property-cache)
+
+(defun ac-css-get-and-cache-property-values (cache property)
+  (when-let (value-specs (or (assoc-default (intern property) ac-css-value-classes)
+                             (assoc-default property ac-css-property-alist)))
+    (let ((values (cl-remove-duplicates
+                   (cl-loop for spec in value-specs
+                            append (if (symbolp spec)
+                                       (ac-css-value-candidates (symbol-name spec))
+                                     (list spec)))
+                   :test #'string=)))
+      (puthash property values cache)
+      values)))
+ ;; (ac-css-get-and-cache-property-values ac-css-property-cache "background")
+
+
+(cl-defun ac-css-value-candidates (property)
+  (if-let (vals (gethash property ac-css-property-cache))
+      vals
+    (ac-css-get-and-cache-property-values ac-css-property-cache property)))
+;; (ac-css-value-candidates "border")
+
+
+;; TODO: ac-css-pseudo-classes are not checked
+
+
+(require 'rx)
+(rx-let ((any-ws (zero-or-more (syntax whitespace)))
+         (prop-name (seq symbol-start (group (+? nonl)) symbol-end))
+         (while-not (c) (zero-or-more (not (any c)))))
+
+  ;; Original: "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\="
+  (defconst ac-css-prop-with-value-re
+    (rx prop-name any-ws ":" (while-not ";") point))
+
+  ;; Original: "\\(?:^\\|;\\)\\s *[^:]*\\="
+  (defconst ac-css-prop-name-only-re
+    (rx (or bol "; ") any-ws (while-not ":") point)))
+
 
 (defun ac-css-prefix ()
-  "No documentation."
-  (when (save-excursion
-          (or (and (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\=" nil t)
-                   (setq ac-css-property (match-string 1)))
-              (and (re-search-backward "\\(?:^\\|;\\)\\s *[^:]*\\=" nil t)
-                   (setq ac-css-property t))))
+ "Check if text before point is either a property name or a property value."
+  (cond
+   ((looking-back ac-css-prop-with-value-re nil)
+    (setf ac-css-property (match-string 1)))
+   ((looking-back ac-css-prop-name-only-re nil)
+    (setf ac-css-property t))
+   (t
+    (setf ac-css-property nil)))
+  (when ac-css-property
     (or (ac-prefix-symbol) (point))))
+
 
 (defun ac-css-property-candidates ()
   "No documentation."
   (if (not (stringp ac-css-property))
       (mapcar 'car ac-css-property-alist)
-    (let ((list (assoc-default ac-css-property ac-css-property-alist)))
-      (if list
-          (cl-loop with seen
-                   with value
-                   while (setq value (pop list))
-                   if (symbolp value)
-                   do (unless (memq value seen)
-                        (push value seen)
-                        (setq list
-                              (append list
-                                      (or (assoc-default value ac-css-value-classes)
-                                          (assoc-default (symbol-name value) ac-css-property-alist)))))
-                   else collect value)
-        ac-css-pseudo-classes))))
+    (ac-css-value-candidates ac-css-property)))
+
 
 (ac-define-source css-property
   '((candidates . ac-css-property-candidates)
     (prefix . ac-css-prefix)
+    (symbol . "p")
     (requires . 0)))
 
 
