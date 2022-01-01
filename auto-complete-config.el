@@ -264,7 +264,8 @@
 
 ;; css
 
-;; Copied from company-css.el
+;; Property list borrowed from Company, source:
+;; https://github.com/company-mode/company-mode/blob/master/company-css.el
 (defconst ac-css-property-alist
   ;; see http://www.w3.org/TR/CSS21/propidx.html
   '(("azimuth" angle "left-side" "far-left" "left" "center-left" "center"
