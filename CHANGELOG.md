@@ -8,6 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## 1.5.2 (Unreleased)
 > Released N/A
 
+* Move CSS source to separate file, add CSS3 properties to completion tables (#520)
 * Add page up/down commands to completion menu (#518)
 
 ## 1.5.1
@@ -57,4 +58,3 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > Released Oct 30, 2009
 
 * Initial release
-
