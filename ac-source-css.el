@@ -90,9 +90,7 @@ the flattened list to `cache', which needs to be a hash-table."
       values)))
  ;; (ac-css--get-and-cache-property-values ac-css-property-cache "background")
 
-
 
-
 
 ;; Property list borrowed from Company, source:
 ;; https://github.com/company-mode/company-mode/blob/master/company-css.el
