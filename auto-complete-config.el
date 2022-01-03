@@ -28,6 +28,8 @@
 (require 'cl-lib)
 (require 'auto-complete)
 
+(require 'auto-complete-css)
+
 (declare-function semantic-analyze-current-context "semantic/analyze")
 (declare-function semantic-tag-class "semantic/tag")
 (declare-function semantic-tag-function-arguments "semantic/tag")
@@ -83,6 +85,8 @@
     (candidates . ac-imenu-candidates)
     (symbol . "s")))
 
+
+
 ;; gtags
 
 (defface ac-gtags-candidate-face
@@ -106,6 +110,8 @@
     (selection-face . ac-gtags-selection-face)
     (requires . 3)
     (symbol . "s")))
+
+
 
 ;; yasnippet
 
@@ -183,6 +189,8 @@
     (selection-face . ac-yasnippet-selection-face)
     (symbol . "a")))
 
+
+
 ;; semantic
 
 (defun ac-semantic-candidates (prefix)
@@ -248,6 +256,7 @@
     (action . ac-semantic-action)
     (symbol . "s")))
 
+
 
 ;; eclim
 (defun ac-eclim-candidates ()
