@@ -1,10 +1,7 @@
 ;;; auto-complete-config.el --- auto-complete additional configuations
 
 ;; Copyright (C) 2009-2010  Tomohiro Matsuyama
-
-;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
-;; Keywords: convenience
-;; Version: 1.5.0
+;; Copyright (C) 2020-2022  Jen-Chieh Shen
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
