@@ -1,8 +1,10 @@
 ;;; auto-complete.el --- Auto Completion for GNU Emacs
 
 ;; Copyright (C) 2008-2015  Tomohiro Matsuyama
+;; Copyright (C) 2020-2022  Jen-Chieh Shen
 
 ;; Author: Tomohiro Matsuyama <m2ym.pub@gmail.com>
+;; Maintainer: Jen-Chieh Shen <jcs090218@gmail.com
 ;; URL: https://github.com/auto-complete/auto-complete
 ;; Keywords: completion, convenience
 ;; Version: 1.5.1
