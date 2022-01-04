@@ -6,6 +6,7 @@
 ;; URL: https://github.com/auto-complete/auto-complete
 ;; Keywords: completion, convenience
 ;; Version: 1.5.1
+;; Package-Requires: ((emacs "25.1") (popup "0.5.8"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

@@ -9,6 +9,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > Released N/A
 
 * Add page up/down commands to completion menu (#518)
+* Move CI from Travis CI to GitHub Actions (#522)
 
 ## 1.5.1
 > Released Mar 30, 2016
@@ -57,4 +58,3 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > Released Oct 30, 2009
 
 * Initial release
-

@@ -8,7 +8,7 @@ for new maintainers.  If you are interested, then please comment on
 
 # Auto-Complete
 
-[![Build Status](https://secure.travis-ci.org/auto-complete/auto-complete.svg)](http://travis-ci.org/auto-complete/auto-complete)
+[![CI](https://github.com/auto-complete/auto-complete/actions/workflows/test.yml/badge.svg)](https://github.com/auto-complete/auto-complete/actions/workflows/test.yml)
 [![MELPA](https://melpa.org/packages/auto-complete-badge.svg)](https://melpa.org/#/auto-complete)
 [![MELPA Stable](https://stable.melpa.org/packages/auto-complete-badge.svg)](https://stable.melpa.org/#/auto-complete)
 
