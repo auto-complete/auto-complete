@@ -21,7 +21,7 @@ Emacs. It extends the standard Emacs completion interface and provides
 an environment that allows users to concentrate more on their own
 work.
 
-## Features
+## 🏆 Features
 
 * Visual interface
 * Reduce overhead of completion by using statistic method
