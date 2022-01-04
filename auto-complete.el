@@ -6,6 +6,7 @@
 ;; URL: https://github.com/auto-complete/auto-complete
 ;; Keywords: completion, convenience
 ;; Version: 1.5.1
+;; Package-Requires: ((emacs "25.1") (popup "0.5.8"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -1488,14 +1489,14 @@ that have been made before in this function.  When `buffer-undo-list' is
      (put ',name 'ac-quick-help-command t)))
 
 (ac-define-quick-help-command ac-quick-help-scroll-down ()
-  (interactive)
-  (when ac-quick-help
-    (popup-scroll-down ac-quick-help)))
+                              (interactive)
+                              (when ac-quick-help
+                                (popup-scroll-down ac-quick-help)))
 
 (ac-define-quick-help-command ac-quick-help-scroll-up ()
-  (interactive)
-  (when ac-quick-help
-    (popup-scroll-up ac-quick-help)))
+                              (interactive)
+                              (when ac-quick-help
+                                (popup-scroll-up ac-quick-help)))
 
 
 
@@ -2032,17 +2033,17 @@ completion menu. This workaround stops that annoying behavior."
            finally return (delete-dups candidates)))
 
 (ac-define-source words-in-buffer
-  '((candidates . ac-word-candidates)))
+                  '((candidates . ac-word-candidates)))
 
 (ac-define-source words-in-all-buffer
-  '((init . ac-update-word-index)
-    (candidates . ac-word-candidates)))
+                  '((init . ac-update-word-index)
+                    (candidates . ac-word-candidates)))
 
 (ac-define-source words-in-same-mode-buffers
-  '((init . ac-update-word-index)
-    (candidates . (ac-word-candidates
-                   (lambda (buffer)
-                     (derived-mode-p (buffer-local-value 'major-mode buffer)))))))
+                  '((init . ac-update-word-index)
+                    (candidates . (ac-word-candidates
+                                   (lambda (buffer)
+                                     (derived-mode-p (buffer-local-value 'major-mode buffer)))))))
 
 ;; Lisp symbols source
 (defvar ac-symbols-cache nil)
@@ -2140,10 +2141,10 @@ completion menu. This workaround stops that annoying behavior."
                      collect (symbol-name x)))))
 
 (ac-define-source symbols
-  '((candidates . ac-symbol-candidates)
-    (document . ac-symbol-documentation)
-    (symbol . "s")
-    (cache)))
+                  '((candidates . ac-symbol-candidates)
+                    (document . ac-symbol-documentation)
+                    (symbol . "s")
+                    (cache)))
 
 ;; Lisp functions source
 (defvar ac-functions-cache nil)
@@ -2158,11 +2159,11 @@ completion menu. This workaround stops that annoying behavior."
                      collect (symbol-name x)))))
 
 (ac-define-source functions
-  '((candidates . ac-function-candidates)
-    (document . ac-symbol-documentation)
-    (symbol . "f")
-    (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
-    (cache)))
+                  '((candidates . ac-function-candidates)
+                    (document . ac-symbol-documentation)
+                    (symbol . "f")
+                    (prefix . "(\\(\\(?:\\sw\\|\\s_\\)+\\)")
+                    (cache)))
 
 ;; Lisp variables source
 (defvar ac-variables-cache nil)
@@ -2177,10 +2178,10 @@ completion menu. This workaround stops that annoying behavior."
                      collect (symbol-name x)))))
 
 (ac-define-source variables
-  '((candidates . ac-variable-candidates)
-    (document . ac-symbol-documentation)
-    (symbol . "v")
-    (cache)))
+                  '((candidates . ac-variable-candidates)
+                    (document . ac-symbol-documentation)
+                    (symbol . "v")
+                    (cache)))
 
 ;; Lisp features source
 (defvar ac-emacs-lisp-features nil)
@@ -2200,24 +2201,24 @@ completion menu. This workaround stops that annoying behavior."
                                                    collect (substring file 0 (match-beginning 0))))))))))
 
 (ac-define-source features
-  '((depends find-func)
-    (candidates . ac-emacs-lisp-feature-candidates)
-    (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")
-    (requires . 0)))
+                  '((depends find-func)
+                    (candidates . ac-emacs-lisp-feature-candidates)
+                    (prefix . "require +'\\(\\(?:\\sw\\|\\s_\\)*\\)")
+                    (requires . 0)))
 
 (defvaralias 'ac-source-emacs-lisp-features 'ac-source-features)
 
 ;; Abbrev source
 (ac-define-source abbrev
-  '((candidates . (mapcar 'popup-x-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
-    (action . expand-abbrev)
-    (symbol . "a")
-    (cache)))
+                  '((candidates . (mapcar 'popup-x-to-string (append (vconcat local-abbrev-table global-abbrev-table) nil)))
+                    (action . expand-abbrev)
+                    (symbol . "a")
+                    (cache)))
 
 ;; Files in current directory source
 (ac-define-source files-in-current-dir
-  '((candidates . (directory-files default-directory))
-    (cache)))
+                  '((candidates . (directory-files default-directory))
+                    (cache)))
 
 ;; Filename source
 (defvar ac-filename-cache nil)
@@ -2241,17 +2242,17 @@ completion menu. This workaround stops that annoying behavior."
                            path))))))
 
 (ac-define-source filename
-  '((init . (setq ac-filename-cache nil))
-    (candidates . ac-filename-candidate)
-    (prefix . valid-file)
-    (requires . 0)
-    (action . ac-start)
-    (limit . nil)))
+                  '((init . (setq ac-filename-cache nil))
+                    (candidates . ac-filename-candidate)
+                    (prefix . valid-file)
+                    (requires . 0)
+                    (action . ac-start)
+                    (limit . nil)))
 
 ;; Dictionary source
 (ac-define-source dictionary
-  '((candidates . ac-buffer-dictionary)
-    (symbol . "d")))
+                  '((candidates . ac-buffer-dictionary)
+                    (symbol . "d")))
 
 (provide 'auto-complete)
 ;;; auto-complete.el ends here
