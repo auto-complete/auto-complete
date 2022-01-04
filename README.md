@@ -43,11 +43,9 @@ You can install `auto-complete` with the following command.
 
 <kbd>M-x package-install [RET] auto-complete [RET]</kbd>
 
-
 ## User Manual
 
 [Auto-Complete User Manual](https://github.com/auto-complete/auto-complete/blob/master/doc/manual.md)
-
 
 ## Basic Configuration
 
@@ -64,6 +62,20 @@ You can install `auto-complete` with the following command.
 Visit
 [Auto-Complete Issue Tracker](https://github.com/auto-complete/auto-complete/issues)
 and create a new issue.
+
+## Todo
+
+- [ ] etags, ctags
+- [ ] emacswiki
+- [ ] test facility
+- [ ] support composed chars
+- [ ] minibuffer completion
+- [ ] performance issue (cache issue)
+- [ ] asynchronous processing
+- [ ] kanji henkan support
+- [ ] create menu if needed
+- [ ] quick help positioning on tabs (bug)
+- [ ] skip short completion
 
 ## License
 
