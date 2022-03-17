@@ -6,11 +6,12 @@
 for new maintainers.  If you are interested, then please comment on
 [this issue](https://github.com/auto-complete/auto-complete/issues/509).
 
+[![MELPA](https://melpa.org/packages/auto-complete-badge.svg)](https://melpa.org/#/auto-complete)
+[![MELPA Stable](https://stable.melpa.org/packages/auto-complete-badge.svg)](https://stable.melpa.org/#/auto-complete)
+
 # Auto-Complete
 
 [![CI](https://github.com/auto-complete/auto-complete/actions/workflows/test.yml/badge.svg)](https://github.com/auto-complete/auto-complete/actions/workflows/test.yml)
-[![MELPA](https://melpa.org/packages/auto-complete-badge.svg)](https://melpa.org/#/auto-complete)
-[![MELPA Stable](https://stable.melpa.org/packages/auto-complete-badge.svg)](https://stable.melpa.org/#/auto-complete)
 
 An Intelligent auto-completion extension for Emacs
 
