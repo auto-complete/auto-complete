@@ -30,7 +30,7 @@ jobs:
                   python-version: "3.6"
                   architecture: "x64"
 
-            - uses: purcell/setup-emacs@master
+            - uses: jcs090218/setup-emacs@master
               with:
                   version: ${{ matrix.emacs-version }}
 
