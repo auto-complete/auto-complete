@@ -9,7 +9,7 @@ ELPA_DIR = $(shell EMACS=$(EMACS) $(CASK) package-directory)
 ci: compile install test
 
 test:
-	$(EASK) install-dep --dev
+	$(EASK) install-deps --dev
 	$(EASK) ert tests/run-test.el
 
 compile:
