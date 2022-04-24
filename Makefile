@@ -1,21 +1,23 @@
 VERSION=`perl -ne 'print $$1 if /;; Version: (.*)/' auto-complete.el`
 PACKAGE=auto-complete-${VERSION}
 EMACS ?= emacs
-CASK ?= cask
+EASK ?= eask
 SITE=../auto-complete.github.com
 
 ELPA_DIR = $(shell EMACS=$(EMACS) $(CASK) package-directory)
 
-test: elpa
-	$(CASK) exec $(EMACS) -batch -Q -L . \
-		-l tests/run-test.el \
-		-f ert-run-tests-batch-and-exit
+ci: compile install test
 
-byte-compile: elpa
-	$(CASK) exec $(EMACS) -Q -L . -batch -f batch-byte-compile auto-complete.el auto-complete-config.el
+test:
+	$(EASK) install-dep --dev
+	$(EASK) ert tests/run-test.el
 
-install: byte-compile
-	$(CASK) exec $(EMACS) -Q -L . -batch -l etc/install ${DIR}
+compile:
+	$(EASK) compile
+
+install:
+	$(EASK) package
+	$(EASK) install
 
 README.html: README.md
 	pandoc --standalone --to html --output $@ $^
@@ -27,6 +29,7 @@ site: README.html
 	cp doc/*.png doc/*.html doc/*.css $(SITE)/doc
 
 clean:
+	$(EASK) clean-all
 	rm -f README.html
 	rm -f *.elc
 	rm -f doc/*.html
@@ -45,8 +48,3 @@ package.tar.bz2: tar
 
 package.zip: package
 	zip -r ${PACKAGE}.zip ${PACKAGE}
-
-elpa: $(ELPA_DIR)
-$(ELPA_DIR): Cask
-	$(CASK) install
-	touch $@
