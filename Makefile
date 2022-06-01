@@ -10,7 +10,7 @@ ci: compile install test
 
 test:
 	$(EASK) install-deps --dev
-	$(EASK) ert tests/run-test.el
+	$(EASK) test ert ./tests/run-test.el
 
 compile:
 	$(EASK) compile
