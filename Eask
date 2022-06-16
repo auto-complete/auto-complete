@@ -2,6 +2,9 @@
          "1.5.1"
          "Auto Completion for GNU Emacs")
 
+(website-url "https://github.com/auto-complete/auto-complete")
+(keywords "completion" "convenience")
+
 (package-file "auto-complete.el")
 
 (files "auto-complete-config.el")
