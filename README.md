@@ -6,6 +6,7 @@
 for new maintainers.  If you are interested, then please comment on
 [this issue](https://github.com/auto-complete/auto-complete/issues/509).
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![MELPA](https://melpa.org/packages/auto-complete-badge.svg)](https://melpa.org/#/auto-complete)
 [![MELPA Stable](https://stable.melpa.org/packages/auto-complete-badge.svg)](https://stable.melpa.org/#/auto-complete)
 
@@ -30,11 +31,9 @@ work.
 
 ## Screenshots
 
-![](doc/ac.png "Auto Completion")
-
-![](doc/ac-fuzzy.png "Fuzzy Completion")
-
-![](doc/ac-isearch.png "Increamental Search")
+| Auto Completion                   | Fuzzy Completion                         | Increamental Search                           |
+|:----------------------------------|:-----------------------------------------|:----------------------------------------------|
+| ![](doc/ac.png "Auto Completion") | ![](doc/ac-fuzzy.png "Fuzzy Completion") | ![](doc/ac-isearch.png "Increamental Search") |
 
 ## Install
 
@@ -50,7 +49,7 @@ You can install `auto-complete` with the following command.
 
 ## Basic Configuration
 
-```lisp
+```elisp
 (ac-config-default)
 ```
 
