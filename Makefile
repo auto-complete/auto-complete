@@ -29,7 +29,7 @@ site: README.html
 	cp doc/*.png doc/*.html doc/*.css $(SITE)/doc
 
 clean:
-	$(EASK) clean-all
+	$(EASK) clean all
 	rm -f README.html
 	rm -f *.elc
 	rm -f doc/*.html
