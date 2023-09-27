@@ -207,7 +207,7 @@
 (defun ac-semantic-action ()
   "No documentation."
   (when (and (boundp 'yas-minor-mode) yas-minor-mode)
-    (let* ((tag (car (last (oref (semantic-analyze-current-context) prefix))))
+    (let* ((tag (car (last (oref (semantic-analyze-current-context) 'prefix))))
            (class (semantic-tag-class tag))
            (args))
       (when (eq class 'function)
