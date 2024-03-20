@@ -31,7 +31,6 @@
 (declare-function semantic-format-tag-type "semantic/format")
 (declare-function semantic-format-tag-name "semantic/format")
 (declare-function yas-expand-snippet "yasnippet")
-(declare-function oref "eieio" (obj slot))
 
 
 
@@ -207,7 +206,7 @@
 (defun ac-semantic-action ()
   "No documentation."
   (when (and (boundp 'yas-minor-mode) yas-minor-mode)
-    (let* ((tag (car (last (oref (semantic-analyze-current-context) 'prefix))))
+    (let* ((tag (car (last (slot-value (semantic-analyze-current-context) 'prefix))))
            (class (semantic-tag-class tag))
            (args))
       (when (eq class 'function)
