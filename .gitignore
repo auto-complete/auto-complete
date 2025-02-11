@@ -9,3 +9,6 @@ doc/*.html
 /.cask/
 /.eask/
 /dist
+
+# OS generated
+.DS_Store
