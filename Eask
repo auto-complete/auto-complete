@@ -1,3 +1,5 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
 (package "auto-complete"
          "1.5.1"
          "Auto Completion for GNU Emacs")
