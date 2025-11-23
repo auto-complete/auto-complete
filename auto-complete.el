@@ -1140,9 +1140,9 @@ You can not use it in source definition like (PREFIX . `NAME')."
 
 (defun ac-candidates ()
   "Produce candidates for current sources."
-  (cl-loop with completion-ignore-case = (or ac-ignore-case
-                                             (and (eq ac-ignore-case 'smart)
-                                                  (let ((case-fold-search nil)) (not (string-match "[[:upper:]]" ac-prefix)))))
+  (cl-loop with completion-ignore-case = (if (eq ac-ignore-case 'smart)
+                                             (let ((case-fold-search nil)) (not (string-match "[[:upper:]]" ac-prefix)))
+                                           ac-ignore-case)
            with case-fold-search = completion-ignore-case
            with prefix-len = (length ac-prefix)
            for source in ac-current-sources
