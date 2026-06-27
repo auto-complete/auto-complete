@@ -25,6 +25,8 @@
 (require 'cl-lib)
 (require 'auto-complete)
 
+(require 'auto-complete-css)
+
 (declare-function semantic-analyze-current-context "semantic/analyze")
 (declare-function semantic-tag-class "semantic/tag")
 (declare-function semantic-tag-function-arguments "semantic/tag")
@@ -79,6 +81,8 @@
     (candidates . ac-imenu-candidates)
     (symbol . "s")))
 
+
+
 ;; gtags
 
 (defface ac-gtags-candidate-face
@@ -102,6 +106,8 @@
     (selection-face . ac-gtags-selection-face)
     (requires . 3)
     (symbol . "s")))
+
+
 
 ;; yasnippet
 
@@ -179,6 +185,8 @@
     (selection-face . ac-yasnippet-selection-face)
     (symbol . "a")))
 
+
+
 ;; semantic
 
 (defun ac-semantic-candidates (prefix)
@@ -244,8 +252,9 @@
     (action . ac-semantic-action)
     (symbol . "s")))
 
-;; eclim
+
 
+;; eclim
 (defun ac-eclim-candidates ()
   "No documentation."
   (with-no-warnings
@@ -258,206 +267,6 @@
     (requires . 0)
     (symbol . "f")))
 
-;; css
-
-;; Copied from company-css.el
-(defconst ac-css-property-alist
-  ;; see http://www.w3.org/TR/CSS21/propidx.html
-  '(("azimuth" angle "left-side" "far-left" "left" "center-left" "center"
-     "center-right" "right" "far-right" "right-side" "behind" "leftwards"
-     "rightwards")
-    ("background" background-color background-image background-repeat
-     background-attachment background-position)
-    ("background-attachment" "scroll" "fixed")
-    ("background-color" color "transparent")
-    ("background-image" uri "none")
-    ("background-position" percentage length "left" "center" "right" percentage
-     length "top" "center" "bottom" "left" "center" "right" "top" "center"
-     "bottom")
-    ("background-repeat" "repeat" "repeat-x" "repeat-y" "no-repeat")
-    ("border" border-width border-style border-color)
-    ("border-bottom" border)
-    ("border-bottom-color" border-color)
-    ("border-bottom-style" border-style)
-    ("border-bottom-width" border-width)
-    ("border-collapse" "collapse" "separate")
-    ("border-color" color "transparent")
-    ("border-left" border)
-    ("border-left-color" border-color)
-    ("border-left-style" border-style)
-    ("border-left-width" border-width)
-    ("border-right" border)
-    ("border-right-color" border-color)
-    ("border-right-style" border-style)
-    ("border-right-width" border-width)
-    ("border-spacing" length length)
-    ("border-style" border-style)
-    ("border-top" border)
-    ("border-top-color" border-color)
-    ("border-top-style" border-style)
-    ("border-top-width" border-width)
-    ("border-width" border-width)
-    ("bottom" length percentage "auto")
-    ("caption-side" "top" "bottom")
-    ("clear" "none" "left" "right" "both")
-    ("clip" shape "auto")
-    ("color" color)
-    ("content" "normal" "none" string uri counter "attr()" "open-quote"
-     "close-quote" "no-open-quote" "no-close-quote")
-    ("counter-increment" identifier integer "none")
-    ("counter-reset" identifier integer "none")
-    ("cue" cue-before cue-after)
-    ("cue-after" uri "none")
-    ("cue-before" uri "none")
-    ("cursor" uri "*" "auto" "crosshair" "default" "pointer" "move" "e-resize"
-     "ne-resize" "nw-resize" "n-resize" "se-resize" "sw-resize" "s-resize"
-     "w-resize" "text" "wait" "help" "progress")
-    ("direction" "ltr" "rtl")
-    ("display" "inline" "block" "list-item" "run-in" "inline-block" "table"
-     "inline-table" "table-row-group" "table-header-group" "table-footer-group"
-     "table-row" "table-column-group" "table-column" "table-cell"
-     "table-caption" "none")
-    ("elevation" angle "below" "level" "above" "higher" "lower")
-    ("empty-cells" "show" "hide")
-    ("float" "left" "right" "none")
-    ("font" font-style font-variant font-weight font-size "/" line-height
-     font-family "caption" "icon" "menu" "message-box" "small-caption"
-     "status-bar")
-    ("font-family" family-name generic-family)
-    ("font-size" absolute-size relative-size length percentage)
-    ("font-style" "normal" "italic" "oblique")
-    ("font-variant" "normal" "small-caps")
-    ("font-weight" "normal" "bold" "bolder" "lighter" "100" "200" "300" "400"
-     "500" "600" "700" "800" "900")
-    ("height" length percentage "auto")
-    ("left" length percentage "auto")
-    ("letter-spacing" "normal" length)
-    ("line-height" "normal" number length percentage)
-    ("list-style" list-style-type list-style-position list-style-image)
-    ("list-style-image" uri "none")
-    ("list-style-position" "inside" "outside")
-    ("list-style-type" "disc" "circle" "square" "decimal" "decimal-leading-zero"
-     "lower-roman" "upper-roman" "lower-greek" "lower-latin" "upper-latin"
-     "armenian" "georgian" "lower-alpha" "upper-alpha" "none")
-    ("margin" margin-width)
-    ("margin-bottom" margin-width)
-    ("margin-left" margin-width)
-    ("margin-right" margin-width)
-    ("margin-top" margin-width)
-    ("max-height" length percentage "none")
-    ("max-width" length percentage "none")
-    ("min-height" length percentage)
-    ("min-width" length percentage)
-    ("orphans" integer)
-    ("outline" outline-color outline-style outline-width)
-    ("outline-color" color "invert")
-    ("outline-style" border-style)
-    ("outline-width" border-width)
-    ("overflow" "visible" "hidden" "scroll" "auto")
-    ("padding" padding-width)
-    ("padding-bottom" padding-width)
-    ("padding-left" padding-width)
-    ("padding-right" padding-width)
-    ("padding-top" padding-width)
-    ("page-break-after" "auto" "always" "avoid" "left" "right")
-    ("page-break-before" "auto" "always" "avoid" "left" "right")
-    ("page-break-inside" "avoid" "auto")
-    ("pause" time percentage)
-    ("pause-after" time percentage)
-    ("pause-before" time percentage)
-    ("pitch" frequency "x-low" "low" "medium" "high" "x-high")
-    ("pitch-range" number)
-    ("play-during" uri "mix" "repeat" "auto" "none")
-    ("position" "static" "relative" "absolute" "fixed")
-    ("quotes" string string "none")
-    ("richness" number)
-    ("right" length percentage "auto")
-    ("speak" "normal" "none" "spell-out")
-    ("speak-header" "once" "always")
-    ("speak-numeral" "digits" "continuous")
-    ("speak-punctuation" "code" "none")
-    ("speech-rate" number "x-slow" "slow" "medium" "fast" "x-fast" "faster"
-     "slower")
-    ("stress" number)
-    ("table-layout" "auto" "fixed")
-    ("text-align" "left" "right" "center" "justify")
-    ("text-decoration" "none" "underline" "overline" "line-through" "blink")
-    ("text-indent" length percentage)
-    ("text-transform" "capitalize" "uppercase" "lowercase" "none")
-    ("top" length percentage "auto")
-    ("unicode-bidi" "normal" "embed" "bidi-override")
-    ("vertical-align" "baseline" "sub" "super" "top" "text-top" "middle"
-     "bottom" "text-bottom" percentage length)
-    ("visibility" "visible" "hidden" "collapse")
-    ("voice-family" specific-voice generic-voice "*" specific-voice
-     generic-voice)
-    ("volume" number percentage "silent" "x-soft" "soft" "medium" "loud"
-     "x-loud")
-    ("white-space" "normal" "pre" "nowrap" "pre-wrap" "pre-line")
-    ("widows" integer)
-    ("width" length percentage "auto")
-    ("word-spacing" "normal" length)
-    ("z-index" "auto" integer))
-  "A list of CSS properties and their possible values.")
-
-(defconst ac-css-value-classes
-  '((absolute-size "xx-small" "x-small" "small" "medium" "large" "x-large"
-                   "xx-large")
-    (border-style "none" "hidden" "dotted" "dashed" "solid" "double" "groove"
-                  "ridge" "inset" "outset")
-    (color "aqua" "black" "blue" "fuchsia" "gray" "green" "lime" "maroon" "navy"
-           "olive" "orange" "purple" "red" "silver" "teal" "white" "yellow"
-           "rgb")
-    (counter "counter")
-    (family-name "Courier" "Helvetica" "Times")
-    (generic-family "serif" "sans-serif" "cursive" "fantasy" "monospace")
-    (generic-voice "male" "female" "child")
-    (margin-width "auto") ;; length percentage
-    (relative-size "larger" "smaller")
-    (shape "rect")
-    (uri "url"))
-  "A list of CSS property value classes and their contents.")
-
-(defconst ac-css-pseudo-classes
-  '("active" "after" "before" "first" "first-child" "first-letter" "first-line"
-    "focus" "hover" "lang" "left" "link" "right" "visited")
-  "Identifiers for CSS pseudo-elements and pseudo-classes.")
-
-(defvar ac-css-property nil
-  "Current editing property.")
-
-(defun ac-css-prefix ()
-  "No documentation."
-  (when (save-excursion
-          (or (and (re-search-backward "\\_<\\(.+?\\)\\_>\\s *:[^;]*\\=" nil t)
-                   (setq ac-css-property (match-string 1)))
-              (and (re-search-backward "\\(?:^\\|;\\)\\s *[^:]*\\=" nil t)
-                   (setq ac-css-property t))))
-    (or (ac-prefix-symbol) (point))))
-
-(defun ac-css-property-candidates ()
-  "No documentation."
-  (if (not (stringp ac-css-property))
-      (mapcar 'car ac-css-property-alist)
-    (let ((list (assoc-default ac-css-property ac-css-property-alist)))
-      (if list
-          (cl-loop with seen
-                   with value
-                   while (setq value (pop list))
-                   if (symbolp value)
-                   do (unless (memq value seen)
-                        (push value seen)
-                        (setq list
-                              (append list
-                                      (or (assoc-default value ac-css-value-classes)
-                                          (assoc-default (symbol-name value) ac-css-property-alist)))))
-                   else collect value)
-        ac-css-pseudo-classes))))
-
-(ac-define-source css-property
-  '((candidates . ac-css-property-candidates)
-    (prefix . ac-css-prefix)
-    (requires . 0)))
 
 ;; slime
 (ac-define-source slime
@@ -465,6 +274,7 @@
     (candidates . (car (slime-simple-completions ac-prefix)))
     (symbol . "s")
     (cache)))
+
 
 ;; ghc-mod
 (ac-define-source ghc-mod
